@@ -1,28 +1,79 @@
 /**
  * 洛谷练习入口。
  *
- * 重要说明：**这里不写死具体题号。**
+ * 两条重要约束：
+ *
+ * 一、**不写死具体题号。**
  * 项目开发环境没有网络出口，无法联网核对题号是否仍然有效
  * （洛谷的题目可能改名、下架或调整编号）。写死题号的风险是给出死链，
- * 那比不给更糟。
+ * 那比不给更糟。所以统一用「搜索入口」。
  *
- * 所以这里采用「搜索入口 + 官方题单入口」的方式：
- *   - searchUrl：直接跳到洛谷的搜索页，关键词已经填好，点进去就是相关题目
- *   - 题单列表页：洛谷官方题单的入口，用户可以在里面按难度找
+ * 二、**题单指向「深入浅出」这类入门题单，但不写死题单 ID。**
+ * 洛谷的「深入浅出」是官方/社区维护的入门题单系列，很适合本项目面向的读者。
+ * 但同样因为无法联网核对，这里不去拼一个可能失效的题单 URL，
+ * 而是：
+ *   - 给「深入浅出」的站内搜索入口（关键词已填好，点了就能找到最新题单）
+ *   - 给官方题单列表页，用户可自行在其中筛选
  *
- * 如果你之后联网核对了题号，可以在这里加 exactProblems 字段，
- * 界面会自动把精确题目显示出来。
+ * 如果你之后联网确认了「深入浅出」的具体题单 ID，
+ * 把它填到 EXACT_LISTS 里即可，界面会自动优先显示。
  */
 
 /** 洛谷站内搜索：关键词会被正确编码。 */
 const luoguSearch = (keyword) =>
   `https://www.luogu.com.cn/problem/list?keyword=${encodeURIComponent(keyword)}`;
 
+/** 洛谷题单站内搜索（专门搜题单，而不是搜题目）。 */
+const luoguTrainingSearch = (keyword) =>
+  `https://www.luogu.com.cn/training/list?keyword=${encodeURIComponent(keyword)}`;
+
 /** 洛谷官方题单列表。 */
 export const LUOGU_TRAINING_LIST = 'https://www.luogu.com.cn/training/list';
 
 /** 洛谷题目列表首页（按难度筛选）。 */
 export const LUOGU_PROBLEM_LIST = 'https://www.luogu.com.cn/problem/list';
+
+/**
+ * 若你已核对过确切题单链接，填在这里，界面会优先展示。
+ * 格式：{ label, url }
+ *
+ * 例如（**下面这条是占位示例，未经核对，默认不启用**）：
+ *   { label: '深入浅出 · 程序设计入门', url: 'https://www.luogu.com.cn/training/xxxx' }
+ */
+export const EXACT_LISTS = [];
+
+/**
+ * 面向入门的题单入口。
+ *
+ * 设计意图：本项目读者是刚开始学算法的人，
+ * 直接丢一个「全部题单列表」会让人不知道从哪开始。
+ * 所以给出「深入浅出」这个具体系列的搜索入口作为第一推荐，
+ * 再给官方列表页作为补充。
+ */
+export function luoguTrainingLinks() {
+  const links = [];
+
+  // 已核对的确切题单优先
+  links.push(...EXACT_LISTS);
+
+  // 「深入浅出」系列：用题单搜索入口（关键词已编码），避免写死 ID
+  links.push({
+    label: '深入浅出题单（在洛谷搜「深入浅出」）',
+    url: luoguTrainingSearch('深入浅出'),
+  });
+  links.push({
+    label: '入门题单（搜「入门」）',
+    url: luoguTrainingSearch('入门'),
+  });
+
+  // 官方入口兜底
+  links.push({
+    label: '洛谷官方题单列表（自行按难度筛选）',
+    url: LUOGU_TRAINING_LIST,
+  });
+
+  return links;
+}
 
 /**
  * 语法知识点 → 洛谷搜索关键词。
@@ -143,12 +194,4 @@ export function luoguLinksForSyntax(topicId) {
 export function luoguLinksForAlgo(algoId) {
   const keywords = ALGO_LUOGU[algoId] || [];
   return keywords.map((kw) => ({ label: `在洛谷搜索「${kw}」`, url: luoguSearch(kw) }));
-}
-
-/** 生成洛谷官方题单入口（所有知识点和算法共用）。 */
-export function luoguTrainingLinks() {
-  return [
-    { label: '洛谷官方题单（按难度分层的训练题单）', url: LUOGU_TRAINING_LIST },
-    { label: '洛谷题目列表（可按难度/算法标签筛选）', url: LUOGU_PROBLEM_LIST },
-  ];
 }

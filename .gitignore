@@ -23,3 +23,7 @@ temp/
 # 娴嬭瘯杩囩▼涓彲鑳戒骇鐢熺殑涓存椂浜х墿
 tests/.chrome-profile/
 tests/screenshots/
+
+# C++ 编译验证的中间产物（源文件与可执行文件都不入库，只保留 cpp-output.json）
+.cpp-build/
+
