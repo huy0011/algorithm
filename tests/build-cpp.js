@@ -39,7 +39,9 @@ const OUT_FILE = path.join(ROOT, 'src/syntax/cpp-output.json');
 const RESULTS_FILE = path.join(BUILD_DIR, 'results.json');
 const MANIFEST_FILE = path.join(BUILD_DIR, 'manifest.json');
 
-const { CPP_TOPICS } = await import(pathToFileURL(path.join(ROOT, 'src/syntax/cpp-topics.js')).href);
+const { CPP_TOPICS: CPP_TOPICS_BASE } = await import(pathToFileURL(path.join(ROOT, 'src/syntax/cpp-topics.js')).href);
+const { CPP_DETAIL_TOPICS } = await import(pathToFileURL(path.join(ROOT, 'src/syntax/cpp-detail-topics.js')).href);
+const CPP_TOPICS = [...CPP_TOPICS_BASE, ...CPP_DETAIL_TOPICS];
 const { CPP_ALGO_SNIPPETS } = await import(pathToFileURL(path.join(ROOT, 'src/syntax/cpp-algos.js')).href);
 
 const mode = process.argv.includes('--collect') ? 'collect' : 'write';

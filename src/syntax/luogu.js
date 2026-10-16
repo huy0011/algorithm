@@ -94,6 +94,25 @@ export const SYNTAX_LUOGU = {
   'cpp-pointer': ['指针', '引用'],
   'cpp-complexity': ['模拟', '入门'],
 
+  // ---------- 类型与运算符细节（细化层） ----------
+  'cpp-int': ['整数', '入门'],
+  'cpp-longlong': ['整数', '高精度'],
+  'cpp-float': ['浮点数', '实数'],
+  'cpp-double': ['浮点数', '实数'],
+  'cpp-char-bool': ['字符', 'ASCII'],
+  'cpp-type-range': ['数据类型', '整数'],
+  'cpp-overflow': ['高精度', '整数'],
+  'cpp-arithmetic-detail': ['运算', '入门'],
+  'cpp-compare-logic': ['条件', '逻辑'],
+  'cpp-operator-priority': ['表达式', '运算'],
+  'cpp-cast': ['类型转换', '取整'],
+  'cpp-loop-control': ['循环', '跳出'],
+  'cpp-2d-array': ['二维数组', '矩阵'],
+  'cpp-array-count': ['桶', '统计'],
+  'cpp-char-ascii': ['字符', '字符串'],
+  'cpp-binary-answer': ['二分答案', '二分'],
+  'cpp-priority-queue': ['堆', '优先队列'],
+
   // ---------- STL 容器 ----------
   'cpp-vector': ['vector', '动态数组'],
   'cpp-string': ['字符串', '入门'],

@@ -4,7 +4,7 @@
  * 内容：每个 C++ 示例经 g++ 真实编译运行后的 stdout。
  * 生成方式：node tests/build-cpp.js → 编译 → node tests/build-cpp.js --collect
  * 编译器：g++ -std=c++17 -O2
- * 生成时间：2026-10-16T15:21:48.252Z
+ * 生成时间：2026-10-16T15:33:58.813Z
  *
  * 为什么页面不直接编译 C++：浏览器没有 C++ 编译器，
  * 且本项目部署在 GitHub Pages（纯静态、无后端），所以只能预先录制输出。
@@ -12,12 +12,12 @@
 
 export const CPP_OUTPUT = {
   "meta": {
-    "generatedAt": "2026-10-16T15:21:48.252Z",
+    "generatedAt": "2026-10-16T15:33:58.813Z",
     "compiler": "g++ -std=c++17 -O2",
     "compilerVersion": "g++.exe (x86_64-posix-seh-rev1, Built by MinGW-Builds project) 16.2.0",
     "note": "本文件由构建脚本生成：每个 C++ 示例都经真实编译运行，stdout 为程序真实输出。浏览器无法编译 C++，所以页面上展示的是这份预先录制的输出，不能重新运行。",
-    "total": 46,
-    "passed": 46,
+    "total": 57,
+    "passed": 57,
     "failed": 0
   },
   "results": {
@@ -158,6 +158,72 @@ export const CPP_OUTPUT = {
       "title": "struct —— 自定义类型",
       "verified": true,
       "stdout": "按分数降序（同分按名字升序）:\n  Alice : 90\n  Carol : 90\n  Bob : 85\n  Dave : 78\n改按名字升序:\n  Alice : 90\n  Bob : 85\n  Carol : 90\n  Dave : 78"
+    },
+    "cpp-int": {
+      "kind": "topic",
+      "title": "int —— 最常用的整数",
+      "verified": true,
+      "stdout": "int 值: 42\nint 最大值: 2147483647\nint 最小值: -2147483648\nint 占 4 字节\n\n20 亿 + 20 亿 = -294967296  <- 溢出了，变成负数\n100000 * 100000 (int) = 1410065408\n用 long long 算: 10000000000  <- 正确"
+    },
+    "cpp-longlong": {
+      "kind": "topic",
+      "title": "long long —— 竞赛必备的大整数",
+      "verified": true,
+      "stdout": "long long 值: 123456789012345\nlong long 最大值: 9223372036854775807\n占 8 字节\n\na * b 直接赋给 long long: 1410065408  <- 错的！\n(long long)a * b:          10000000000  <- 对的\n\n1000000 的平方: 1000000000000\n1 到 1000000 的和: 500000500000"
+    },
+    "cpp-float": {
+      "kind": "topic",
+      "title": "float —— 单精度小数",
+      "verified": true,
+      "stdout": "float: 3.14159\n占 4 字节\n\nfloat  存 123456789 = 123456792.00  <- 末尾失真了\ndouble 存 123456789 = 123456789.00  <- 准确\n\nfloat  有效位数约 6 位\ndouble 有效位数约 15 位\n\n0.1f + 0.2f == 0.3f ? 相等\n实际值是 0.3000000119\n正确做法: 判断差值是否小于 1e-6 -> 认为相等"
+    },
+    "cpp-double": {
+      "kind": "topic",
+      "title": "double —— 默认的小数类型",
+      "verified": true,
+      "stdout": "默认输出: 3.14159  (6 位有效数字)\n占 8 字节\n\n保留 2 位: 3.14\n保留 6 位: 3.141593\n保留 10 位: 3.1415926536\n\n7 / 2 (整数除法)     = 3\n7 / 2 (转 double)    = 3.5\n7.0 / 2 (字面量)     = 3.5\n\nsqrt(2)  = 1.414213562\npow(2,10)= 1024\nfloor(-3.5) = -4, ceil(-3.5) = -3"
+    },
+    "cpp-char-bool": {
+      "kind": "topic",
+      "title": "char 与 bool",
+      "verified": true,
+      "stdout": "char: A, 占 1 字节\n它的 ASCII 码是 65\n\n'a' + 1 = b\n'A' 到 'Z' 的编码: 65 ~ 90\n'a' 到 'z' 的编码: 97 ~ 122\n'0' 的编码: 48\n\n'7' 转成数值: 7（'7' - '0'）\n反过来，数值转字符: 7\n\n小写 g 转大写: G\n\nbool true 输出: 1, false 输出: 0\n占 1 字节\n非 0 转 bool: 1, 0 转 bool: 0"
+    },
+    "cpp-type-range": {
+      "kind": "topic",
+      "title": "各类型的范围与选择",
+      "verified": true,
+      "stdout": "类型          字节    近似范围\n-----------------------------------------\nchar          1       -128 ~ 127\nshort         2       -32768 ~ 32767\nint           4       -2147483648 ~ 2147483647\nunsigned int  4       0 ~ 4294967295\nlong long     8       -9223372036854775808 ~ 9223372036854775807\n\n浮点类型有效位数: float 6 位, double 15 位\n\nn = 100000\nn * n 用 int 算:       1410065408  <- 溢出\nn * n 用 long long 算: 10000000000  <- 正确\n这就是为什么看到 n<=1e5 就要想到 long long"
+    },
+    "cpp-overflow": {
+      "kind": "topic",
+      "title": "整数溢出：最隐蔽的错误",
+      "verified": true,
+      "stdout": "1..100000 用 int 累加:   705082704  <- 溢出成负数\n1..100000 用 long long:  5000050000  <- 正确\n\n1! = 1\n2! = 2\n3! = 6\n4! = 24\n5! = 120\n6! = 720\n7! = 5040\n8! = 40320\n9! = 362880\n10! = 3628800\n11! = 39916800\n12! = 479001600\n13! = 6227020800\n14! = 87178291200\n15! = 1307674368000\n16! = 20922789888000\n17! = 355687428096000\n18! = 6402373705728000\n19! = 121645100408832000\n20! = 2432902008176640000\n(21! 会超出 long long 范围)\n\n1e9 * 1e9 直接算: 1000000000000000000  (long long 装得下)\n对 1e9+7 取模: 49"
+    },
+    "cpp-arithmetic-detail": {
+      "kind": "topic",
+      "title": "算术运算符与整数除法",
+      "verified": true,
+      "stdout": "a = 7, b = 2\na + b = 9\na - b = 5\na * b = 14\na / b = 3   <- 整数除法，丢掉小数\na % b = 1   <- 余数\n\n-7 / 2  = -3   <- 向零取整，不是 -4\n-7 % 2  = -1   <- 符号跟随被除数\n7 % -2  = 1\n\n7 / 2 转 double = 3.5\n\n17 个物品装进容量 5 的盒子，需要 4 个（向上取整）\n对比普通除法: 3 个（少了，装不下）\n\n++i 后 i=1, x=1\nj++ 后 j=1, y=0"
+    },
+    "cpp-compare-logic": {
+      "kind": "topic",
+      "title": "比较与逻辑运算符",
+      "verified": true,
+      "stdout": "a == b : 0\na != b : 1\na >  b : 1\na <= b : 0\n\na>0 && b>0 : 1\na>10 || b>0 : 1\n!true       : 0\n\n下标 5 越界了吗？越界（已短路，没真的访问）\n\n0.1 + 0.2 == 0.3 ? 不相等！\n正确做法: fabs(x - 0.3) < 1e-9 -> 视为相等\n\n((c = 5)) 会进入分支，因为赋值表达式返回 5（非 0 为真）\n这就是为什么建议写 if (5 == c) —— 写错成 = 编译器会报错"
+    },
+    "cpp-operator-priority": {
+      "kind": "topic",
+      "title": "运算符优先级",
+      "verified": true,
+      "stdout": "2 + 3 * 4     = 14   (不是 20)\n(2 + 3) * 4   = 20\n\n1 < 2 && 3 < 4 = 1\n\na || b && c   = 1   (= a || (b && c))\n(a || b) && c = 0   (加了括号结果就不同)\n\nx & y == 0    = 0   <- 实际是 x & (y==0)\n(x & y) == 0  = 0   <- 这才是本意\n位运算优先级低于 ==，必须加括号\n\np = q = 99 之后: p=99, q=99\n因为赋值返回被赋的值，所以可以连锁赋值"
+    },
+    "cpp-cast": {
+      "kind": "topic",
+      "title": "类型转换",
+      "verified": true,
+      "stdout": "int 42 -> long long 42 -> double 42\n\nlong long 1234567890123 转成 int: 1912276171  <- 完全变了\n\n(int)3.9  = 3   <- 截断，不是 4\n(int)-3.9 = -3   <- 向零截断，不是 -4\n想四舍五入: (int)(3.9 + 0.5) = 4\n或 round(3.9) = 4\n\n(double)(a / b)  = 3   <- 先整除再转，没用\n(double)a / b    = 3.5   <- 正确\n\nstatic_cast<int>(3.14159) = 3"
     },
     "algo-bubble": {
       "kind": "algo",

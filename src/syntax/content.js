@@ -13,8 +13,19 @@
  */
 
 import { CPP_TOPICS } from './cpp-topics.js';
+import { CPP_DETAIL_TOPICS } from './cpp-detail-topics.js';
 import { CPP_ALGO_SNIPPETS } from './cpp-algos.js';
 import { SYNTAX_LUOGU, ALGO_LUOGU } from './luogu.js';
+import { TOPIC_PROBLEMS, ALGO_PROBLEMS, LUOGU_TRAINING_SETS } from './problems.js';
+
+/**
+ * 全部知识点 = 基础层 + 细化层。
+ *
+ * 细化层是为了让每个类型/运算符都有独立的小节 ——
+ * 原来的「变量与基本类型」把 int/long long/double/char/bool 挤在一个知识点里，
+ * float 完全没提，对初学者不够。
+ */
+const ALL_CPP_TOPICS = [...CPP_TOPICS, ...CPP_DETAIL_TOPICS];
 
 /**
  * 构建期生成的输出数据。
@@ -43,9 +54,11 @@ const luoguSearch = (kw) =>
  *   outputError —— 失败原因（若有）
  *   luogu       —— 推荐练习链接数组
  */
-export const CPP_TOPIC_LIST = CPP_TOPICS.map((topic) => {
+export const CPP_TOPIC_LIST = ALL_CPP_TOPICS.map((topic) => {
   const out = OUTPUTS[topic.id] || {};
   const keywords = SYNTAX_LUOGU[topic.id] || [];
+  // 精选真题优先；没有专属真题的退回搜索入口
+  const problems = TOPIC_PROBLEMS[topic.id] || [];
   return {
     id: topic.id,
     group: topic.group,
@@ -56,6 +69,7 @@ export const CPP_TOPIC_LIST = CPP_TOPICS.map((topic) => {
     output: out.stdout || '',
     outputOk: Boolean(out.verified),
     outputError: out.error || '',
+    problems,
     luogu: keywords.map((kw) => ({ label: `搜索「${kw}」`, url: luoguSearch(kw) })),
   };
 });
@@ -118,6 +132,7 @@ export const CPP_ALGO_LIST = CPP_ALGO_SNIPPETS.map((snippet) => {
   const out = OUTPUTS[snippet.id] || {};
   const algoId = SNIPPET_TO_ALGO[snippet.id] || snippet.id.replace(/^algo-/, '');
   const keywords = ALGO_LUOGU[algoId] || [];
+  const problems = ALGO_PROBLEMS[algoId] || [];
   return {
     id: snippet.id,
     algoId,
@@ -126,11 +141,15 @@ export const CPP_ALGO_LIST = CPP_ALGO_SNIPPETS.map((snippet) => {
     output: out.stdout || '',
     outputOk: Boolean(out.verified),
     outputError: out.error || '',
+    problems,
     luogu: keywords.map((kw) => ({ label: `搜索「${kw}」`, url: luoguSearch(kw) })),
   };
 });
 
 export const CPP_ALGO_BY_ALGO_ID = Object.fromEntries(CPP_ALGO_LIST.map((a) => [a.algoId, a]));
+
+/** 洛谷官方题单（真实抓取的题单 ID，含「深入浅出」配套题单）。 */
+export { LUOGU_TRAINING_SETS };
 
 /** 构建信息，页面用来如实标注输出来源。 */
 export const CPP_BUILD_META = {
