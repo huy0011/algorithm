@@ -1,5 +1,5 @@
 /**
- * 播放器：用 requestAnimationFrame 驱动 Visualizer 步进。
+ * 播放器：用 requestAnimationFrame 驱动可视化器步进。
  *
  * 速度用「每秒步数」而不是「每帧步数」来表达，
  * 这样在不同刷新率的显示器上体感一致。
@@ -7,7 +7,7 @@
 
 export class Player {
   /**
-   * @param {import('./visualizer.js').Visualizer} visualizer
+   * @param {import('./base.js').BaseVisualizer} visualizer
    */
   constructor(visualizer) {
     this.visualizer = visualizer;
