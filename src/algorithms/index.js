@@ -12,6 +12,8 @@ import { NONCOMPARE_ALGORITHMS } from './noncompare.js';
 import { SEARCH_ALGORITHMS } from './search.js';
 import { PATH_ALGORITHMS } from './path.js';
 import { STRUCTURE_ALGORITHMS } from './structures.js';
+import { TECHNIQUE_ALGORITHMS, BIT_ALGORITHMS } from './technique.js';
+import { STRING_ALGORITHMS } from './string.js';
 
 /** 冒泡排序：相邻两两比较，大的往后冒。 */
 function bubbleSort(input) {
@@ -339,6 +341,19 @@ export const ALGORITHMS = {
   // ---------------- 数据结构 ----------------
   stackDemo: STRUCTURE_ALGORITHMS.stackDemo,
   queueDemo: STRUCTURE_ALGORITHMS.queueDemo,
+
+  // ---------------- 基础技巧 ----------------
+  twoPointers: TECHNIQUE_ALGORITHMS.twoPointers,
+  slidingWindow: TECHNIQUE_ALGORITHMS.slidingWindow,
+  prefixSum: TECHNIQUE_ALGORITHMS.prefixSum,
+  differenceArray: TECHNIQUE_ALGORITHMS.differenceArray,
+
+  // ---------------- 位运算 ----------------
+  bitwise: BIT_ALGORITHMS.bitwise,
+
+  // ---------------- 字符串 ----------------
+  kmp: STRING_ALGORITHMS.kmp,
+  rabinKarp: STRING_ALGORITHMS.rabinKarp,
 };
 
 /** 界面上的默认展示顺序。 */
@@ -349,8 +364,14 @@ export const ALGORITHM_ORDER = [
   'counting', 'radix', 'bucket',
   // 查找
   'binarySearch', 'binarySearchAnswer',
-  // 寻路
+  // 路径查找
   'bfs', 'dfs',
+  // 基础技巧
+  'twoPointers', 'slidingWindow', 'prefixSum', 'differenceArray',
+  // 字符串
+  'kmp', 'rabinKarp',
+  // 位运算
+  'bitwise',
   // 数据结构
   'stackDemo', 'queueDemo',
 ];
@@ -361,6 +382,9 @@ export const CATEGORIES = [
   { id: 'noncompare', name: '非比较排序', renderer: 'bars' },
   { id: 'search', name: '查找 / 二分', renderer: 'search' },
   { id: 'path', name: '路径查找', renderer: 'grid' },
+  { id: 'technique', name: '基础技巧', renderer: 'span' },
+  { id: 'string', name: '字符串', renderer: 'span' },
+  { id: 'bits', name: '位运算', renderer: 'bits' },
   { id: 'structure', name: '数据结构', renderer: 'structure' },
 ];
 

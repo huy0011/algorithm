@@ -10,6 +10,8 @@ import { BarVisualizer } from './bar-visualizer.js';
 import { SearchVisualizer } from './search-visualizer.js';
 import { GridVisualizer } from './grid-visualizer.js';
 import { StructureVisualizer } from './structure-visualizer.js';
+import { SpanVisualizer } from './span-visualizer.js';
+import { BitVisualizer } from './bit-visualizer.js';
 import { pickSearchTarget } from '../algorithms/search.js';
 import { generateGrid } from '../algorithms/path.js';
 
@@ -18,6 +20,8 @@ const RENDERERS = {
   search: SearchVisualizer,
   grid: GridVisualizer,
   structure: StructureVisualizer,
+  span: SpanVisualizer,
+  bits: BitVisualizer,
 };
 
 /** 根据渲染器类型创建可视化实例。 */
@@ -108,6 +112,38 @@ export function buildInput(algo, config = {}) {
       return {
         input: grid,
         options: { start: [0, 0], end: [rows - 1, cols - 1] },
+      };
+    }
+
+    // 小值域数组：滑动窗口需要较多重复值才能体现「收缩」的必要性
+    case 'smallRangeArray': {
+      const n = Math.min(24, Math.max(8, size));
+      const arr = Array.from({ length: n }, () => Math.floor(Math.random() * 5) + 1);
+      return { input: arr, options: {} };
+    }
+
+    // 字符串对（主串 + 模式串）：KMP / 字符串哈希用
+    case 'stringPair': {
+      // 用 A/B/C 三个字符，刻意制造较多重复，才能看出 KMP 回退的价值
+      const alphabet = 'AABBC';
+      const textLen = 18 + Math.floor(Math.random() * 8);
+      const patLen = 3 + Math.floor(Math.random() * 3);
+      const rand = (len) => Array.from({ length: len }, () => alphabet[Math.floor(Math.random() * alphabet.length)]).join('');
+      const text = rand(textLen);
+      const pattern = rand(patLen);
+      return { input: [], options: { text, pattern } };
+    }
+
+    // 位运算：给两个 0~255 的整数
+    case 'bits': {
+      const ops = ['and', 'or', 'xor'];
+      return {
+        input: [],
+        options: {
+          a: Math.floor(Math.random() * 256),
+          b: Math.floor(Math.random() * 256),
+          op: ops[Math.floor(Math.random() * ops.length)],
+        },
       };
     }
 

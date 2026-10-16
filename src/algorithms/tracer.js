@@ -60,6 +60,47 @@ export const GridOp = {
   CURRENT: 'current',
 };
 
+/**
+ * 指针 / 区间类操作。
+ *
+ * 用于「双指针、滑动窗口、前缀和、差分」这类算法。
+ * 它们的特点不是「搬动数据」，而是**在数组上移动若干指针、维护一个区间**，
+ * 所以渲染的重点是：指针在哪、窗口覆盖哪一段、累加值是多少。
+ */
+export const SpanOp = {
+  /** 移动某个命名指针到指定下标 { name, index } */
+  POINTER: 'pointer',
+  /** 设置当前窗口（区间）{ from, to, label } */
+  WINDOW: 'window',
+  /** 累加/更新一个聚合值 { name, value, note }（前缀和、窗口和等） */
+  ACCUMULATE: 'accumulate',
+  /** 把某个下标标为「已确定/已答案」{ index, label } */
+  RESOLVE: 'resolve',
+  /** 记录一次比较或判断结果 { indices, ok, note } */
+  CHECK: 'check',
+  /** 阶段性说明文字 { note } */
+  NOTE: 'note',
+};
+
+/**
+ * 位运算类操作。
+ *
+ * 用于「位运算」可视化：把整数拆成二进制位，逐位展示与/或/异或/移位的效果。
+ * 渲染出来就是几行 0/1 方格。
+ */
+export const BitOp = {
+  /** 设置一个操作数（一行二进制）{ slot, value, bits, label } */
+  OPERAND: 'operand',
+  /** 逐位计算出一位结果 { slot, bitIndex, value } */
+  RESULT_BIT: 'resultBit',
+  /** 设置结果行 { slot, bits, label } */
+  RESULT: 'result',
+  /** 高亮某一列（第几位）{ bitIndex, note } */
+  FOCUS_COLUMN: 'focusColumn',
+  /** 说明文字 { note } */
+  NOTE: 'note',
+};
+
 /** 栈 / 队列等线性结构操作 */
 export const StructOp = {
   PUSH: 'push',
@@ -364,6 +405,153 @@ export class StructureTracer {
       operations: this.operations,
       stats: { ...this.stats },
       meta: { structureType: this.structureType, ...this.meta },
+    };
+  }
+}
+
+// =====================================================================
+// 指针 / 区间类（双指针、滑动窗口、前缀和、差分）
+// =====================================================================
+
+export class SpanTracer {
+  /**
+   * @param {number[]} data 主体数组
+   * @param {object} meta 展示用元信息 { title, explain, pointers:[] }
+   */
+  constructor(data, meta = {}) {
+    this.array = data.slice();
+    this.operations = [];
+    this.stats = makeStats();
+    this.meta = { ...meta };
+  }
+
+  _push(op) {
+    this.operations.push({ ...op, stats: { ...this.stats } });
+  }
+
+  /** 移动一个命名指针（比如 'left'、'right'、'slow'、'fast'）。 */
+  pointer(name, index, note = '') {
+    this._push({ type: SpanOp.POINTER, name, index, note });
+  }
+
+  /** 同时移动多个指针，省得连续 push 多条。 */
+  pointers(map, note = '') {
+    for (const [name, index] of Object.entries(map)) {
+      this.pointer(name, index, note);
+    }
+  }
+
+  /** 设置当前窗口 [from, to]。 */
+  window(from, to, label = '') {
+    this._push({ type: SpanOp.WINDOW, from, to, label });
+  }
+
+  /** 更新一个聚合值（窗口和、前缀和、当前最优等）。 */
+  accumulate(name, value, note = '') {
+    this.stats.steps++;
+    this._push({ type: SpanOp.ACCUMULATE, name, value, note });
+  }
+
+  /** 标记某个下标已经有确定答案。 */
+  resolve(index, label = '') {
+    this._push({ type: SpanOp.RESOLVE, index, label });
+  }
+
+  /** 记录一次判断（比如「两数之和是否等于目标」）。 */
+  check(indices, ok, note = '') {
+    this.stats.comparisons++;
+    this._push({ type: SpanOp.CHECK, indices, ok, note });
+  }
+
+  /** 加一句说明。 */
+  note(text) {
+    this._push({ type: SpanOp.NOTE, note: text });
+  }
+
+  result() {
+    return {
+      kind: 'span',
+      operations: this.operations,
+      array: this.array.slice(),
+      stats: { ...this.stats },
+      meta: { ...this.meta },
+    };
+  }
+}
+
+// =====================================================================
+// 位运算类
+// =====================================================================
+
+export class BitTracer {
+  /**
+   * @param {number} bitWidth 展示多少位（一般 8 或 16）
+   * @param {object} meta { title, explain }
+   */
+  constructor(bitWidth = 8, meta = {}) {
+    this.bitWidth = bitWidth;
+    this.operations = [];
+    this.stats = makeStats();
+    this.meta = { ...meta };
+  }
+
+  _push(op) {
+    this.operations.push({ ...op, stats: { ...this.stats } });
+  }
+
+  /** 把整数按位拆成数组（高位在前，便于阅读）。 */
+  toBits(value) {
+    const bits = [];
+    for (let i = this.bitWidth - 1; i >= 0; i--) {
+      bits.push((value >> i) & 1);
+    }
+    return bits;
+  }
+
+  /** 放入一个操作数（第 slot 行）。 */
+  operand(slot, value, label = '') {
+    this._push({
+      type: BitOp.OPERAND,
+      slot,
+      value,
+      bits: this.toBits(value),
+      label,
+    });
+  }
+
+  /** 逐位公布结果的一位。 */
+  resultBit(slot, bitIndex, value) {
+    this.stats.steps++;
+    this._push({ type: BitOp.RESULT_BIT, slot, bitIndex, value });
+  }
+
+  /** 一次性给出结果行（或逐位给完之后收尾）。 */
+  result(slot, value, label = '') {
+    this._push({
+      type: BitOp.RESULT,
+      slot,
+      value,
+      bits: this.toBits(value),
+      label,
+    });
+  }
+
+  /** 聚焦到某一列（第几位），用于讲解「正在处理第几位」。 */
+  focusColumn(bitIndex, note = '') {
+    this._push({ type: BitOp.FOCUS_COLUMN, bitIndex, note });
+  }
+
+  note(text) {
+    this._push({ type: BitOp.NOTE, note: text });
+  }
+
+  /** 产出结果。注意方法名不能和上面的 result(slot,...) 冲突，所以用 build()。 */
+  build() {
+    return {
+      kind: 'bits',
+      operations: this.operations,
+      stats: { ...this.stats },
+      meta: { bitWidth: this.bitWidth, ...this.meta },
     };
   }
 }
