@@ -323,22 +323,32 @@ function drawVizScreenshot() {
 // 图二：语法基础页
 // =====================================================================
 
-const { CPP_GROUPS: SYNTAX_GROUPS } = await import(pathToFileURL(path.join(ROOT, 'src/syntax/content.js')).href);
+const { CPP_GROUPS, CPP_TOPIC_LIST, CPP_BUILD_META } = await import(
+  pathToFileURL(path.join(ROOT, 'src/syntax/content.js')).href
+);
 
+/** 中文标题用英文标签代替（点阵字体画不了中文）。 */
 const LABELS = {
-  variables: 'VARIABLES', 'number-types': 'NUMBERS', 'math-floor': 'MATH.FLOOR',
-  'string-basics': 'STRINGS', 'comparison-ops': 'COMPARISON OPS', 'if-else': 'IF / ELSE',
-  truthiness: 'TRUTHINESS', 'array-basics': 'ARRAY BASICS', 'array-push-pop': 'PUSH / POP',
-  'nested-array': '2D ARRAYS', 'for-loop': 'FOR LOOP', 'while-loop': 'WHILE LOOP',
-  'nested-loop': 'NESTED LOOPS', 'array-map-filter': 'MAP / FILTER', 'array-slice': 'SLICE / SPLICE',
-  'array-index-math': 'INDEX MATH', functions: 'FUNCTIONS', 'arrow-function': 'ARROW FUNCTIONS',
-  closures: 'CLOSURES', recursion: 'RECURSION', 'recursion-vs-stack': 'RECURSION TO STACK',
-  'object-literal': 'OBJECTS', 'set-map': 'SET / MAP', 'for-of': 'FOR...OF',
-  'variable-swap': 'SWAP VARIABLES', 'short-circuit': 'SHORT CIRCUIT', 'boolean-flag': 'BOOLEAN FLAG',
-  'min-tracking': 'MIN TRACKING', 'array-init': 'INIT COUNTS', 'array-as-queue': 'QUEUE VIA ARRAY',
-  'array-shift': 'SHIFT COST', 'mid-overflow': 'BINARY MIDPOINT',
-  'string-length': 'STRING LENGTH', 'math-sqrt': 'MATH.SQRT',
-  'array-as-stack': 'STACK VIA ARRAY', destructuring: 'DESTRUCTURING',
+  // 零基础入门
+  'cpp-hello': 'HELLO WORLD', 'cpp-variables': 'VARIABLES & TYPES',
+  'cpp-io': 'INPUT / OUTPUT', 'cpp-operators': 'OPERATORS',
+  'cpp-branch': 'IF / ELSE', 'cpp-loops': 'LOOPS', 'cpp-array': 'ARRAYS',
+  'cpp-functions': 'FUNCTIONS', 'cpp-recursion': 'RECURSION',
+  'cpp-pointer': 'POINTERS & REFS', 'cpp-complexity': 'COMPLEXITY',
+  // STL 容器
+  'cpp-vector': 'VECTOR', 'cpp-string': 'STRING', 'cpp-set': 'SET / MULTISET',
+  'cpp-map': 'MAP', 'cpp-stack-queue': 'STACK / QUEUE',
+  'cpp-priority-queue': 'PRIORITY_QUEUE', 'cpp-pair-iterator': 'PAIR / ITERATOR',
+  'cpp-struct': 'STRUCT',
+  // STL 算法
+  'cpp-sort': 'SORT / REVERSE', 'cpp-binary-search': 'LOWER_BOUND',
+  'cpp-bitset': 'BITWISE OPS',
+};
+
+const GROUP_LABELS = {
+  '零基础入门': 'C++ BASICS',
+  'STL 容器': 'STL CONTAINERS',
+  'STL 算法': 'STL ALGORITHMS',
 };
 
 function drawSyntaxScreenshot() {
@@ -346,25 +356,23 @@ function drawSyntaxScreenshot() {
   cv.rect(0, 0, cv.W, cv.H, C.bg);
   drawChrome(cv, 'syntax');
 
+  // ---- 左栏导航 ----
   cv.roundRect(24, 84, 260, 700, 10, C.panel);
   cv.rect(44, 102, 172, 28, C.elevated);
   cv.text('SEARCH...', 56, 110, '#5d6779', 1);
-  cv.text('48 / 48', 224, 110, C.muted, 1);
+  cv.text(`${CPP_TOPIC_LIST.length} / ${CPP_TOPIC_LIST.length}`, 224, 110, C.muted, 1);
+
+  // 截图展示的是 Hello World 这一项
+  const ACTIVE_ID = 'cpp-hello';
 
   let ny = 148;
-  const groupLabels = {
-    '语言基础': 'LANGUAGE BASICS',
-    '字符串与判断': 'STRINGS & LOGIC',
-    '数组': 'ARRAYS',
-    '函数': 'FUNCTIONS',
-  };
-  for (const group of SYNTAX_GROUPS) {
+  for (const group of CPP_GROUPS) {
     if (ny > 690) break;
-    cv.text(groupLabels[group.name] || 'MORE', 44, ny, C.muted, 1);
+    cv.text(GROUP_LABELS[group.name] || group.name.toUpperCase(), 44, ny, C.muted, 1);
     ny += 18;
     for (const t of group.topics) {
       if (ny > 730) break;
-      const active = t.id === 'mid-overflow';
+      const active = t.id === ACTIVE_ID;
       if (active) cv.rect(40, ny - 5, 228, 24, '#1d2c44');
       cv.text(LABELS[t.id] || t.id.toUpperCase(), 54, ny, active ? '#cfe0f8' : C.dim, 1);
       ny += 21;
@@ -380,10 +388,10 @@ function drawSyntaxScreenshot() {
 
   cv.text('KEY POINTS', 326, 196, C.muted, 1);
   const points = [
-    'CONSOLE.LOG(...) IS THE MOST BASIC WAY TO PRINT SOMETHING',
-    'STRINGS GO IN QUOTES: SINGLE, DOUBLE, OR BACKTICK ALL WORK',
-    'A SEMICOLON ENDS A STATEMENT',
-    'SEEING OUTPUT IS THE FIRST AND MOST VALUABLE FEEDBACK',
+    '#INCLUDE <IOSTREAM> PULLS IN THE INPUT/OUTPUT LIBRARY',
+    'MAIN IS THE ENTRY POINT; RETURN 0 MEANS SUCCESS',
+    'COUT << SENDS THINGS TO THE OUTPUT STREAM',
+    'EVERY STATEMENT ENDS WITH A SEMICOLON',
   ];
   let py = 216;
   for (const p of points) {
@@ -392,44 +400,38 @@ function drawSyntaxScreenshot() {
     py += 19;
   }
 
-  cv.text('EXAMPLE CODE', 326, 312, C.muted, 1);
+  // 代码直接从真实内容里取，保证示意图和实际一致
+  const activeTopic = CPP_TOPIC_LIST.find((t) => t.id === ACTIVE_ID);
+  cv.text('EXAMPLE CODE (C++)', 326, 312, C.muted, 1);
   cv.rect(326, 330, 1026, 238, '#0d121d');
-  const code = [
-    '// The most basic output',
-    'console.log(\'Hello World\');',
-    '',
-    '// All three quote styles are legal',
-    'console.log("double quotes work too");',
-    'console.log(`backticks are template strings`);',
-    '',
-    '// Print several values at once, separated by commas',
-    'console.log(\'result is\', 1 + 1);',
-    '',
-    '// Backticks can embed variables (most common)',
-    'const name = \'AlgoViz\';',
-    'console.log(`hello, ${name}!`);',
-    '',
-    '// return hands the value back to the page',
-    'return { first: \'Hello World\', greeting: `hello, ${name}!` };',
-  ];
+  const codeLines = (activeTopic ? activeTopic.code : '').split('\n').slice(0, 14);
   let cy = 344;
-  for (const line of code) { cv.text(line, 344, cy, '#cfd8e8', 1); cy += 15; }
+  for (const line of codeLines) { cv.text(line, 344, cy, '#cfd8e8', 1); cy += 15; }
 
-  cv.text('OUTPUT   (REALLY EXECUTED, NOT HARDCODED)', 326, 590, C.muted, 1);
+  // 真实输出
+  cv.text('OUTPUT   (COMPILED AND RUN AT BUILD TIME)', 326, 590, C.muted, 1);
   cv.rect(326, 608, 1026, 58, '#0d121d');
-  cv.roundRect(340, 624, 60, 20, 4, '#1e3a2c');
-  cv.text('RETURN', 348, 630, C.green, 1);
-  cv.text('{ "FIRST": "HELLO WORLD", "GREETING": "HELLO, ALGOVIZ!" }', 416, 628, '#a9e3c3', 2);
+  cv.roundRect(340, 624, 66, 20, 4, '#1e3a2c');
+  cv.text('G++ RUN', 348, 630, C.green, 1);
+  const outLines = ((activeTopic && activeTopic.output) || '').trim().split('\n').slice(0, 2);
+  let oy = 620;
+  for (const line of outLines) {
+    cv.text(line, 420, oy, '#a9e3c3', 2);
+    oy += 20;
+  }
+  // 如实标注：构建期编译，页面不能重跑
+  cv.text(`COMPILER: G++ 16.2.0   (PAGE CANNOT RECOMPILE C++)`, 326, 672, C.muted, 1);
 
   // 洛谷练习入口
-  cv.text('PRACTICE ON LUOGU', 326, 694, C.muted, 1);
+  cv.text('PRACTICE ON LUOGU', 326, 700, C.muted, 1);
   let ux = 326;
-  for (const name of ['SEARCH: OUTPUT', 'OFFICIAL PROBLEM SETS']) {
+  for (const name of ['SEARCH: OUTPUT', 'INTRO PROBLEM SETS']) {
     const w = Canvas.tw(name, 1) + 18;
-    cv.roundRect(ux, 712, w, 24, 5, '#1d2c44');
-    cv.text(name, ux + 9, 719, '#9ecbff', 1);
+    cv.roundRect(ux, 718, w, 24, 5, '#1d2c44');
+    cv.text(name, ux + 9, 725, '#9ecbff', 1);
     ux += w + 8;
   }
+  void CPP_BUILD_META;
 
   cv.text('ALGORITHM LAYER EMITS OPERATIONS - RENDER LAYER PLAYS THEM', 380, 806, C.muted, 1);
   return writePng(cv, path.join(OUT_DIR, 'screenshot-syntax.png'));
