@@ -5,10 +5,11 @@
   "type": "module",
   "private": true,
   "scripts": {
-    "test": "node tests/verify.js && node tests/verify-technique.js && node tests/verify-renderers.js && node tests/verify-syntax.js && node tests/verify-styles.js && node tests/verify-classes.js && node tests/ui-integration.js",
+    "test": "node tests/verify.js && node tests/verify-technique.js && node tests/verify-renderers.js && node tests/verify-decoupling.js && node tests/verify-syntax.js && node tests/verify-styles.js && node tests/verify-classes.js && node tests/ui-integration.js",
     "test:algo": "node tests/verify.js",
     "test:technique": "node tests/verify-technique.js",
     "test:renderers": "node tests/verify-renderers.js",
+    "test:decoupling": "node tests/verify-decoupling.js",
     "test:syntax": "node tests/verify-syntax.js",
     "test:styles": "node tests/verify-styles.js",
     "test:classes": "node tests/verify-classes.js",
