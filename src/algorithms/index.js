@@ -14,6 +14,7 @@ import { PATH_ALGORITHMS } from './path.js';
 import { STRUCTURE_ALGORITHMS } from './structures.js';
 import { TECHNIQUE_ALGORITHMS, BIT_ALGORITHMS } from './technique.js';
 import { STRING_ALGORITHMS } from './string.js';
+import { ALGO_CPP_TOPICS } from '../syntax/algo-topics.js';
 
 /** 冒泡排序：相邻两两比较，大的往后冒。 */
 function bubbleSort(input) {
@@ -355,6 +356,16 @@ export const ALGORITHMS = {
   kmp: STRING_ALGORITHMS.kmp,
   rabinKarp: STRING_ALGORITHMS.rabinKarp,
 };
+
+/**
+ * 给每个算法挂上「它涉及的 C++ 知识点」。
+ *
+ * 映射表放在教程侧（src/syntax/algo-topics.js），算法层本身不需要知道教学组织方式。
+ * 这里做一次挂载，让界面能直接读 algo.cppTopics。
+ */
+for (const [algoId, topicIds] of Object.entries(ALGO_CPP_TOPICS)) {
+  if (ALGORITHMS[algoId]) ALGORITHMS[algoId].cppTopics = topicIds;
+}
 
 /** 界面上的默认展示顺序。 */
 export const ALGORITHM_ORDER = [

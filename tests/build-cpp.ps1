@@ -36,6 +36,11 @@ Write-Host ("=" * 58)
 Write-Host "编译器: $version"
 Write-Host ""
 
+# 记录编译器版本，供收集阶段写进 cpp-output.json
+# （不编造版本号：用了哪个编译器必须可追溯）
+$utf8NoBomEarly = New-Object System.Text.UTF8Encoding($false)
+[System.IO.File]::WriteAllText((Join-Path $buildDir 'compiler.txt'), $version, $utf8NoBomEarly)
+
 $results = @{}
 $ok = 0
 $fail = 0

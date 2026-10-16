@@ -9,13 +9,13 @@
 import { ALGORITHMS, ALGORITHM_ORDER, CATEGORIES, algorithmsByCategory } from './algorithms/index.js';
 import { createVisualizer, buildInput } from './render/factory.js';
 import { Player } from './render/player.js';
-import { SYNTAX_GROUPS, SYNTAX_BY_ID } from './syntax/topics.js';
-import { runExample, formatValue } from './syntax/runner.js';
 import {
-  luoguLinksForSyntax,
-  luoguLinksForAlgo,
-  luoguTrainingLinks,
-} from './syntax/luogu.js';
+  CPP_GROUPS,
+  CPP_TOPIC_BY_ID,
+  CPP_ALGO_BY_ALGO_ID,
+  CPP_BUILD_META,
+} from './syntax/content.js';
+import { luoguTrainingLinks } from './syntax/luogu.js';
 
 const $ = (id) => document.getElementById(id);
 
@@ -81,6 +81,7 @@ const dom = {
   syntaxCount: $('syntax-count'),
   syntaxLuogu: $('syntax-luogu'),
   algoLuogu: $('algo-luogu'),
+  algoCpp: $('algo-cpp'),
 };
 
 // ---------- 状态 ----------
@@ -296,15 +297,15 @@ function updateAlgorithmInfo(algo) {
   renderSyntaxLinks(algo);
 }
 
-/** 算法 → 语法点的跳转链接。 */
+/** 算法 → C++ 语法点的跳转链接。 */
 function renderSyntaxLinks(algo) {
-  const topics = algo.syntaxTopics || [];
+  const topics = algo.cppTopics || [];
   if (topics.length === 0) {
     dom.syntaxLinks.innerHTML = '<span class="muted">（这个算法没有关联语法点）</span>';
   } else {
     dom.syntaxLinks.innerHTML = topics
       .map((id) => {
-        const t = SYNTAX_BY_ID[id];
+        const t = CPP_TOPIC_BY_ID[id];
         if (!t) return '';
         return `<button class="syntax-chip" data-topic="${id}" title="查看「${t.title}」">${t.title}</button>`;
       })
@@ -317,8 +318,39 @@ function renderSyntaxLinks(algo) {
     });
   }
 
-  // 无论有没有关联语法点，都要给出这个算法在洛谷的练习入口
-  renderLuogu(dom.algoLuogu, luoguLinksForAlgo(algo.id));
+  // 这个算法对应的 C++ 实现（供对照阅读）
+  const cppImpl = CPP_ALGO_BY_ALGO_ID[algo.id];
+  if (cppImpl && dom.algoCpp) {
+    dom.algoCpp.innerHTML =
+      `<pre class="code-block code-cpp">${escapeHtml(cppImpl.code)}</pre>` +
+      renderCppOutputHtml(cppImpl);
+  } else if (dom.algoCpp) {
+    dom.algoCpp.innerHTML = '<span class="muted">（暂无这个算法的 C++ 实现）</span>';
+  }
+
+  // 洛谷练习入口
+  const links = (cppImpl && cppImpl.luogu) || [];
+  renderLuogu(dom.algoLuogu, links);
+}
+
+/** 生成 C++ 输出的 HTML（供多个位置复用）。 */
+function renderCppOutputHtml(item) {
+  const parts = [];
+  if (item.outputOk) {
+    parts.push(
+      '<div class="cpp-output-head">' +
+      '<span class="cpp-badge cpp-badge-ok">已编译运行</span>' +
+      `<span class="cpp-meta">${escapeHtml(CPP_BUILD_META.compiler)} 的实际输出</span></div>`
+    );
+    parts.push(`<pre class="cpp-stdout">${escapeHtml(item.output || '（无输出）')}</pre>`);
+  } else {
+    parts.push(
+      '<div class="cpp-output-head">' +
+      '<span class="cpp-badge cpp-badge-err">未通过编译</span></div>'
+    );
+    parts.push(`<pre class="cpp-stdout cpp-stderr">${escapeHtml(item.outputError || '（无错误信息）')}</pre>`);
+  }
+  return parts.join('');
 }
 
 /** 统计数字更新。不同可视化类型显示不同的三项。 */
@@ -445,8 +477,10 @@ function renderSyntaxNav(filter = '') {
   const kw = filter.trim().toLowerCase();
   let html = '';
   let count = 0;
+  let total = 0;
 
-  for (const group of SYNTAX_GROUPS) {
+  for (const group of CPP_GROUPS) {
+    total += group.topics.length;
     const matched = group.topics.filter((t) => {
       if (!kw) return true;
       return (
@@ -466,7 +500,7 @@ function renderSyntaxNav(filter = '') {
   }
 
   dom.syntaxNav.innerHTML = html || '<div class="nav-group"><div class="nav-group-title">没有匹配的知识点</div></div>';
-  dom.syntaxCount.textContent = `${count} / ${SYNTAX_GROUPS.reduce((a, g) => a + g.topics.length, 0)}`;
+  dom.syntaxCount.textContent = `${count} / ${total}`;
 
   dom.syntaxNav.querySelectorAll('[data-topic]').forEach((btn) => {
     btn.addEventListener('click', () => selectTopic(btn.dataset.topic));
@@ -474,7 +508,7 @@ function renderSyntaxNav(filter = '') {
 }
 
 function selectTopic(topicId) {
-  const topic = SYNTAX_BY_ID[topicId];
+  const topic = CPP_TOPIC_BY_ID[topicId];
   if (!topic) return;
   state.activeTopic = topicId;
 
@@ -485,11 +519,11 @@ function selectTopic(topicId) {
 
   dom.syntaxTitle.textContent = topic.title;
   dom.syntaxSummary.textContent = topic.summary;
-  dom.syntaxPoints.innerHTML = topic.points.map((p) => `<li>${p}</li>`).join('');
+  dom.syntaxPoints.innerHTML = topic.points.map((p) => `<li>${escapeHtml(p)}</li>`).join('');
   dom.syntaxCode.textContent = topic.code;
 
-  // 「哪些算法用到了它」反向关联
-  const usedBy = ALGORITHM_ORDER.filter((id) => (ALGORITHMS[id].syntaxTopics || []).includes(topicId));
+  // 「哪些算法用到了它」反向关联（用 C++ 知识点 id 去匹配算法的 cppTopics）
+  const usedBy = ALGORITHM_ORDER.filter((id) => (ALGORITHMS[id].cppTopics || []).includes(topicId));
   if (usedBy.length === 0) {
     dom.syntaxUsedBy.innerHTML = '<span class="muted">（暂无算法关联到这个知识点）</span>';
   } else {
@@ -497,26 +531,65 @@ function selectTopic(topicId) {
       .map((id) => `<button class="syntax-chip chip-algo" data-algo="${id}">${ALGORITHMS[id].name}</button>`)
       .join('');
     dom.syntaxUsedBy.querySelectorAll('[data-algo]').forEach((btn) => {
-      btn.addEventListener('click', () => {
-        const algoId = btn.dataset.algo;
-        state.activeCategory = ALGORITHMS[algoId].category;
-        state.activeAlgo = algoId;
-        dom.categorySelect.value = state.activeCategory;
-        refreshAlgoOptions();
-        refreshControlsForAlgo();
-        state.lastInput = null;
-        runCurrentAlgorithm();
-        switchTab('viz');
-        setTimeout(() => player.play(), 300);
-      });
+      btn.addEventListener('click', () => openAlgo(btn.dataset.algo));
     });
   }
 
-  // 自动运行示例，直接显示真实输出
-  executeTopicCode();
+  // 展示真实输出（构建期编译得到的）
+  renderCppOutput(dom.syntaxOutput, topic);
 
   // 洛谷练习入口
-  renderLuogu(dom.syntaxLuogu, luoguLinksForSyntax(topicId));
+  renderLuogu(dom.syntaxLuogu, topic.luogu);
+}
+
+/**
+ * 展示 C++ 示例的输出。
+ *
+ * 必须诚实：浏览器不能编译 C++，这里显示的是**构建期预先编译运行**录下来的结果。
+ * 所以输出区上方会明确标注编译器与「不能在此重新运行」。
+ * 如果该示例编译失败，也如实展示错误，而不是假装有输出。
+ */
+function renderCppOutput(container, topic) {
+  if (!container) return;
+  const html = [];
+
+  if (topic.outputOk) {
+    html.push(
+      '<div class="cpp-output-head">' +
+      `<span class="cpp-badge cpp-badge-ok">已编译运行</span>` +
+      `<span class="cpp-meta">输出由 ${escapeHtml(CPP_BUILD_META.compiler)} 实际运行得到` +
+      (CPP_BUILD_META.compilerVersion ? `（${escapeHtml(CPP_BUILD_META.compilerVersion)}）` : '') +
+      '</span></div>'
+    );
+    html.push(`<pre class="cpp-stdout">${escapeHtml(topic.output || '（程序没有输出）')}</pre>`);
+  } else {
+    html.push(
+      '<div class="cpp-output-head">' +
+      '<span class="cpp-badge cpp-badge-err">未通过编译</span>' +
+      '<span class="cpp-meta">这个示例在构建时没有通过编译，下面是编译器的报错</span></div>'
+    );
+    html.push(`<pre class="cpp-stdout cpp-stderr">${escapeHtml(topic.outputError || '（无错误信息）')}</pre>`);
+  }
+
+  html.push(
+    '<p class="cpp-note">浏览器无法编译 C++，因此这里是构建时预先编译运行的结果，' +
+    '不能在此页面重新运行。要自己改着试，可以把代码复制到本地或在线编译器中运行。</p>'
+  );
+
+  container.innerHTML = html.join('');
+}
+
+/** 切到可视化页并加载指定算法。 */
+function openAlgo(algoId) {
+  state.activeCategory = ALGORITHMS[algoId].category;
+  state.activeAlgo = algoId;
+  dom.categorySelect.value = state.activeCategory;
+  refreshAlgoOptions();
+  refreshControlsForAlgo();
+  state.lastInput = null;
+  runCurrentAlgorithm();
+  switchTab('viz');
+  setTimeout(() => player.play(), 300);
 }
 
 /**
@@ -548,34 +621,6 @@ function renderLuogu(container, links) {
     '不写死题号是因为题目会调整，搜索入口比固定题号更可靠。</p>');
 
   container.innerHTML = html.join('');
-}
-
-/** 运行当前知识点的示例代码并展示输出。 */
-function executeTopicCode() {
-  const topic = SYNTAX_BY_ID[state.activeTopic];
-  if (!topic) return;
-
-  dom.syntaxOutput.innerHTML = '<div class="out-loading">运行中…</div>';
-
-  // 用 setTimeout 让「运行中」有机会渲染出来（示例都是瞬间完成的同步代码）
-  setTimeout(() => {
-    const r = runExample(topic.code);
-    let html = '';
-
-    if (r.logs && r.logs.length > 0) {
-      html += r.logs
-        .map((l) => `<div class="out-line out-${l.level}"><span class="out-tag">console.${l.level}</span>${escapeHtml(l.text)}</div>`)
-        .join('');
-    }
-
-    if (r.ok) {
-      html += `<div class="out-line out-return"><span class="out-tag">return</span><pre>${escapeHtml(formatValue(r.value))}</pre></div>`;
-    } else {
-      html += `<div class="out-line out-error"><span class="out-tag">${escapeHtml(r.errorName || 'Error')}</span>${escapeHtml(r.error)}</div>`;
-    }
-
-    dom.syntaxOutput.innerHTML = html || '<div class="out-line">（没有输出）</div>';
-  }, 10);
 }
 
 function escapeHtml(s) {
@@ -673,7 +718,18 @@ function bindEvents() {
   dom.syntaxSearch.addEventListener('input', (e) => renderSyntaxNav(e.target.value));
 
   // 重新运行示例
-  dom.syntaxRun.addEventListener('click', () => executeTopicCode());
+  // 「重新运行」按钮改为提示：浏览器无法编译 C++，输出是构建期录制的
+  if (dom.syntaxRun) {
+    dom.syntaxRun.addEventListener('click', () => {
+      dom.syntaxRun.textContent = '浏览器无法编译 C++';
+      dom.syntaxRun.disabled = true;
+      setTimeout(() => {
+        dom.syntaxRun.textContent = '输出为构建期录制';
+        dom.syntaxRun.disabled = false;
+      }, 2000);
+    });
+    dom.syntaxRun.textContent = '输出为构建期录制';
+  }
 
   // 快捷键
   document.addEventListener('keydown', (e) => {
@@ -723,7 +779,7 @@ function init() {
 
   // 语法教程：默认选第一个知识点
   renderSyntaxNav();
-  selectTopic(SYNTAX_GROUPS[0].topics[0].id);
+  selectTopic(CPP_GROUPS[0].topics[0].id);
 
   runCurrentAlgorithm();
 

@@ -323,7 +323,7 @@ function drawVizScreenshot() {
 // 图二：语法基础页
 // =====================================================================
 
-const { SYNTAX_GROUPS } = await import(pathToFileURL(path.join(ROOT, 'src/syntax/topics.js')).href);
+const { CPP_GROUPS: SYNTAX_GROUPS } = await import(pathToFileURL(path.join(ROOT, 'src/syntax/content.js')).href);
 
 const LABELS = {
   variables: 'VARIABLES', 'number-types': 'NUMBERS', 'math-floor': 'MATH.FLOOR',

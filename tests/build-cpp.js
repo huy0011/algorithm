@@ -131,10 +131,25 @@ for (const m of manifest) {
 
 // 写出页面用的数据
 const previous = fs.existsSync(OUT_FILE) ? JSON.parse(fs.readFileSync(OUT_FILE, 'utf8')) : {};
+
+/**
+ * 编译器版本由编译阶段（PowerShell）写进 .cpp-build/compiler.txt。
+ * 如果读不到，就从旧的 cpp-output.json 里沿用，都没有则标注「未记录」——
+ * 不编造版本号，因为「用了哪个编译器」这件事必须是可追溯的。
+ */
+let compilerVersion = previous?.meta?.compilerVersion || '';
+const compilerInfoFile = path.join(BUILD_DIR, 'compiler.txt');
+if (fs.existsSync(compilerInfoFile)) {
+  compilerVersion = fs.readFileSync(compilerInfoFile, 'utf8').trim();
+}
+if (!compilerVersion || compilerVersion === 'unknown') {
+  compilerVersion = compilerVersion || '未记录（请重新运行编译阶段）';
+}
+
 const meta = {
   generatedAt: new Date().toISOString(),
   compiler: 'g++ -std=c++17 -O2',
-  compilerVersion: previous?.meta?.compilerVersion || 'g++ (MinGW-w64) 16.2.0',
+  compilerVersion,
   note: '本文件由构建脚本生成：每个 C++ 示例都经真实编译运行，stdout 为程序真实输出。'
       + '浏览器无法编译 C++，所以页面上展示的是这份预先录制的输出，不能重新运行。',
   total: manifest.length,
@@ -143,10 +158,36 @@ const meta = {
 };
 fs.writeFileSync(OUT_FILE, JSON.stringify({ meta, results }, null, 2), 'utf8');
 
+/**
+ * 同时产出 .js 版本。
+ *
+ * 为什么需要两份：
+ *   - .json 便于人工查看与外部工具消费
+ *   - .js  供页面 import —— 直接 import JSON 需要 import assertions，
+ *           各浏览器支持度不一致，会让「打开就能用」变脆弱。
+ * 页面只用 .js 这份，避免兼容性风险。
+ */
+const JS_FILE = path.join(ROOT, 'src/syntax/cpp-output.js');
+const jsContent =
+  '/**\n' +
+  ' * 本文件由 tests/build-cpp.js 自动生成，请勿手改。\n' +
+  ' *\n' +
+  ' * 内容：每个 C++ 示例经 g++ 真实编译运行后的 stdout。\n' +
+  ' * 生成方式：node tests/build-cpp.js → 编译 → node tests/build-cpp.js --collect\n' +
+  ` * 编译器：${meta.compiler}\n` +
+  ` * 生成时间：${meta.generatedAt}\n` +
+  ' *\n' +
+  ' * 为什么页面不直接编译 C++：浏览器没有 C++ 编译器，\n' +
+  ' * 且本项目部署在 GitHub Pages（纯静态、无后端），所以只能预先录制输出。\n' +
+  ' */\n\n' +
+  'export const CPP_OUTPUT = ' + JSON.stringify({ meta, results }, null, 2) + ';\n';
+fs.writeFileSync(JS_FILE, jsContent, 'utf8');
+
 console.log('');
 console.log('='.repeat(58));
 console.log(`共 ${manifest.length} 个示例：通过 ${passed}，失败 ${failed}`);
 console.log(`已写入 ${path.relative(ROOT, OUT_FILE)}`);
+console.log(`已写入 ${path.relative(ROOT, JS_FILE)}（页面用这份）`);
 
 if (failures.length > 0) {
   console.log('\n失败详情：');

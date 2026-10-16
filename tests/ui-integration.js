@@ -277,7 +277,7 @@ assert(!el('compare-table-body').innerHTML.includes('结果异常'),
 
 // ============ 7. 语法教程 ============
 console.log('\n[6] 语法教程');
-const { SYNTAX_TOPICS } = await import(pathToFileURL(path.join(ROOT, 'src/syntax/topics.js')).href);
+const { CPP_TOPIC_LIST: SYNTAX_TOPICS } = await import(pathToFileURL(path.join(ROOT, 'src/syntax/content.js')).href);
 
 const navIds = [...el('syntax-nav').innerHTML.matchAll(/data-topic="([^"]+)"/g)].map((m) => m[1]);
 assert(navIds.length === SYNTAX_TOPICS.length,
@@ -296,15 +296,25 @@ for (const topic of SYNTAX_TOPICS) {
 
   if (el('syntax-title').textContent !== topic.title) { topicProblems.push(`${topic.id}(标题)`); continue; }
   if (el('syntax-code').textContent.length < 20) { topicProblems.push(`${topic.id}(代码)`); continue; }
+  // C++ 示例的输出来自构建期编译，界面会标注「已编译运行」；
+  // 代码里必须能看到 #include（确认展示的是完整可编译的 C++ 程序）
+  if (!el('syntax-code').textContent.includes('#include')) {
+    topicProblems.push(`${topic.id}(代码不是完整 C++)`);
+    continue;
+  }
   const out = el('syntax-output').innerHTML;
-  if (!out.includes('out-return') && !out.includes('out-log')) {
-    topicProblems.push(`${topic.id}(无输出)`);
+  if (!out.includes('已编译运行') && !out.includes('未通过编译')) {
+    topicProblems.push(`${topic.id}(输出区未标注状态)`);
+    continue;
+  }
+  if (!out.includes('cpp-stdout')) {
+    topicProblems.push(`${topic.id}(缺少输出内容)`);
     continue;
   }
   topicOk++;
 }
 assert(topicOk === SYNTAX_TOPICS.length,
-  `${SYNTAX_TOPICS.length} 个知识点全部可选中并执行示例` +
+  `${SYNTAX_TOPICS.length} 个 C++ 知识点全部可选中，且都展示了完整代码与编译输出` +
   (topicProblems.length ? `，问题：${topicProblems.slice(0, 5).join(', ')}` : ''));
 
 // ============ 8. 双向跳转 ============

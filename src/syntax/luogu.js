@@ -80,65 +80,33 @@ export function luoguTrainingLinks() {
  * 键是语法知识点的 id，值是搜索关键词数组。
  */
 export const SYNTAX_LUOGU = {
-  // ---------- 入门层 ----------
-  'hello-world': ['输出', '入门'],
-  'what-is-program': ['入门', '基础知识'],
-  comments: ['入门', '模拟'],
-  'variables': ['变量', '入门'],
-  'input-output': ['输入输出', '入门'],
-  'data-types': ['数据类型', '入门'],
-  'type-conversion': ['类型转换', '入门'],
-  'arithmetic-ops': ['运算', '入门'],
-  'operator-precedence': ['表达式', '入门'],
-  'number-types': ['整数', '入门'],
-  'basic-debugging': ['模拟', '入门', '找错'],
-  'math-floor': ['取整', '入门'],
-  'math-sqrt': ['数学', '开方'],
+  // ---------- 零基础入门 ----------
+  'cpp-hello': ['输出', '入门'],
+  'cpp-variables': ['变量', '入门'],
+  'cpp-io': ['输入输出', '入门'],
+  'cpp-operators': ['运算', '入门'],
+  'cpp-branch': ['分支', '条件'],
+  'cpp-loops': ['循环', '入门'],
+  'cpp-array': ['数组', '入门'],
+  'cpp-functions': ['函数', '入门'],
+  'cpp-recursion': ['递归', '入门'],
+  'cpp-pointer': ['指针', '引用'],
+  'cpp-complexity': ['模拟', '入门'],
 
-  // ---------- 流程控制 ----------
-  'if-else': ['分支', '条件'],
-  'switch-case': ['分支', '多分支'],
-  'for-loop': ['循环', 'for'],
-  'while-loop': ['循环', 'while'],
-  'do-while': ['循环'],
-  'break-continue': ['循环', '跳出'],
-  'nested-loop': ['循环', '嵌套'],
+  // ---------- STL 容器 ----------
+  'cpp-vector': ['vector', '动态数组'],
+  'cpp-string': ['字符串', '入门'],
+  'cpp-set': ['集合', 'STL'],
+  'cpp-map': ['映射', 'STL'],
+  'cpp-stack-queue': ['栈', '队列'],
+  'cpp-priority-queue': ['堆', '优先队列'],
+  'cpp-pair-iterator': ['STL', '结构体'],
+  'cpp-struct': ['结构体', '排序'],
 
-  // ---------- 数组与字符串 ----------
-  'array-basics': ['数组', '入门'],
-  'array-push-pop': ['数组', '栈'],
-  'nested-array': ['二维数组', '矩阵'],
-  'array-index-math': ['数组', '下标'],
-  'array-slice': ['数组', '区间'],
-  'array-map-filter': ['数组', '函数式'],
-  'array-init': ['数组', '初始化'],
-  'for-of': ['遍历'],
-  'string-basics': ['字符串', '入门'],
-  'string-length': ['字符串'],
-  'comparison-ops': ['比较', '判断'],
-  'truthiness': ['布尔', '条件'],
-
-  // ---------- 函数 ----------
-  'functions': ['函数', '入门'],
-  'arrow-function': ['函数'],
-  'closures': ['闭包'],
-  'recursion': ['递归', '入门'],
-  'recursion-vs-stack': ['递归', '栈'],
-
-  // ---------- 对象与集合 ----------
-  'object-literal': ['结构体', '映射'],
-  'set-map': ['集合', '映射'],
-  'destructuring': ['解构'],
-
-  // ---------- 实用技巧 ----------
-  'variable-swap': ['交换'],
-  'short-circuit': ['逻辑运算'],
-  'boolean-flag': ['标记', '判断'],
-  'min-tracking': ['最大值', '最小值'],
-  'array-as-queue': ['队列', '模拟'],
-  'array-as-stack': ['栈', '模拟'],
-  'array-shift': ['队列'],
-  'mid-overflow': ['二分查找', '二分'],
+  // ---------- STL 算法 ----------
+  'cpp-sort': ['排序', 'STL'],
+  'cpp-binary-search': ['二分查找', '二分'],
+  'cpp-bitset': ['位运算', '状态压缩'],
 };
 
 /**
