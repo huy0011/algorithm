@@ -1,0 +1,25 @@
+# 依赖（本项目零依赖，这几个目录正常情况下不会出现）
+node_modules/
+
+# 编辑器 / IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# 操作系统
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# 日志与临时文件
+*.log
+npm-debug.log*
+.npm/
+tmp/
+temp/
+
+# 测试过程中可能产生的临时产物
+tests/.chrome-profile/
+tests/screenshots/

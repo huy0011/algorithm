@@ -1,0 +1,15 @@
+{
+  "name": "algo-viz",
+  "version": "1.0.0",
+  "description": "算法可视化 —— 把排序算法的执行过程变成看得见的动画。零依赖静态站点，可直接部署到 GitHub Pages。",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "test": "node tests/verify.js && node tests/dom-integration.js",
+    "test:algo": "node tests/verify.js",
+    "test:ui": "node tests/dom-integration.js",
+    "start": "node tests/serve.js"
+  },
+  "keywords": ["algorithm", "visualization", "sorting", "canvas", "education"],
+  "license": "MIT"
+}

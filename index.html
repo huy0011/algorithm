@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>算法可视化 · Algo Viz</title>
+<meta name="description" content="把排序算法的执行过程变成看得见的动画：比较、交换、已就位一览无余，支持七种算法对比。" />
+<link rel="stylesheet" href="./styles/main.css" />
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect x='12' y='55' width='16' height='33' fill='%234a7fd4'/><rect x='34' y='35' width='16' height='53' fill='%23f2b134'/><rect x='56' y='18' width='16' height='70' fill='%23e8563f'/><rect x='78' y='8' width='16' height='80' fill='%233fb27f'/></svg>" />
+</head>
+<body>
+
+<header class="topbar">
+  <div class="brand">
+    <span class="brand-mark" aria-hidden="true">
+      <i style="height:40%;background:#4a7fd4"></i>
+      <i style="height:70%;background:#f2b134"></i>
+      <i style="height:100%;background:#3fb27f"></i>
+    </span>
+    <div>
+      <h1>算法可视化 <span class="brand-en">Algo Viz</span></h1>
+      <p class="brand-sub">把看不见的算法过程，变成看得见的动画</p>
+    </div>
+  </div>
+  <a class="gh-link" href="https://github.com/" target="_blank" rel="noopener noreferrer" title="在 GitHub 上查看源码">
+    <svg viewBox="0 0 16 16" width="18" height="18" aria-hidden="true"><path fill="currentColor" d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27s1.36.09 2 .27c1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8Z"/></svg>
+    <span>GitHub</span>
+  </a>
+</header>
+
+<main class="layout">
+
+  <!-- 左侧控制面板 -->
+  <aside class="panel controls">
+    <section class="group">
+      <label class="label" for="algo-select">算法</label>
+      <select id="algo-select" class="select"></select>
+      <div class="algo-meta">
+        <div class="algo-title">
+          <strong id="algo-name">冒泡排序</strong>
+          <span id="algo-en" class="muted">Bubble Sort</span>
+          <span id="algo-stable" class="badge badge-ok">稳定</span>
+        </div>
+        <p id="algo-blurb" class="algo-blurb"></p>
+        <dl class="complexity">
+          <div><dt>时间复杂度</dt><dd id="algo-time">O(n²)</dd></div>
+          <div><dt>空间复杂度</dt><dd id="algo-space">O(1)</dd></div>
+        </dl>
+      </div>
+    </section>
+
+    <section class="group">
+      <label class="label" for="shape-select">数据分布</label>
+      <select id="shape-select" class="select">
+        <option value="random">随机</option>
+        <option value="nearly">接近有序</option>
+        <option value="reversed">完全逆序</option>
+        <option value="few">少量不同取值</option>
+      </select>
+    </section>
+
+    <section class="group">
+      <label class="label" for="size-range">
+        数据规模 <output id="size-value" class="value">40</output>
+      </label>
+      <input id="size-range" class="range" type="range" min="8" max="120" step="2" value="40" />
+      <p class="hint">规模越大，O(n²) 与 O(n log n) 的差距越明显。</p>
+    </section>
+
+    <section class="group">
+      <label class="label" for="speed-range">
+        播放速度 <output id="speed-value" class="value">25 步/秒</output>
+      </label>
+      <input id="speed-range" class="range" type="range" min="1" max="400" step="1" value="25" />
+      <p class="hint">快捷键：空格播放/暂停，→ 单步，Home 重置。</p>
+    </section>
+
+    <section class="group">
+      <button id="btn-generate" class="btn btn-primary btn-block">生成新数组</button>
+      <button id="btn-compare" class="btn btn-block">对比全部算法</button>
+    </section>
+  </aside>
+
+  <!-- 中间画布 -->
+  <section class="stage">
+    <div class="stage-head">
+      <div class="transport">
+        <button id="btn-play" class="btn btn-play" title="播放 / 暂停（空格）">
+          <span id="play-icon" aria-hidden="true">▶</span>
+          <span id="play-label">播放</span>
+        </button>
+        <button id="btn-step" class="btn" title="单步前进（→）">单步</button>
+        <button id="btn-skip" class="btn" title="直接跳到排序结果">直接看结果</button>
+        <button id="btn-reset" class="btn" title="回到第一步（Home）">重置</button>
+      </div>
+      <div class="step-label">
+        <span class="muted">步数</span>
+        <strong id="step-label">0 / 0</strong>
+      </div>
+    </div>
+
+    <div class="progress-track"><div id="progress" class="progress-bar"></div></div>
+
+    <div class="canvas-wrap">
+      <canvas id="canvas" aria-label="排序过程柱状图动画"></canvas>
+    </div>
+
+    <div class="legend">
+      <span class="legend-item"><i style="background:#4a7fd4"></i>未排序</span>
+      <span class="legend-item"><i style="background:#f2b134"></i>正在比较</span>
+      <span class="legend-item"><i style="background:#e8563f"></i>正在交换 / 写入</span>
+      <span class="legend-item"><i style="background:#3fb27f"></i>已就位</span>
+    </div>
+
+    <div class="stats">
+      <div class="stat">
+        <span class="stat-label">比较次数</span>
+        <strong id="stat-comparisons" class="stat-value">0</strong>
+      </div>
+      <div class="stat">
+        <span class="stat-label">交换次数</span>
+        <strong id="stat-swaps" class="stat-value">0</strong>
+      </div>
+      <div class="stat">
+        <span class="stat-label">写入次数</span>
+        <strong id="stat-writes" class="stat-value">0</strong>
+      </div>
+    </div>
+  </section>
+
+  <!-- 右侧对比表 -->
+  <aside class="panel compare">
+    <h2 class="panel-title">效率对比</h2>
+    <p class="hint">用当前这组数据跑遍全部算法，按比较次数从少到多排序。</p>
+    <div class="table-wrap">
+      <table class="compare-table">
+        <thead>
+          <tr>
+            <th>算法</th>
+            <th class="num">比较</th>
+            <th class="num">交换</th>
+            <th class="num">写入</th>
+            <th class="num">步数</th>
+            <th class="bar-cell">相对比较量</th>
+          </tr>
+        </thead>
+        <tbody id="compare-table-body">
+          <tr><td colspan="6" class="empty">点击上方「对比全部算法」查看结果</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="note">
+      <strong>关于口径：</strong>插入排序与希尔排序用「相邻交换」实现以产生连续动画，
+      交换次数会高于教科书式的搬移写法；归并排序不是交换排序，它用「写入」计量。
+      因此横向比较时，<em>比较次数</em>比交换次数更能反映真实效率。
+    </div>
+  </aside>
+
+</main>
+
+<footer class="footer">
+  <span>算法层只产出操作序列，渲染层只播放序列 —— 两者完全解耦，新增算法无需改动渲染代码。</span>
+</footer>
+
+<script type="module" src="./src/app.js"></script>
+</body>
+</html>
