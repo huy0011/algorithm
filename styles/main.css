@@ -26,6 +26,16 @@
 
 * { box-sizing: border-box; }
 
+/**
+ * 必须显式声明这条规则。
+ *
+ * 浏览器默认样式里有 [hidden] { display: none }，但它的优先级很低 ——
+ * 只要元素自己带了 display: grid / flex（比如 .layout 和 .syntax-layout），
+ * 就会把这条默认规则盖掉，导致 hidden 属性完全失效、两个页面同时显示。
+ * 用 !important 保证它永远压得住组件自己的 display。
+ */
+[hidden] { display: none !important; }
+
 html, body {
   margin: 0;
   padding: 0;

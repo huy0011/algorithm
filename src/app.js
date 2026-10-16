@@ -107,24 +107,12 @@ function switchTab(tabId) {
   dom.panes.forEach((p) => {
     p.hidden = p.dataset.pane !== tabId;
   });
-  // 切回可视化页时，画布尺寸可能变了，让渲染器重绘
+  // 切回可视化页时，画布尺寸可能变了（之前 hidden 时量不到宽度），让渲染器重算
   if (tabId === 'viz' && visualizer) {
     requestAnimationFrame(() => {
-      resizeCanvas();
-      visualizer.draw();
+      visualizer.requestResize();
     });
   }
-}
-
-function resizeCanvas() {
-  if (!visualizer) return;
-  const rect = dom.canvas.getBoundingClientRect();
-  const dpr = window.devicePixelRatio || 1;
-  dom.canvas.width = Math.floor(rect.width * dpr);
-  dom.canvas.height = Math.floor(rect.height * dpr);
-  visualizer.ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-  visualizer.metrics.width = Math.max(1, Math.floor(rect.width));
-  visualizer.metrics.height = Math.max(1, Math.floor(rect.height));
 }
 
 // =====================================================================
@@ -225,17 +213,19 @@ function runCurrentAlgorithm(reuseInput = false) {
   if (result.kind === 'array') result.baseArray = state.lastInput.slice();
   state.result = result;
 
-  // 渲染器类型变化时重建播放器与可视化器
+  // 渲染器类型变化时重建播放器与可视化器。
+  // 注意：重建后不要立刻 requestResize() —— 那时视觉化器还没 load 数据，
+  // draw() 会读到 undefined。先 load，再让基类去重算尺寸。
   const kind = rendererKindOf(algo);
   if (kind !== currentRendererKind) {
     visualizer = createVisualizer(kind, dom.canvas);
     player = new Player(visualizer);
     bindVisualizerEvents();
     currentRendererKind = kind;
-    resizeCanvas();
   }
 
   visualizer.load(result);
+  visualizer.requestResize();   // 尺寸可能在页签隐藏时变成 0，这里补一次
   updateAlgorithmInfo(algo);
   refreshStatLabels();
   updateStatsUI();
@@ -643,9 +633,10 @@ function init() {
 
   runCurrentAlgorithm();
 
-  // 首屏自动播一次，让人一眼看到「它在动」
+  // 首屏自动播一次，让人一眼看到「它在动」。
+  // 延迟一点是为了等布局完成，避免画布在尺寸还是 0 的时候就开始画。
   setTimeout(() => {
-    resizeCanvas();
+    if (visualizer) visualizer.requestResize();
     if (player) player.play();
   }, 500);
 }

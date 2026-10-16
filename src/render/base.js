@@ -27,10 +27,17 @@ export class BaseVisualizer {
     /** 最近一次操作的统计快照 */
     this.stats = { comparisons: 0, swaps: 0, writes: 0, visits: 0, steps: 0 };
     this.metrics = { width: 0, height: 0, dpr: 1 };
+    this._result = null;
 
     this._onStats = null;
     this._onFinish = null;
 
+    // 顺序很重要：
+    //   1. 先把可视状态建立起来（即使还没有数据），
+    //      否则下面 _observeResize 触发的首次 draw() 会读到 undefined 而崩溃。
+    //   2. 再观测尺寸（这一步可能会立刻调用 draw）。
+    //   3. 最后才载入数据。
+    this._resetState();
     this._observeResize();
     if (result) this.load(result);
   }
@@ -40,24 +47,56 @@ export class BaseVisualizer {
   _observeResize() {
     const resize = () => {
       const rect = this.canvas.getBoundingClientRect();
-      const dpr = window.devicePixelRatio || 1;
-      this.metrics.width = Math.max(1, Math.floor(rect.width));
-      this.metrics.height = Math.max(1, Math.floor(rect.height));
+      // 兼容没有 window 的环境（测试 / 未来的 SSR），避免直接抛错
+      const dpr = (typeof window !== 'undefined' && window.devicePixelRatio) || 1;
+
+      // 元素还没布局完（或正处于 hidden 状态）时，rect 会是 0。
+      // 这时候如果直接设成 1×1，画布就「废」了，而且不会有事件再触发重算，
+      // 表现为「一片空白」。所以检测到尺寸为 0 就用 rAF 稍后重试。
+      //
+      // 但不能无限重试：如果元素一直不可见（比如用户停在另一个页签），
+      // 递归下去会堆栈溢出。所以加一个尝试次数上限，超了就放弃，
+      // 等 ResizeObserver 或页签切换时再自然触发。
+      if (rect.width < 1 || rect.height < 1) {
+        const tries = (this._resizeTries || 0) + 1;
+        this._resizeTries = tries;
+        if (tries <= 60 && !this._pendingResize && typeof requestAnimationFrame === 'function') {
+          this._pendingResize = true;
+          requestAnimationFrame(() => {
+            this._pendingResize = false;
+            resize();
+          });
+        }
+        return;
+      }
+      this._resizeTries = 0;
+
+      this.metrics.width = Math.floor(rect.width);
+      this.metrics.height = Math.floor(rect.height);
       this.metrics.dpr = dpr;
       this.canvas.width = Math.floor(this.metrics.width * dpr);
       this.canvas.height = Math.floor(this.metrics.height * dpr);
       this.ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
       this.draw();
     };
+
+    this._resize = resize;
+
     if (typeof ResizeObserver !== 'undefined') {
       this._ro = new ResizeObserver(resize);
       this._ro.observe(this.canvas);
-    } else {
+    } else if (typeof window !== 'undefined') {
       window.addEventListener('resize', resize);
     }
-    // getBoundingClientRect 在元素还没布局时可能返回 0，所以用 rAF 兜一次
+
+    // 首次也要跑一次（此时可能还没布局，上面会自动重试）
     if (typeof requestAnimationFrame === 'function') requestAnimationFrame(resize);
     else resize();
+  }
+
+  /** 外部可主动要求重算尺寸（切换页签后调用）。 */
+  requestResize() {
+    if (this._resize) this._resize();
   }
 
   onStats(cb) { this._onStats = cb; }
@@ -65,12 +104,18 @@ export class BaseVisualizer {
 
   // ---------- 载入与重置 ----------
 
-  /** 子类覆盖：从 result 里恢复初始可视状态。 */
+  /**
+   * 子类覆盖：从 result 里恢复初始可视状态。
+   * 约定：**必须保证 draw() 在任何时候调用都不会崩**，
+   * 因为基类在构造阶段（还没 load 数据时）就可能触发一次绘制。
+   * 简单做法是把所有字段都初始化成空值，而不是留 undefined。
+   */
   _resetState() {}
 
   load(result) {
-    this.operations = result.operations || [];
-    this._result = result;
+    // 允许传 null（等价于清空），避免调用方漏判空就崩掉
+    this._result = result || null;
+    this.operations = (result && result.operations) || [];
     this.reset();
   }
 

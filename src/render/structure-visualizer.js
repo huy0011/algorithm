@@ -14,7 +14,8 @@ import { StructOp } from '../algorithms/tracer.js';
 export class StructureVisualizer extends BaseVisualizer {
   _resetState() {
     const result = this._result;
-    this.meta = result.meta || {};
+    // 构造阶段还没 load 数据时 result 是 undefined，全部字段都要有空的兜底值
+    this.meta = (result && result.meta) || {};
     this.structureType = this.meta.structureType || 'stack';
     /** 当前结构里的元素（按逻辑顺序：栈底→栈顶，或队头→队尾） */
     this.items = [];

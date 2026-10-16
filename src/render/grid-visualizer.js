@@ -16,10 +16,11 @@ import { GridOp } from '../algorithms/tracer.js';
 export class GridVisualizer extends BaseVisualizer {
   _resetState() {
     const result = this._result;
-    this.grid = (result.grid || []).map((r) => r.slice());
+    // 构造阶段还没 load 数据时 result 是 undefined，全部字段都要有空的兜底值
+    this.grid = ((result && result.grid) || []).map((r) => r.slice());
     this.rows = this.grid.length;
-    this.cols = this.grid[0]?.length ?? 0;
-    this.meta = result.meta || {};
+    this.cols = this.grid[0] ? this.grid[0].length : 0;
+    this.meta = (result && result.meta) || {};
     this.start = this.meta.start || [0, 0];
     this.end = this.meta.end || [this.rows - 1, this.cols - 1];
 

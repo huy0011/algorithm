@@ -15,8 +15,10 @@ import { ArrayOp } from '../algorithms/tracer.js';
 export class BarVisualizer extends BaseVisualizer {
   _resetState() {
     const result = this._result;
-    // 排序类算法的原始数组：result 里没有 base 时用第一帧的 view 兜底
-    this.baseArray = (result.baseArray || result.sorted || []).slice();
+    // 构造阶段还没 load 数据时 result 是 undefined，全部字段都要有空的兜底值
+    // 排序类算法的原始数组：result 里没有 baseArray 时用最终结果兜底
+    const base = (result && (result.baseArray || result.sorted)) || [];
+    this.baseArray = base.slice();
     this.view = this.baseArray.slice();
     this.sortedSet = new Set();
     this.highlight = { compare: [], swap: [], range: null };

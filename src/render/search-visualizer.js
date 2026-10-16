@@ -16,8 +16,10 @@ import { SearchOp } from '../algorithms/tracer.js';
 export class SearchVisualizer extends BaseVisualizer {
   _resetState() {
     const result = this._result;
-    this.array = (result.array || []).slice();
-    this.meta = result.meta || {};
+    // 构造阶段还没 load 数据时 result 是 undefined，
+    // 这里必须给出全部字段的空值，保证 draw() 不会崩。
+    this.array = (result && result.array ? result.array : []).slice();
+    this.meta = (result && result.meta) || {};
     this.lo = 0;
     this.hi = this.array.length - 1;
     this.probeIndex = -1;
