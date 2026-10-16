@@ -239,6 +239,9 @@ for (const [catId, expectPrimary, expectSecondary] of [
   ['sort', '比较次数', '交换次数'],
   ['path', '访问格数', '待访问'],
   ['search', '比较次数', '探测次数'],
+  ['technique', '比较/判断', '步骤'],
+  ['string', '比较/判断', '步骤'],
+  ['bits', '逐位运算', '操作数'],
   ['structure', '入栈/入队', '出栈/出队'],
 ]) {
   el('category-select').value = catId;
@@ -378,8 +381,8 @@ await sleep(80);
 assert(stepTotal() > 0, `网格改为 26 格宽后正常生成（${stepTotal()} 步）`);
 
 // ============ 11. 播放控制遍历各渲染器 ============
-console.log('\n[10] 播放控制（遍历各类渲染器）');
-for (const catId of ['sort', 'noncompare', 'search', 'path', 'structure']) {
+console.log('\n[10] 播放控制（遍历全部 8 类渲染器）');
+for (const catId of ['sort', 'noncompare', 'search', 'path', 'technique', 'string', 'bits', 'structure']) {
   el('category-select').value = catId;
   el('category-select').dispatch('change');
   await sleep(60);

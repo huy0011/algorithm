@@ -11,6 +11,11 @@ import { createVisualizer, buildInput } from './render/factory.js';
 import { Player } from './render/player.js';
 import { SYNTAX_GROUPS, SYNTAX_BY_ID } from './syntax/topics.js';
 import { runExample, formatValue } from './syntax/runner.js';
+import {
+  luoguLinksForSyntax,
+  luoguLinksForAlgo,
+  luoguTrainingLinks,
+} from './syntax/luogu.js';
 
 const $ = (id) => document.getElementById(id);
 
@@ -60,6 +65,8 @@ const dom = {
   legendGrid: $('legend-grid'),
   legendSearch: $('legend-search'),
   legendStructure: $('legend-structure'),
+  legendSpan: $('legend-span'),
+  legendBits: $('legend-bits'),
 
   // 语法页
   syntaxNav: $('syntax-nav'),
@@ -72,6 +79,8 @@ const dom = {
   syntaxUsedBy: $('syntax-used-by'),
   syntaxSearch: $('syntax-search'),
   syntaxCount: $('syntax-count'),
+  syntaxLuogu: $('syntax-luogu'),
+  algoLuogu: $('algo-luogu'),
 };
 
 // ---------- 状态 ----------
@@ -168,6 +177,8 @@ function refreshControlsForAlgo() {
   dom.legendSearch.hidden = renderer !== 'search';
   dom.legendGrid.hidden = renderer !== 'path';
   dom.legendStructure.hidden = renderer !== 'structure';
+  if (dom.legendSpan) dom.legendSpan.hidden = !(renderer === 'technique' || renderer === 'string');
+  if (dom.legendBits) dom.legendBits.hidden = renderer !== 'bits';
 }
 
 /** 统计区的标签随可视化类型变化（网格没有「交换次数」）。 */
@@ -186,11 +197,40 @@ function refreshStatLabels() {
     dom.statPrimaryLabel.textContent = '入栈/入队';
     dom.statSecondaryLabel.textContent = '出栈/出队';
     dom.statTertiaryLabel.textContent = '当前大小';
+  } else if (cat === 'technique' || cat === 'string') {
+    dom.statPrimaryLabel.textContent = '比较/判断';
+    dom.statSecondaryLabel.textContent = '步骤';
+    dom.statTertiaryLabel.textContent = '累加值';
+  } else if (cat === 'bits') {
+    dom.statPrimaryLabel.textContent = '逐位运算';
+    dom.statSecondaryLabel.textContent = '操作数';
+    dom.statTertiaryLabel.textContent = '结果位';
   } else {
     dom.statPrimaryLabel.textContent = '比较次数';
     dom.statSecondaryLabel.textContent = '交换次数';
     dom.statTertiaryLabel.textContent = '写入次数';
   }
+}
+
+/**
+ * 把算法返回值统一成「可渲染的结果对象」。
+ *
+ * 为什么需要归一化：
+ *   排序/查找/寻路类的 run() 直接返回 { kind, operations, ... }；
+ *   基础技巧与字符串类的 run() 返回 { tracer, ... }（方便测试直接取用中间数据）。
+ * 这里统一收口，避免每个调用点都写一遍判断。
+ *
+ * 注意出口方法名不统一：BitTracer 用 build()（因为 result() 被占用为「记录结果行」），
+ * 其余 Tracer 用 result()。所以两个都要试。
+ */
+function normalizeResult(raw) {
+  if (!raw) return raw;
+  if (raw.operations) return raw;           // 已经是结果对象
+  if (raw.tracer) {
+    const tr = raw.tracer;
+    return typeof tr.build === 'function' ? tr.build() : tr.result();
+  }
+  return raw;
 }
 
 /** 运行当前算法，重建渲染器（渲染器类型可能变了）。 */
@@ -208,7 +248,9 @@ function runCurrentAlgorithm(reuseInput = false) {
     state.lastOptions = options;
   }
 
-  const result = algo.run(state.lastInput, state.lastOptions);
+  const raw = algo.run(state.lastInput, state.lastOptions);
+  const result = normalizeResult(raw);
+
   // 排序类渲染器需要一个「原始数组」作为重置基准
   if (result.kind === 'array') result.baseArray = state.lastInput.slice();
   state.result = result;
@@ -259,21 +301,24 @@ function renderSyntaxLinks(algo) {
   const topics = algo.syntaxTopics || [];
   if (topics.length === 0) {
     dom.syntaxLinks.innerHTML = '<span class="muted">（这个算法没有关联语法点）</span>';
-    return;
-  }
-  dom.syntaxLinks.innerHTML = topics
-    .map((id) => {
-      const t = SYNTAX_BY_ID[id];
-      if (!t) return '';
-      return `<button class="syntax-chip" data-topic="${id}" title="查看「${t.title}」">${t.title}</button>`;
-    })
-    .join('');
-  dom.syntaxLinks.querySelectorAll('[data-topic]').forEach((btn) => {
-    btn.addEventListener('click', () => {
-      switchTab('syntax');
-      selectTopic(btn.dataset.topic);
+  } else {
+    dom.syntaxLinks.innerHTML = topics
+      .map((id) => {
+        const t = SYNTAX_BY_ID[id];
+        if (!t) return '';
+        return `<button class="syntax-chip" data-topic="${id}" title="查看「${t.title}」">${t.title}</button>`;
+      })
+      .join('');
+    dom.syntaxLinks.querySelectorAll('[data-topic]').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        switchTab('syntax');
+        selectTopic(btn.dataset.topic);
+      });
     });
-  });
+  }
+
+  // 无论有没有关联语法点，都要给出这个算法在洛谷的练习入口
+  renderLuogu(dom.algoLuogu, luoguLinksForAlgo(algo.id));
 }
 
 /** 统计数字更新。不同可视化类型显示不同的三项。 */
@@ -297,6 +342,21 @@ function updateStatsUI() {
     dom.statComparisons.textContent = (s.writes || 0).toLocaleString();
     dom.statSwaps.textContent = (s.writes || 0).toLocaleString();
     dom.statWrites.textContent = size.toLocaleString();
+  } else if (cat === 'technique' || cat === 'string') {
+    // 指针类算法：关心比较次数、累加步骤、以及最近一次的累加值
+    const acc = visualizer.accumulates || {};
+    const accValues = Object.values(acc);
+    const lastAcc = accValues.length > 0 ? accValues[accValues.length - 1].value : 0;
+    dom.statComparisons.textContent = (s.comparisons || 0).toLocaleString();
+    dom.statSwaps.textContent = (s.steps || 0).toLocaleString();
+    dom.statWrites.textContent = typeof lastAcc === 'number' ? lastAcc.toLocaleString() : String(lastAcc);
+  } else if (cat === 'bits') {
+    // 位运算：逐位计算的次数、结果行已算出的位数
+    const resultRow = (visualizer.rows && visualizer.rows[2]) || null;
+    const knownBits = resultRow ? resultRow.bits.filter((b) => b !== null).length : 0;
+    dom.statComparisons.textContent = (s.steps || 0).toLocaleString();
+    dom.statSwaps.textContent = (visualizer.rows ? visualizer.rows.length : 0).toLocaleString();
+    dom.statWrites.textContent = knownBits.toLocaleString();
   } else {
     dom.statComparisons.textContent = (s.comparisons || 0).toLocaleString();
     dom.statSwaps.textContent = (s.swaps || 0).toLocaleString();
@@ -454,6 +514,40 @@ function selectTopic(topicId) {
 
   // 自动运行示例，直接显示真实输出
   executeTopicCode();
+
+  // 洛谷练习入口
+  renderLuogu(dom.syntaxLuogu, luoguLinksForSyntax(topicId));
+}
+
+/**
+ * 渲染洛谷练习区。
+ *
+ * 说明：这里只放「搜索入口」和「官方题单入口」，不写死具体题号 ——
+ * 开发环境没有网络，无法核对题号是否仍然有效，写死可能给出死链。
+ */
+function renderLuogu(container, links) {
+  if (!container) return;
+  const training = luoguTrainingLinks();
+  const html = [];
+
+  if (links.length > 0) {
+    html.push('<div class="luogu-group"><span class="luogu-label">题目搜索</span>');
+    html.push(links.map((l) =>
+      `<a class="luogu-link" href="${l.url}" target="_blank" rel="noopener noreferrer">${escapeHtml(l.label)} ↗</a>`
+    ).join(''));
+    html.push('</div>');
+  }
+
+  html.push('<div class="luogu-group"><span class="luogu-label">题单入口</span>');
+  html.push(training.map((l) =>
+    `<a class="luogu-link luogu-link-alt" href="${l.url}" target="_blank" rel="noopener noreferrer">${escapeHtml(l.label)} ↗</a>`
+  ).join(''));
+  html.push('</div>');
+
+  html.push('<p class="luogu-note">链接跳到洛谷站内搜索/题单页，关键词已填好。' +
+    '不写死题号是因为题目会调整，搜索入口比固定题号更可靠。</p>');
+
+  container.innerHTML = html.join('');
 }
 
 /** 运行当前知识点的示例代码并展示输出。 */

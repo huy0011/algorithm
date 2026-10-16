@@ -189,17 +189,17 @@ function drawVizScreenshot() {
   cv.roundRect(24, 84, 286, 700, 10, C.panel);
   cv.text('CATEGORY', 44, 104, C.muted, 1);
   cv.rect(44, 122, 246, 30, C.elevated);
-  cv.text('COMPARE SORT', 56, 130, C.text, 2);
+  cv.text('BASIC TECHNIQUES', 56, 130, C.text, 2);
 
   cv.text('ALGORITHM', 44, 168, C.muted, 1);
   cv.rect(44, 186, 246, 30, C.elevated);
-  cv.text('QUICK SORT', 56, 194, C.text, 2);
+  cv.text('PREFIX SUM', 56, 194, C.text, 2);
 
   cv.rect(44, 228, 246, 76, C.elevated);
-  cv.text('QUICK SORT', 56, 238, C.text, 2);
-  cv.text('TIME O(N LOG N)  SPACE O(LOG N)', 56, 258, C.muted, 1);
-  cv.text('PICK A PIVOT: SMALL LEFT,', 56, 274, C.dim, 1);
-  cv.text('LARGE RIGHT, THEN RECURSE.', 56, 286, C.dim, 1);
+  cv.text('PREFIX SUM', 56, 238, C.text, 2);
+  cv.text('BUILD O(N)  QUERY O(1)', 56, 258, C.muted, 1);
+  cv.text('PRECOMPUTE PREFIX SUMS, THEN', 56, 274, C.dim, 1);
+  cv.text('ANY RANGE SUM IS ONE SUBTRACT.', 56, 286, C.dim, 1);
 
   cv.text('DATA SHAPE', 44, 322, C.muted, 1);
   cv.rect(44, 340, 246, 30, C.elevated);
@@ -349,7 +349,7 @@ function drawSyntaxScreenshot() {
   cv.roundRect(24, 84, 260, 700, 10, C.panel);
   cv.rect(44, 102, 172, 28, C.elevated);
   cv.text('SEARCH...', 56, 110, '#5d6779', 1);
-  cv.text('36 / 36', 224, 110, C.muted, 1);
+  cv.text('48 / 48', 224, 110, C.muted, 1);
 
   let ny = 148;
   const groupLabels = {
@@ -374,16 +374,16 @@ function drawSyntaxScreenshot() {
 
   cv.roundRect(302, 84, 1074, 700, 10, C.panel);
 
-  cv.text('BINARY SEARCH MIDPOINT', 326, 108, C.text, 3);
+  cv.text('HELLO WORLD', 326, 108, C.text, 3);
   cv.rect(326, 138, 1026, 1, C.border);
-  cv.text('LO + (HI - LO) / 2 IS SAFER THAN (LO + HI) / 2.', 326, 156, C.dim, 2);
+  cv.text('EVERY PROGRAMMER\'S FIRST LINE: MAKE THE COMPUTER SAY SOMETHING.', 326, 156, C.dim, 1);
 
   cv.text('KEY POINTS', 326, 196, C.muted, 1);
   const points = [
-    'MATH.FLOOR((LO + HI) / 2) IS THE OBVIOUS WAY TO FIND THE MIDDLE',
-    'LO + FLOOR((HI - LO) / 2) USES SUBTRACTION, SO IT CANNOT OVERFLOW',
-    'IN JS NUMBERS ARE FLOATS SO OVERFLOW IS NOT REAL, BUT THE HABIT MATTERS',
-    'MIXING CLOSED AND HALF-OPEN RANGES IS THE #1 BINARY SEARCH BUG',
+    'CONSOLE.LOG(...) IS THE MOST BASIC WAY TO PRINT SOMETHING',
+    'STRINGS GO IN QUOTES: SINGLE, DOUBLE, OR BACKTICK ALL WORK',
+    'A SEMICOLON ENDS A STATEMENT',
+    'SEEING OUTPUT IS THE FIRST AND MOST VALUABLE FEEDBACK',
   ];
   let py = 216;
   for (const p of points) {
@@ -395,20 +395,22 @@ function drawSyntaxScreenshot() {
   cv.text('EXAMPLE CODE', 326, 312, C.muted, 1);
   cv.rect(326, 330, 1026, 238, '#0d121d');
   const code = [
-    'const arr = [1, 3, 5, 7, 9, 11, 13, 15, 17];',
-    'const target = 13;',
+    '// The most basic output',
+    'console.log(\'Hello World\');',
     '',
-    'function binarySearch(a, target) {',
-    '  let lo = 0, hi = a.length - 1, steps = 0;',
-    '  while (lo <= hi) {',
-    '    const mid = lo + Math.floor((hi - lo) / 2);',
-    '    steps++;',
-    '    if (a[mid] === target) return { index: mid, steps };',
-    '    if (a[mid] < target) lo = mid + 1;',
-    '    else hi = mid - 1;',
-    '  }',
-    '  return { index: -1, steps };',
-    '}',
+    '// All three quote styles are legal',
+    'console.log("double quotes work too");',
+    'console.log(`backticks are template strings`);',
+    '',
+    '// Print several values at once, separated by commas',
+    'console.log(\'result is\', 1 + 1);',
+    '',
+    '// Backticks can embed variables (most common)',
+    'const name = \'AlgoViz\';',
+    'console.log(`hello, ${name}!`);',
+    '',
+    '// return hands the value back to the page',
+    'return { first: \'Hello World\', greeting: `hello, ${name}!` };',
   ];
   let cy = 344;
   for (const line of code) { cv.text(line, 344, cy, '#cfd8e8', 1); cy += 15; }
@@ -417,14 +419,15 @@ function drawSyntaxScreenshot() {
   cv.rect(326, 608, 1026, 58, '#0d121d');
   cv.roundRect(340, 624, 60, 20, 4, '#1e3a2c');
   cv.text('RETURN', 348, 630, C.green, 1);
-  cv.text('{ "INDEX": 6, "STEPS": 2, "WORSTCASE": 4 }', 416, 628, '#a9e3c3', 2);
+  cv.text('{ "FIRST": "HELLO WORLD", "GREETING": "HELLO, ALGOVIZ!" }', 416, 628, '#a9e3c3', 2);
 
-  cv.text('USED BY THESE ALGORITHMS', 326, 694, C.muted, 1);
+  // 洛谷练习入口
+  cv.text('PRACTICE ON LUOGU', 326, 694, C.muted, 1);
   let ux = 326;
-  for (const name of ['BINARY SEARCH', 'BINARY SEARCH ON ANSWER']) {
+  for (const name of ['SEARCH: OUTPUT', 'OFFICIAL PROBLEM SETS']) {
     const w = Canvas.tw(name, 1) + 18;
-    cv.roundRect(ux, 712, w, 24, 5, '#1b3328');
-    cv.text(name, ux + 9, 719, '#b9e3cd', 1);
+    cv.roundRect(ux, 712, w, 24, 5, '#1d2c44');
+    cv.text(name, ux + 9, 719, '#9ecbff', 1);
     ux += w + 8;
   }
 

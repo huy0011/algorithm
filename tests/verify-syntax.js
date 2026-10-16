@@ -105,7 +105,45 @@ for (const algoId of ALGORITHM_ORDER) {
 const orphanTopics = ids.filter((id) => !referenced.has(id));
 console.log(`  · 未被任何算法引用的语法点：${orphanTopics.length} 个${orphanTopics.length ? '（' + orphanTopics.join(', ') + '）' : ''}`);
 
-// ---------- 5. 抽查几个示例的返回值是否符合预期 ----------
+// ---------- 6. 洛谷练习入口的有效性 ----------
+console.log('\n[6] 洛谷练习入口');
+{
+  const { luoguLinksForSyntax, luoguLinksForAlgo, luoguTrainingLinks, SYNTAX_LUOGU, ALGO_LUOGU } =
+    await import(pathToFileURL(path.join(ROOT, 'src/syntax/luogu.js')).href);
+
+  // 每个知识点都应该有搜索入口
+  const noLink = SYNTAX_TOPICS.filter((t) => !SYNTAX_LUOGU[t.id] || SYNTAX_LUOGU[t.id].length === 0);
+  assert(noLink.length === 0,
+    noLink.length ? `这些知识点没有洛谷入口：${noLink.map((t) => t.id).join(', ')}` : `全部 ${SYNTAX_TOPICS.length} 个知识点都有洛谷搜索入口`);
+
+  // 每个算法都应该有搜索入口
+  const algoNoLink = ALGORITHM_ORDER.filter((id) => !ALGO_LUOGU[id] || ALGO_LUOGU[id].length === 0);
+  assert(algoNoLink.length === 0,
+    algoNoLink.length ? `这些算法没有洛谷入口：${algoNoLink.join(', ')}` : `全部 ${ALGORITHM_ORDER.length} 个算法都有洛谷搜索入口`);
+
+  // 链接格式必须合法
+  const allLinks = [
+    ...SYNTAX_TOPICS.flatMap((t) => luoguLinksForSyntax(t.id)),
+    ...ALGORITHM_ORDER.flatMap((id) => luoguLinksForAlgo(id)),
+    ...luoguTrainingLinks(),
+  ];
+  const badUrl = allLinks.filter((l) => !/^https:\/\/www\.luogu\.com\.cn\//.test(l.url));
+  assert(badUrl.length === 0,
+    badUrl.length ? `非法链接：${badUrl.map((l) => l.url).join(', ')}` : `${allLinks.length} 个洛谷链接格式全部合法（均指向 luogu.com.cn）`);
+
+  // 关键词必须被 URL 编码（中文关键词不编码会出问题）
+  const searchLinks = allLinks.filter((l) => l.url.includes('keyword='));
+  const unencoded = searchLinks.filter((l) => /keyword=[^&]*[\u4e00-\u9fa5]/.test(l.url));
+  assert(unencoded.length === 0,
+    unencoded.length ? `关键词未编码：${unencoded[0].url}` : `${searchLinks.length} 个搜索链接的中文关键词都已正确编码`);
+
+  // 确认没有写死题号（因为无法联网核对）
+  const hardcoded = allLinks.filter((l) => /\/problem\/P?\d+/i.test(l.url));
+  assert(hardcoded.length === 0,
+    hardcoded.length ? `发现写死的题号链接：${hardcoded.map((l) => l.url).join(', ')}` : '没有写死题号（避免死链，只用搜索入口）');
+}
+
+// ---------- 7. 抽查几个示例的返回值是否符合预期 ----------
 console.log('\n[5] 关键示例返回值抽查');
 const byId = Object.fromEntries(SYNTAX_TOPICS.map((t) => [t.id, t]));
 

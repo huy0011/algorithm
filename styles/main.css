@@ -672,6 +672,56 @@ th.num { text-align: right; }
 .note-plain p:last-child { margin-bottom: 0; }
 .note-plain strong { color: #a9c8f5; }
 
+/* ---------- 洛谷练习入口 ---------- */
+
+.luogu-box { display: flex; flex-direction: column; gap: 10px; }
+
+.luogu-group { display: flex; flex-direction: column; gap: 5px; }
+
+.luogu-label {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: .5px;
+  color: var(--text-muted);
+  text-transform: uppercase;
+}
+
+.luogu-link {
+  display: block;
+  font-size: 11.5px;
+  line-height: 1.5;
+  padding: 6px 10px;
+  border-radius: 5px;
+  text-decoration: none;
+  color: #9ecbff;
+  background: rgba(74, 127, 212, .13);
+  border: 1px solid rgba(74, 127, 212, .32);
+  transition: background .15s, border-color .15s;
+}
+.luogu-link:hover {
+  background: rgba(74, 127, 212, .26);
+  border-color: var(--blue);
+  color: #cfe0f8;
+}
+
+.luogu-link-alt {
+  color: #c9bfa4;
+  background: rgba(242, 177, 52, .09);
+  border-color: rgba(242, 177, 52, .26);
+}
+.luogu-link-alt:hover {
+  background: rgba(242, 177, 52, .2);
+  border-color: var(--amber);
+  color: #e6d9b8;
+}
+
+.luogu-note {
+  margin: 2px 0 0;
+  font-size: 10px;
+  line-height: 1.55;
+  color: #6b7488;
+}
+
 /* ---------- 页脚 ---------- */
 
 .footer {
