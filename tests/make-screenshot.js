@@ -145,10 +145,11 @@ function writePng(cv, file) {
   return png.length;
 }
 
+// 与 styles/theme.css 的新主题保持一致
 const C = {
-  bg: '#0f1420', panel: '#171d2b', elevated: '#1e2536', border: '#2a3346',
-  text: '#e6ebf5', muted: '#8a93a6', blue: '#4a7fd4', amber: '#f2b134',
-  red: '#e8563f', green: '#3fb27f', purple: '#a06cd5', dim: '#b4bdd0',
+  bg: '#0b1018', panel: '#161e2e', elevated: '#1e2a3e', border: '#2a3850',
+  text: '#e8eef9', muted: '#8a9ab0', blue: '#5b8def', amber: '#f2b134',
+  red: '#e8563f', green: '#22d3a8', purple: '#7c5cff', dim: '#b8c4d8',
 };
 
 function drawChrome(cv, activeTab) {
@@ -423,14 +424,17 @@ function drawSyntaxScreenshot() {
   // 如实标注：构建期编译，页面不能重跑
   cv.text(`COMPILER: G++ 16.2.0   (PAGE CANNOT RECOMPILE C++)`, 326, 672, C.muted, 1);
 
-  // 洛谷练习入口
-  cv.text('PRACTICE ON LUOGU', 326, 700, C.muted, 1);
-  let ux = 326;
-  for (const name of ['SEARCH: OUTPUT', 'INTRO PROBLEM SETS']) {
-    const w = Canvas.tw(name, 1) + 18;
-    cv.roundRect(ux, 718, w, 24, 5, '#1d2c44');
-    cv.text(name, ux + 9, 725, '#9ecbff', 1);
-    ux += w + 8;
+  // 洛谷精选真题（展示真实题号，与页面一致）
+  cv.text('PRACTICE ON LUOGU  (LINKS VERIFIED)', 326, 700, C.muted, 1);
+  const probs = (activeTopic && activeTopic.problems ? activeTopic.problems : []).slice(0, 3);
+  let pxx = 326;
+  for (const prob of probs) {
+    const label = prob.id;
+    const w = Canvas.tw(label, 1) + 20;
+    if (pxx + w > 1340) break;
+    cv.roundRect(pxx, 718, w, 24, 5, '#1d2c44');
+    cv.text(label, pxx + 10, 725, '#9ecbff', 1);
+    pxx += w + 8;
   }
   void CPP_BUILD_META;
 
