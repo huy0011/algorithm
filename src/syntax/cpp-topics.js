@@ -46,6 +46,54 @@ int main() {
   },
 
   {
+    id: 'cpp-comments',
+    group: '零基础入门',
+    title: '注释：写给人看的说明',
+    summary: '注释不会被执行。好注释解释「为什么」，而不是重复「是什么」。',
+    points: [
+      '// 是单行注释，从它到行尾都被编译器忽略',
+      '/* ... */ 是多行注释，可以跨行',
+      '注释用来解释「为什么这么写」，而不是把代码翻译成中文',
+      '调试时可以用注释临时屏蔽一段代码',
+      '过期的注释比没有注释更危险：改代码时要一起改',
+    ],
+    code: `#include <iostream>
+using namespace std;
+
+// 这是单行注释：解释下面这行在做什么
+
+/*
+ * 这是多行注释
+ * 常用于给函数写说明：参数是什么、返回什么
+ */
+
+/**
+ * 计算平均分
+ * @param total 总分
+ * @param count 人数
+ * @return 平均分；人数为 0 时返回 0
+ */
+double average(double total, int count) {
+    // 防止除以 0 得到 inf 或 nan（这是「为什么」型注释）
+    if (count == 0) return 0.0;
+    return total / count;
+}
+
+int main() {
+    cout << "平均分 = " << average(270, 3) << endl;
+
+    /* 也可以用注释临时屏蔽代码来调试
+    cout << "这行不会执行" << endl;
+    */
+
+    // 注意：注释里写的内容不会影响程序
+    cout << "注释是给人看的，编译器完全忽略它们" << endl;
+
+    return 0;
+}`,
+  },
+
+  {
     id: 'cpp-variables',
     group: '零基础入门',
     title: '变量与基本类型',

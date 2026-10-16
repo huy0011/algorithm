@@ -330,7 +330,8 @@ const { CPP_GROUPS, CPP_TOPIC_LIST, CPP_BUILD_META } = await import(
 /** 中文标题用英文标签代替（点阵字体画不了中文）。 */
 const LABELS = {
   // 零基础入门
-  'cpp-hello': 'HELLO WORLD', 'cpp-variables': 'VARIABLES & TYPES',
+  'cpp-hello': 'HELLO WORLD', 'cpp-comments': 'COMMENTS',
+  'cpp-variables': 'VARIABLES & TYPES',
   'cpp-io': 'INPUT / OUTPUT', 'cpp-operators': 'OPERATORS',
   'cpp-branch': 'IF / ELSE', 'cpp-loops': 'LOOPS', 'cpp-array': 'ARRAYS',
   'cpp-functions': 'FUNCTIONS', 'cpp-recursion': 'RECURSION',

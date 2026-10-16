@@ -82,6 +82,7 @@ export function luoguTrainingLinks() {
 export const SYNTAX_LUOGU = {
   // ---------- 零基础入门 ----------
   'cpp-hello': ['输出', '入门'],
+  'cpp-comments': ['入门', '模拟'],
   'cpp-variables': ['变量', '入门'],
   'cpp-io': ['输入输出', '入门'],
   'cpp-operators': ['运算', '入门'],

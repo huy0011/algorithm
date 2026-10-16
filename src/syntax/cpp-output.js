@@ -4,7 +4,7 @@
  * 内容：每个 C++ 示例经 g++ 真实编译运行后的 stdout。
  * 生成方式：node tests/build-cpp.js → 编译 → node tests/build-cpp.js --collect
  * 编译器：g++ -std=c++17 -O2
- * 生成时间：2026-10-16T15:10:12.383Z
+ * 生成时间：2026-10-16T15:21:48.252Z
  *
  * 为什么页面不直接编译 C++：浏览器没有 C++ 编译器，
  * 且本项目部署在 GitHub Pages（纯静态、无后端），所以只能预先录制输出。
@@ -12,12 +12,12 @@
 
 export const CPP_OUTPUT = {
   "meta": {
-    "generatedAt": "2026-10-16T15:10:12.383Z",
+    "generatedAt": "2026-10-16T15:21:48.252Z",
     "compiler": "g++ -std=c++17 -O2",
     "compilerVersion": "g++.exe (x86_64-posix-seh-rev1, Built by MinGW-Builds project) 16.2.0",
     "note": "本文件由构建脚本生成：每个 C++ 示例都经真实编译运行，stdout 为程序真实输出。浏览器无法编译 C++，所以页面上展示的是这份预先录制的输出，不能重新运行。",
-    "total": 45,
-    "passed": 45,
+    "total": 46,
+    "passed": 46,
     "failed": 0
   },
   "results": {
@@ -26,6 +26,12 @@ export const CPP_OUTPUT = {
       "title": "Hello World",
       "verified": true,
       "stdout": "Hello World\n结果是 2\n第一行\n第二行"
+    },
+    "cpp-comments": {
+      "kind": "topic",
+      "title": "注释：写给人看的说明",
+      "verified": true,
+      "stdout": "平均分 = 90\n注释是给人看的，编译器完全忽略它们"
     },
     "cpp-variables": {
       "kind": "topic",
