@@ -4,7 +4,7 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>算法可视化 · Algo Viz</title>
-<meta name="description" content="把排序算法的执行过程变成看得见的动画：比较、交换、已就位一览无余，支持七种算法对比。" />
+<meta name="description" content="把算法执行过程变成看得见的动画，并配套可运行的 JS 语法基础教程。支持排序、查找、寻路、数据结构共 16 种算法。" />
 <link rel="stylesheet" href="./styles/main.css" />
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect x='12' y='55' width='16' height='33' fill='%234a7fd4'/><rect x='34' y='35' width='16' height='53' fill='%23f2b134'/><rect x='56' y='18' width='16' height='70' fill='%23e8563f'/><rect x='78' y='8' width='16' height='80' fill='%233fb27f'/></svg>" />
 </head>
@@ -22,16 +22,27 @@
       <p class="brand-sub">把看不见的算法过程，变成看得见的动画</p>
     </div>
   </div>
-  <a class="gh-link" href="https://github.com/" target="_blank" rel="noopener noreferrer" title="在 GitHub 上查看源码">
+
+  <nav class="tabs" role="tablist">
+    <button class="tab is-active" data-tab="viz" role="tab" aria-selected="true">算法可视化</button>
+    <button class="tab" data-tab="syntax" role="tab" aria-selected="false">语法基础</button>
+  </nav>
+
+  <a class="gh-link" href="https://github.com/huy0011/algorithm" target="_blank" rel="noopener noreferrer" title="在 GitHub 上查看源码">
     <svg viewBox="0 0 16 16" width="18" height="18" aria-hidden="true"><path fill="currentColor" d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27s1.36.09 2 .27c1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8Z"/></svg>
     <span>GitHub</span>
   </a>
 </header>
 
-<main class="layout">
+<!-- ==================== 算法可视化 ==================== -->
+<main class="layout" data-pane="viz">
 
-  <!-- 左侧控制面板 -->
   <aside class="panel controls">
+    <section class="group">
+      <label class="label" for="category-select">分类</label>
+      <select id="category-select" class="select"></select>
+    </section>
+
     <section class="group">
       <label class="label" for="algo-select">算法</label>
       <select id="algo-select" class="select"></select>
@@ -39,7 +50,7 @@
         <div class="algo-title">
           <strong id="algo-name">冒泡排序</strong>
           <span id="algo-en" class="muted">Bubble Sort</span>
-          <span id="algo-stable" class="badge badge-ok">稳定</span>
+          <span id="algo-stable-wrap"><span id="algo-stable" class="badge badge-ok">稳定</span></span>
         </div>
         <p id="algo-blurb" class="algo-blurb"></p>
         <dl class="complexity">
@@ -49,7 +60,7 @@
       </div>
     </section>
 
-    <section class="group">
+    <section class="group" id="shape-group">
       <label class="label" for="shape-select">数据分布</label>
       <select id="shape-select" class="select">
         <option value="random">随机</option>
@@ -59,7 +70,7 @@
       </select>
     </section>
 
-    <section class="group">
+    <section class="group" id="size-group">
       <label class="label" for="size-range">
         数据规模 <output id="size-value" class="value">40</output>
       </label>
@@ -76,12 +87,17 @@
     </section>
 
     <section class="group">
-      <button id="btn-generate" class="btn btn-primary btn-block">生成新数组</button>
+      <button id="btn-generate" class="btn btn-primary btn-block">生成新数据</button>
       <button id="btn-compare" class="btn btn-block">对比全部算法</button>
+    </section>
+
+    <section class="group">
+      <div class="label">用到的语法点</div>
+      <div id="syntax-links" class="syntax-chips"></div>
+      <p class="hint">点一下跳到「语法基础」里对应的讲解。</p>
     </section>
   </aside>
 
-  <!-- 中间画布 -->
   <section class="stage">
     <div class="stage-head">
       <div class="transport">
@@ -90,7 +106,7 @@
           <span id="play-label">播放</span>
         </button>
         <button id="btn-step" class="btn" title="单步前进（→）">单步</button>
-        <button id="btn-skip" class="btn" title="直接跳到排序结果">直接看结果</button>
+        <button id="btn-skip" class="btn" title="直接跳到结果">直接看结果</button>
         <button id="btn-reset" class="btn" title="回到第一步（Home）">重置</button>
       </div>
       <div class="step-label">
@@ -102,36 +118,59 @@
     <div class="progress-track"><div id="progress" class="progress-bar"></div></div>
 
     <div class="canvas-wrap">
-      <canvas id="canvas" aria-label="排序过程柱状图动画"></canvas>
+      <canvas id="canvas" aria-label="算法过程可视化画布"></canvas>
     </div>
 
-    <div class="legend">
+    <!-- 图例：按渲染器切换 -->
+    <div class="legend" id="legend-bars">
       <span class="legend-item"><i style="background:#4a7fd4"></i>未排序</span>
       <span class="legend-item"><i style="background:#f2b134"></i>正在比较</span>
       <span class="legend-item"><i style="background:#e8563f"></i>正在交换 / 写入</span>
       <span class="legend-item"><i style="background:#3fb27f"></i>已就位</span>
+      <span class="legend-item"><i style="background:#a06cd5"></i>本轮处理的区间 / 桶</span>
+    </div>
+
+    <div class="legend" id="legend-search" hidden>
+      <span class="legend-item"><i style="background:#3f6ea8"></i>候选区间内</span>
+      <span class="legend-item"><i style="background:#f2b134"></i>本次探测点</span>
+      <span class="legend-item"><i style="background:#39445c"></i>已排除</span>
+      <span class="legend-item"><i style="background:#3fb27f"></i>命中</span>
+    </div>
+
+    <div class="legend" id="legend-grid" hidden>
+      <span class="legend-item"><i style="background:#3fb27f"></i>起点</span>
+      <span class="legend-item"><i style="background:#e8563f"></i>终点</span>
+      <span class="legend-item"><i style="background:#3f6ea8"></i>已访问</span>
+      <span class="legend-item"><i style="background:#f2b134"></i>待访问</span>
+      <span class="legend-item"><i style="background:#3fb27f"></i>最终路径</span>
+      <span class="legend-item"><i style="background:#2a3346"></i>墙</span>
+    </div>
+
+    <div class="legend" id="legend-structure" hidden>
+      <span class="legend-item"><i style="background:#3f6ea8"></i>正在处理的元素</span>
+      <span class="legend-item"><i style="background:#e8563f"></i>刚放入</span>
+      <span class="legend-item"><i style="background:#26304a"></i>其他元素</span>
     </div>
 
     <div class="stats">
       <div class="stat">
-        <span class="stat-label">比较次数</span>
+        <span class="stat-label" id="stat-primary-label">比较次数</span>
         <strong id="stat-comparisons" class="stat-value">0</strong>
       </div>
       <div class="stat">
-        <span class="stat-label">交换次数</span>
+        <span class="stat-label" id="stat-secondary-label">交换次数</span>
         <strong id="stat-swaps" class="stat-value">0</strong>
       </div>
       <div class="stat">
-        <span class="stat-label">写入次数</span>
+        <span class="stat-label" id="stat-tertiary-label">写入次数</span>
         <strong id="stat-writes" class="stat-value">0</strong>
       </div>
     </div>
   </section>
 
-  <!-- 右侧对比表 -->
-  <aside class="panel compare">
+  <aside class="panel compare" id="compare-section">
     <h2 class="panel-title">效率对比</h2>
-    <p class="hint">用当前这组数据跑遍全部算法，按比较次数从少到多排序。</p>
+    <p class="hint">用当前这组数据跑遍同类算法，按比较次数从少到多排序。</p>
     <div class="table-wrap">
       <table class="compare-table">
         <thead>
@@ -145,17 +184,70 @@
           </tr>
         </thead>
         <tbody id="compare-table-body">
-          <tr><td colspan="6" class="empty">点击上方「对比全部算法」查看结果</td></tr>
+          <tr><td colspan="6" class="empty">点击「对比全部算法」查看结果</td></tr>
         </tbody>
       </table>
     </div>
     <div class="note">
       <strong>关于口径：</strong>插入排序与希尔排序用「相邻交换」实现以产生连续动画，
       交换次数会高于教科书式的搬移写法；归并排序不是交换排序，它用「写入」计量。
-      因此横向比较时，<em>比较次数</em>比交换次数更能反映真实效率。
+      横向比较时，<em>比较次数</em>更能反映真实效率。
+      计数/基数/桶排序的比较次数始终为 <em>0</em> —— 因为它们根本不做比较。
     </div>
   </aside>
 
+  <aside class="panel compare" id="compare-placeholder" hidden>
+    <h2 class="panel-title">这一类的看点</h2>
+    <div class="note note-plain">
+      <p><strong>查找 / 二分：</strong>关注「候选区间怎么收窄」。每次折半都能排除一半，
+      所以 n 个元素最多只需 log₂n 次 —— 数据翻倍，步数只加 1。</p>
+      <p><strong>路径查找：</strong>对比 BFS 和 DFS 的扩散形状。BFS 用队列，一圈圈规则扩散，
+      找到的必然是最短路径；DFS 用栈，一条道窜到底，路径通常不是最短。</p>
+      <p><strong>数据结构：</strong>栈是后进先出，队列是先进先出 ——
+      这正是 DFS 与 BFS 唯一的实现差别。</p>
+    </div>
+  </aside>
+</main>
+
+<!-- ==================== 语法基础 ==================== -->
+<main class="syntax-layout" data-pane="syntax" hidden>
+  <aside class="panel syntax-nav-panel">
+    <div class="syntax-search-wrap">
+      <input id="syntax-search" class="input" type="search" placeholder="搜索知识点…" />
+      <span id="syntax-count" class="syntax-count">0 / 0</span>
+    </div>
+    <nav id="syntax-nav" class="syntax-nav"></nav>
+  </aside>
+
+  <section class="panel syntax-main">
+    <header class="syntax-head">
+      <h2 id="syntax-title" class="syntax-title">知识点</h2>
+      <p id="syntax-summary" class="syntax-summary"></p>
+    </header>
+
+    <div class="syntax-section">
+      <h3 class="syntax-h3">要点</h3>
+      <ul id="syntax-points" class="syntax-points"></ul>
+    </div>
+
+    <div class="syntax-section">
+      <div class="code-head">
+        <h3 class="syntax-h3">示例代码</h3>
+        <button id="syntax-run" class="btn btn-small">▶ 重新运行</button>
+      </div>
+      <pre id="syntax-code" class="code-block"></pre>
+    </div>
+
+    <div class="syntax-section">
+      <h3 class="syntax-h3">运行结果 <span class="muted">（代码是真跑出来的，不是写死的）</span></h3>
+      <div id="syntax-output" class="output-block"></div>
+    </div>
+
+    <div class="syntax-section">
+      <h3 class="syntax-h3">哪些算法用到了它</h3>
+      <div id="syntax-used-by" class="syntax-chips"></div>
+    </div>
+  </section>
 </main>
 
 <footer class="footer">

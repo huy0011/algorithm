@@ -8,6 +8,10 @@
  */
 
 import { Tracer } from './tracer.js';
+import { NONCOMPARE_ALGORITHMS } from './noncompare.js';
+import { SEARCH_ALGORITHMS } from './search.js';
+import { PATH_ALGORITHMS } from './path.js';
+import { STRUCTURE_ALGORITHMS } from './structures.js';
 
 /** 冒泡排序：相邻两两比较，大的往后冒。 */
 function bubbleSort(input) {
@@ -220,83 +224,155 @@ function heapSort(input) {
 }
 
 /**
- * 算法注册表。
- * complexity 只用于界面展示；关于插入/希尔排序的「交换次数」口径差异，
- * 在 UI 里有专门说明，避免误读成算法优劣的唯一标准。
+ * 全部算法与数据结构的统一注册表。
+ *
+ * 分类（category）决定界面用哪个渲染器：
+ *   sort       排序      → 柱状图
+ *   noncompare 非比较排序 → 柱状图
+ *   search     查找      → 区间条 + 指针
+ *   path       寻路      → 网格
+ *   structure  数据结构  → 栈/队列图形
+ *
+ * syntaxTopics 把算法和「语法基础」里的知识点关联起来，
+ * 点一下就能跳到对应的语法讲解 —— 这是本次新增的「学以致用」链路。
  */
 export const ALGORITHMS = {
+  // ---------------- 排序 ----------------
   bubble: {
     id: 'bubble',
     name: '冒泡排序',
     en: 'Bubble Sort',
+    category: 'sort',
     complexity: { time: 'O(n²)', space: 'O(1)' },
     stable: true,
     blurb: '相邻两两比较，大的往后冒。每轮结束确定一个最大值。',
+    inputKind: 'array',
     run: bubbleSort,
+    syntaxTopics: ['nested-loop', 'for-loop', 'boolean-flag'],
   },
   selection: {
     id: 'selection',
     name: '选择排序',
     en: 'Selection Sort',
+    category: 'sort',
     complexity: { time: 'O(n²)', space: 'O(1)' },
     stable: false,
     blurb: '每轮从未排序区间选出最小值，放到区间头部。交换次数最少。',
+    inputKind: 'array',
     run: selectionSort,
+    syntaxTopics: ['nested-loop', 'variable-swap', 'min-tracking'],
   },
   insertion: {
     id: 'insertion',
     name: '插入排序',
     en: 'Insertion Sort',
+    category: 'sort',
     complexity: { time: 'O(n²)', space: 'O(1)' },
     stable: true,
     blurb: '把当前元素向左插到正确位置。数据接近有序时非常快。',
+    inputKind: 'array',
     run: insertionSort,
+    syntaxTopics: ['while-loop', 'variable-swap', 'short-circuit'],
   },
   shell: {
     id: 'shell',
     name: '希尔排序',
     en: 'Shell Sort',
+    category: 'sort',
     complexity: { time: 'O(n^1.3) ~ O(n²)', space: 'O(1)' },
     stable: false,
     blurb: '带间隔的插入排序，间隔逐步缩小到 1，先让数组「大致有序」。',
+    inputKind: 'array',
     run: shellSort,
+    syntaxTopics: ['while-loop', 'math-floor', 'nested-loop'],
   },
   merge: {
     id: 'merge',
     name: '归并排序',
     en: 'Merge Sort',
+    category: 'sort',
     complexity: { time: 'O(n log n)', space: 'O(n)' },
     stable: true,
     blurb: '不断二分再合并。分治思想的典型代表，代价是需要额外空间。',
+    inputKind: 'array',
     run: mergeSort,
+    syntaxTopics: ['recursion', 'array-slice', 'math-floor'],
   },
   quick: {
     id: 'quick',
     name: '快速排序',
     en: 'Quick Sort',
+    category: 'sort',
     complexity: { time: 'O(n log n) 平均', space: 'O(log n)' },
     stable: false,
     blurb: '选一个基准，把小的放左边、大的放右边，再对两侧递归。',
+    inputKind: 'array',
     run: quickSort,
+    syntaxTopics: ['recursion-vs-stack', 'variable-swap', 'while-loop'],
   },
   heap: {
     id: 'heap',
     name: '堆排序',
     en: 'Heap Sort',
+    category: 'sort',
     complexity: { time: 'O(n log n)', space: 'O(1)' },
     stable: false,
     blurb: '先建大顶堆，再反复把堆顶（最大值）换到末尾。',
+    inputKind: 'array',
     run: heapSort,
+    syntaxTopics: ['array-index-math', 'while-loop', 'math-floor'],
   },
+
+  // ---------------- 非比较排序 ----------------
+  counting: NONCOMPARE_ALGORITHMS.counting,
+  radix: NONCOMPARE_ALGORITHMS.radix,
+  bucket: NONCOMPARE_ALGORITHMS.bucket,
+
+  // ---------------- 查找 ----------------
+  binarySearch: SEARCH_ALGORITHMS.binarySearch,
+  binarySearchAnswer: SEARCH_ALGORITHMS.binarySearchAnswer,
+
+  // ---------------- 寻路 ----------------
+  bfs: PATH_ALGORITHMS.bfs,
+  dfs: PATH_ALGORITHMS.dfs,
+
+  // ---------------- 数据结构 ----------------
+  stackDemo: STRUCTURE_ALGORITHMS.stackDemo,
+  queueDemo: STRUCTURE_ALGORITHMS.queueDemo,
 };
 
-/** 界面上的默认展示顺序，从简单到复杂。 */
+/** 界面上的默认展示顺序。 */
 export const ALGORITHM_ORDER = [
-  'bubble',
-  'selection',
-  'insertion',
-  'shell',
-  'merge',
-  'quick',
-  'heap',
+  // 排序
+  'bubble', 'selection', 'insertion', 'shell', 'merge', 'quick', 'heap',
+  // 非比较排序
+  'counting', 'radix', 'bucket',
+  // 查找
+  'binarySearch', 'binarySearchAnswer',
+  // 寻路
+  'bfs', 'dfs',
+  // 数据结构
+  'stackDemo', 'queueDemo',
 ];
+
+/** 分组信息，界面上用分组下拉框呈现。 */
+export const CATEGORIES = [
+  { id: 'sort', name: '比较排序', renderer: 'bars' },
+  { id: 'noncompare', name: '非比较排序', renderer: 'bars' },
+  { id: 'search', name: '查找 / 二分', renderer: 'search' },
+  { id: 'path', name: '路径查找', renderer: 'grid' },
+  { id: 'structure', name: '数据结构', renderer: 'structure' },
+];
+
+/** 按分类取出算法 id 列表。 */
+export function algorithmsByCategory(categoryId) {
+  return ALGORITHM_ORDER.filter((id) => ALGORITHMS[id].category === categoryId);
+}
+
+/** 取某个算法所属分类的渲染器类型。 */
+export function rendererFor(algoId) {
+  const algo = ALGORITHMS[algoId];
+  if (!algo) return 'bars';
+  const cat = CATEGORIES.find((c) => c.id === algo.category);
+  return cat ? cat.renderer : 'bars';
+}

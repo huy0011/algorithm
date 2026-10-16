@@ -1,135 +1,373 @@
 /**
- * Tracer —— 算法层与渲染层之间的唯一契约。
+ * 多类可视化的统一契约。
  *
- * 设计要点：
- * 算法函数只负责「算出发生了什么」，不关心任何绘制细节。
- * 所有算法通过 Tracer 记录方法产出统一格式的操作序列（operation sequence），
- * 渲染层只认识这些操作，因此新增算法不需要改动任何渲染代码。
+ * 原先只有「排序」一种可视化，操作序列是 compare/swap/overwrite/markSorted。
+ * 现在要支持查找、二分答案、网格寻路、非比较排序、栈/队列，
+ * 它们的「动作」各不相同，但**设计与排序完全一致**：
+ *   算法只产出操作序列 → 渲染层只播放序列 → 两者互不认识。
  *
- * 操作类型：
- *   compare  比较两个下标      { type:'compare', indices:[i, j] }
- *   swap     交换两个下标的值    { type:'swap', indices:[i, j] }
- *   overwrite 把 value 写到下标 i { type:'overwrite', index:i, value:v }
- *   markSorted 标记下标已就位    { type:'markSorted', index:i }
+ * 为了不让操作类型混淆，这里按「可视化类型」划分命名空间：
+ *   array  排序 / 计数排序等        —— BarTracer
+ *   search 二分查找 / 二分答案      —— SearchTracer
+ *   grid   网格寻路                 —— GridTracer
+ *   stack  栈 / 队列               —— StructureTracer
  *
- * 每个操作都带 stats 快照，方便播放时实时显示计数。
+ * 每个 tracer 都产出同一个外壳：
+ *   { kind, operations, stats, meta }
+ * 渲染层根据 kind 选择对应的渲染器。
  */
 
-/** 操作类型常量。用常量而不是裸字符串，避免拼写错误。 */
-export const Op = {
+/** 排序 / 数组类操作 */
+export const ArrayOp = {
   COMPARE: 'compare',
   SWAP: 'swap',
   OVERWRITE: 'overwrite',
   MARK_SORTED: 'markSorted',
+  /** 高亮一个区间（计数排序的分桶、基数排序的按位处理都会用到） */
+  HIGHLIGHT_RANGE: 'highlightRange',
+  /** 标记某个桶/组 */
+  MARK_BUCKET: 'markBucket',
 };
 
-export class Tracer {
-  /**
-   * @param {number[]} input 待排序的原始数组。会被复制，不修改调用方的数组。
-   */
+/** 查找类操作（二分查找、二分答案共用） */
+export const SearchOp = {
+  /** 探测某个位置/取值，附带比较结果 */
+  PROBE: 'probe',
+  /** 收窄区间到 [lo, hi] */
+  NARROW: 'narrow',
+  /** 命中目标 */
+  FOUND: 'found',
+  /** 确定答案（二分答案用） */
+  ANSWER: 'answer',
+};
+
+/** 网格寻路类操作 */
+export const GridOp = {
+  /** 把一个格子加入「待访问」（入队/入栈） */
+  ENQUEUE: 'enqueue',
+  /** 访问一个格子（出队/出栈并考察） */
+  VISIT: 'visit',
+  /** 记录某个格子是从哪个格子走过来的（用于回溯路径） */
+  CAME_FROM: 'cameFrom',
+  /** 把某个格子标记为墙/障碍 */
+  WALL: 'wall',
+  /** 最终路径上的一个格子 */
+  PATH: 'path',
+  /** 起点 / 终点 */
+  START: 'start',
+  END: 'end',
+  /** 当前正在考察的格子 */
+  CURRENT: 'current',
+};
+
+/** 栈 / 队列等线性结构操作 */
+export const StructOp = {
+  PUSH: 'push',
+  POP: 'pop',
+  /** 出队（队列专用，语义上从头部移除） */
+  DEQUEUE: 'dequeue',
+  PEEK: 'peek',
+  /** 高亮某个位置 */
+  HIGHLIGHT: 'highlight',
+  /** 标记操作成功或失败（例如栈溢出、空栈弹出） */
+  RESULT: 'result',
+};
+
+/** 统计计数的通用外壳：不同可视化关心的指标不同，但都从这里取。 */
+function makeStats() {
+  return {
+    comparisons: 0, // 比较次数（查找、排序通用）
+    swaps: 0,       // 交换次数
+    writes: 0,      // 写入次数
+    visits: 0,      // 访问过的节点/格子数
+    steps: 0,       // 其他操作的计数
+  };
+}
+
+// =====================================================================
+// 数组 / 排序类
+// =====================================================================
+
+export class BarTracer {
   constructor(input) {
-    /** 工作副本：算法在这个数组上真实地比较和交换。 */
     this.array = input.slice();
-    /** 操作序列，渲染层按顺序播放。 */
     this.operations = [];
-    /** 实时统计，用于效率对比。 */
-    this.stats = { comparisons: 0, swaps: 0, writes: 0 };
+    this.stats = makeStats();
   }
 
-  /**
-   * 记录一次比较。
-   * 注意：tracer 只记录「做过这次比较」这一事实，不判断大小。
-   * 大小判断由算法自己用 tracer.array 完成。
-   */
+  _push(op) {
+    this.operations.push({ ...op, stats: { ...this.stats } });
+  }
+
   compare(i, j) {
     this.stats.comparisons++;
-    this.operations.push({ type: Op.COMPARE, indices: [i, j], stats: { ...this.stats } });
+    this._push({ type: ArrayOp.COMPARE, indices: [i, j] });
     return this.array[i] - this.array[j];
   }
 
-  /** 记录一次交换。同时真实地交换工作数组，保证后续比较结果正确。 */
   swap(i, j) {
-    if (i === j) return; // 同一位置不算一次交换，避免统计虚高
+    if (i === j) return;
     const tmp = this.array[i];
     this.array[i] = this.array[j];
     this.array[j] = tmp;
     this.stats.swaps++;
-    // 交换在渲染层等价于两次写入
     this.stats.writes += 2;
-    this.operations.push({ type: Op.SWAP, indices: [i, j], stats: { ...this.stats } });
+    this._push({ type: ArrayOp.SWAP, indices: [i, j] });
   }
 
-  /**
-   * 记录一次写入（覆盖）。
-   * 归并排序、希尔排序的插入等场景不是「交换」而是「把值搬过去」，
-   * 用覆盖语义表达更贴近算法真实行为。
-   */
   overwrite(index, value) {
     this.array[index] = value;
     this.stats.writes++;
-    this.operations.push({
-      type: Op.OVERWRITE,
-      index,
-      value,
-      stats: { ...this.stats },
-    });
+    this._push({ type: ArrayOp.OVERWRITE, index, value });
   }
 
-  /**
-   * 只记录「发生过一次比较」用于统计和动画高亮，不读取工作数组。
-   *
-   * 为什么需要它：归并排序在合并时比较的是暂存在 buffer 里的两个值，
-   * 而不是工作数组中的值（工作数组正在被覆盖）。
-   * 这时仍然想让动画把 i、j 两个位置高亮出来，所以单独提供这个方法。
-   */
+  /** 记录比较但不由 tracer 读取数组（归并排序比较的是 buffer 里的值）。 */
   recordCompare(i, j) {
     this.stats.comparisons++;
-    this.operations.push({ type: Op.COMPARE, indices: [i, j], stats: { ...this.stats } });
+    this._push({ type: ArrayOp.COMPARE, indices: [i, j] });
   }
 
-  /** 读取某个位置当前的值，供算法内部使用（不产生操作记录）。 */
   get(index) {
     return this.array[index];
   }
 
-  /** 标记某个下标已经处于最终位置，渲染层会用「已排序」颜色高亮。 */
   markSorted(index) {
-    this.operations.push({ type: Op.MARK_SORTED, index, stats: { ...this.stats } });
+    this._push({ type: ArrayOp.MARK_SORTED, index });
   }
 
-  /** 便捷方法：把 [from, to] 区间全部标记为已排序。 */
   markSortedRange(from, to) {
     for (let i = from; i <= to; i++) this.markSorted(i);
   }
 
-  // ---- 以下方法在算法实现里很常用，集中在这里避免每个算法重复写 ----
-
-  /** 判断 a < b 并记录一次比较（返回值是布尔，便于写 if）。 */
-  less(i, j) {
-    return this.compare(i, j) < 0;
+  /** 高亮一段区间，用于计数排序分桶、基数排序按位分组等场景。 */
+  highlightRange(from, to, label = '') {
+    this._push({ type: ArrayOp.HIGHLIGHT_RANGE, from, to, label });
   }
 
-  /** 判断 a <= b 并记录一次比较。 */
-  lessOrEqual(i, j) {
-    return this.compare(i, j) <= 0;
+  /** 标记一个桶（桶排序用），buckets 是桶内元素下标的数组。 */
+  markBucket(bucketIndex, value, label = '') {
+    this.stats.steps++;
+    this._push({ type: ArrayOp.MARK_BUCKET, bucketIndex, value, label });
   }
 
-  /** 判断 a > b 并记录一次比较。 */
-  greater(i, j) {
-    return this.compare(i, j) > 0;
-  }
+  less(i, j) { return this.compare(i, j) < 0; }
+  lessOrEqual(i, j) { return this.compare(i, j) <= 0; }
+  greater(i, j) { return this.compare(i, j) > 0; }
+  greaterOrEqual(i, j) { return this.compare(i, j) >= 0; }
 
-  /** 判断 a >= b 并记录一次比较。 */
-  greaterOrEqual(i, j) {
-    return this.compare(i, j) >= 0;
-  }
-
-  /** 返回产物：操作序列 + 最终数组 + 统计。 */
   result() {
     return {
+      kind: 'array',
       operations: this.operations,
       sorted: this.array.slice(),
       stats: { ...this.stats },
     };
   }
 }
+
+// =====================================================================
+// 查找类（二分查找 / 二分答案）
+// =====================================================================
+
+export class SearchTracer {
+  /**
+   * @param {number[]} data 有序数组（二分查找）或候选值域（二分答案）
+   * @param {object} meta   展示用的元信息 { target, lo, hi, title, ... }
+   */
+  constructor(data, meta = {}) {
+    this.array = data.slice();
+    this.operations = [];
+    this.stats = makeStats();
+    this.meta = { ...meta };
+  }
+
+  _push(op) {
+    this.operations.push({ ...op, stats: { ...this.stats } });
+  }
+
+  /**
+   * 探测一个位置：记录「我正在看这个位置，它的值是 x，和目标比是大了还是小了」。
+   * @param {number} index 探测的下标
+   * @param {number} value 该位置的值
+   * @param {number} cmp   与目标的比较结果：<0 偏小，0 命中，>0 偏大
+   */
+  probe(index, value, cmp) {
+    this.stats.comparisons++;
+    this.stats.visits++;
+    this._push({ type: SearchOp.PROBE, index, value, cmp });
+    return cmp;
+  }
+
+  /** 收窄搜索区间。 */
+  narrow(lo, hi, reason = '') {
+    this._push({ type: SearchOp.NARROW, lo, hi, reason });
+    return { lo, hi };
+  }
+
+  found(index, value) {
+    this._push({ type: SearchOp.FOUND, index, value });
+  }
+
+  /** 二分答案：标记当前判定为「可行」或「不可行」。 */
+  answer(value, feasible, note = '') {
+    this.stats.steps++;
+    this._push({ type: SearchOp.ANSWER, value, feasible, note });
+  }
+
+  result() {
+    return {
+      kind: 'search',
+      operations: this.operations,
+      array: this.array.slice(),
+      stats: { ...this.stats },
+      meta: { ...this.meta },
+    };
+  }
+}
+
+// =====================================================================
+// 网格寻路类
+// =====================================================================
+
+export class GridTracer {
+  /**
+   * @param {number[][]} grid 网格，元素含义由算法定义（1=可走 0=墙，或权重）
+   * @param {object} meta { start:[r,c], end:[r,c], title }
+   */
+  constructor(grid, meta = {}) {
+    this.grid = grid.map((row) => row.slice());
+    this.rows = grid.length;
+    this.cols = grid[0]?.length ?? 0;
+    this.operations = [];
+    this.stats = makeStats();
+    this.meta = { start: meta.start, end: meta.end, ...meta };
+  }
+
+  _push(op) {
+    this.operations.push({ ...op, stats: { ...this.stats } });
+  }
+
+  inBounds(r, c) {
+    return r >= 0 && r < this.rows && c >= 0 && c < this.cols;
+  }
+
+  /** 是否可通行（默认 1 表示可走）。 */
+  passable(r, c) {
+    return this.inBounds(r, c) && this.grid[r][c] !== 0;
+  }
+
+  enqueue(r, c) {
+    this._push({ type: GridOp.ENQUEUE, cell: [r, c] });
+  }
+
+  visit(r, c) {
+    this.stats.visits++;
+    this._push({ type: GridOp.VISIT, cell: [r, c] });
+  }
+
+  cameFrom(r, c, fromR, fromC) {
+    this._push({ type: GridOp.CAME_FROM, cell: [r, c], from: [fromR, fromC] });
+  }
+
+  current(r, c) {
+    this._push({ type: GridOp.CURRENT, cell: [r, c] });
+  }
+
+  path(cells) {
+    for (const [r, c] of cells) {
+      this._push({ type: GridOp.PATH, cell: [r, c] });
+    }
+    this.stats.steps += cells.length;
+  }
+
+  result() {
+    return {
+      kind: 'grid',
+      operations: this.operations,
+      grid: this.grid.map((r) => r.slice()),
+      stats: { ...this.stats },
+      meta: { ...this.meta },
+    };
+  }
+}
+
+// =====================================================================
+// 栈 / 队列等线性结构
+// =====================================================================
+
+export class StructureTracer {
+  /**
+   * @param {string} structureType 'stack' | 'queue'
+   */
+  constructor(structureType, meta = {}) {
+    this.structureType = structureType;
+    this.operations = [];
+    this.stats = makeStats();
+    this.meta = { ...meta };
+    /** 影子状态：算法真实操作的结构内容，保证语义正确 */
+    this.items = [];
+  }
+
+  _push(op) {
+    this.operations.push({ ...op, stats: { ...this.stats } });
+  }
+
+  push(value, note = '') {
+    this.items.push(value);
+    this.stats.writes++;
+    this._push({ type: StructOp.PUSH, value, note });
+  }
+
+  /** 栈：弹出栈顶。 */
+  pop(note = '') {
+    if (this.items.length === 0) {
+      this._push({ type: StructOp.RESULT, ok: false, note: note || '栈为空，无法弹出' });
+      return undefined;
+    }
+    const value = this.items.pop();
+    this.stats.writes++;
+    this._push({ type: StructOp.POP, value, note });
+    return value;
+  }
+
+  /** 队列：从头部出队。 */
+  dequeue(note = '') {
+    if (this.items.length === 0) {
+      this._push({ type: StructOp.RESULT, ok: false, note: note || '队列为空，无法出队' });
+      return undefined;
+    }
+    const value = this.items.shift();
+    this.stats.writes++;
+    this._push({ type: StructOp.DEQUEUE, value, note });
+    return value;
+  }
+
+  peek(note = '') {
+    const value = this.items[this.structureType === 'stack' ? this.items.length - 1 : 0];
+    this._push({ type: StructOp.PEEK, value, note });
+    return value;
+  }
+
+  /**
+   * 记录一次判定结果（例如括号匹配成功/失败）。
+   *
+   * 注意命名：这里不能叫 result()，否则会和下面「产出最终结果」的 result() 冲突 ——
+   * 后者会覆盖前者，导致判定记录静默丢失（这个坑真的踩过一次）。
+   */
+  verdict(ok, note) {
+    this._push({ type: StructOp.RESULT, ok, note });
+  }
+
+  result() {
+    return {
+      kind: 'structure',
+      operations: this.operations,
+      stats: { ...this.stats },
+      meta: { structureType: this.structureType, ...this.meta },
+    };
+  }
+}
+
+// 兼容旧名字：原来叫 Tracer，现在按类型拆分了，但排序算法仍用同一个实现。
+export const Tracer = BarTracer;
+export const Op = ArrayOp;

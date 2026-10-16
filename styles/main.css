@@ -416,6 +416,252 @@ th.num { text-align: right; }
 .note strong { color: var(--amber); }
 .note em { color: #e0d4b0; font-style: normal; font-weight: 600; }
 
+/* ---------- 页签 ---------- */
+
+.tabs {
+  display: flex;
+  gap: 4px;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 3px;
+}
+.tab {
+  appearance: none;
+  border: none;
+  background: transparent;
+  color: var(--text-muted);
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 550;
+  padding: 7px 16px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background .15s, color .15s;
+}
+.tab:hover { color: var(--text); }
+.tab.is-active {
+  background: var(--blue);
+  color: #fff;
+}
+
+/* ---------- 算法 → 语法点 的关联标签 ---------- */
+
+.syntax-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+
+.syntax-chip {
+  appearance: none;
+  font-family: inherit;
+  font-size: 11px;
+  color: #a9c8f5;
+  background: rgba(74,127,212,.14);
+  border: 1px solid rgba(74,127,212,.34);
+  border-radius: 5px;
+  padding: 4px 9px;
+  cursor: pointer;
+  transition: background .15s, border-color .15s;
+  text-align: left;
+}
+.syntax-chip:hover {
+  background: rgba(74,127,212,.26);
+  border-color: var(--blue);
+}
+.syntax-chip.chip-algo {
+  color: #b9e3cd;
+  background: rgba(63,178,127,.13);
+  border-color: rgba(63,178,127,.34);
+}
+.syntax-chip.chip-algo:hover {
+  background: rgba(63,178,127,.26);
+  border-color: var(--green);
+}
+
+/* ============================================================
+   语法基础页
+   ============================================================ */
+
+.syntax-layout {
+  display: grid;
+  grid-template-columns: 260px minmax(0, 1fr);
+  gap: 18px;
+  padding: 18px 24px;
+  align-items: start;
+}
+@media (max-width: 900px) {
+  .syntax-layout { grid-template-columns: 1fr; }
+}
+
+.syntax-nav-panel {
+  position: sticky;
+  top: 82px;
+  max-height: calc(100vh - 100px);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.syntax-search-wrap { display: flex; align-items: center; gap: 8px; }
+
+.input {
+  flex: 1;
+  min-width: 0;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  color: var(--text);
+  font-family: inherit;
+  font-size: 12px;
+  padding: 8px 10px;
+}
+.input:focus { outline: none; border-color: var(--blue); }
+.input::placeholder { color: #5d6779; }
+
+.syntax-count {
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--text-muted);
+  white-space: nowrap;
+}
+
+.syntax-nav {
+  overflow-y: auto;
+  flex: 1;
+  margin: 0 -4px;
+  padding: 0 4px;
+}
+.nav-group { margin-bottom: 14px; }
+.nav-group-title {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: .6px;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  margin-bottom: 6px;
+  padding-left: 8px;
+}
+.nav-item {
+  display: block;
+  width: 100%;
+  text-align: left;
+  appearance: none;
+  border: none;
+  background: transparent;
+  color: #b4bdd0;
+  font-family: inherit;
+  font-size: 12.5px;
+  padding: 6px 9px;
+  border-radius: 5px;
+  cursor: pointer;
+  border-left: 2px solid transparent;
+  transition: background .12s, color .12s, border-color .12s;
+}
+.nav-item:hover { background: rgba(74,127,212,.1); color: var(--text); }
+.nav-item.is-active {
+  background: rgba(74,127,212,.18);
+  color: #cfe0f8;
+  border-left-color: var(--blue);
+  font-weight: 600;
+}
+
+.syntax-main { min-width: 0; }
+
+.syntax-head {
+  padding-bottom: 14px;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 18px;
+}
+.syntax-title { font-size: 19px; font-weight: 650; margin-bottom: 6px; }
+.syntax-summary { font-size: 13px; color: #b4bdd0; line-height: 1.65; }
+
+.syntax-section { margin-bottom: 22px; }
+.syntax-h3 {
+  font-size: 12px;
+  font-weight: 650;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: .5px;
+  margin-bottom: 9px;
+}
+.syntax-h3 .muted { text-transform: none; letter-spacing: 0; font-weight: 400; }
+
+.syntax-points {
+  margin: 0;
+  padding-left: 18px;
+  font-size: 13px;
+  line-height: 1.85;
+  color: #c3cbdb;
+}
+.syntax-points li { margin-bottom: 4px; }
+.syntax-points li::marker { color: var(--blue); }
+
+.code-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 9px;
+}
+.code-head .syntax-h3 { margin-bottom: 0; }
+
+.btn-small { padding: 5px 11px; font-size: 12px; }
+
+.code-block {
+  margin: 0;
+  background: #0d121d;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 14px 16px;
+  overflow-x: auto;
+  font-family: var(--mono);
+  font-size: 12.5px;
+  line-height: 1.7;
+  color: #cfd8e8;
+  white-space: pre;
+  tab-size: 2;
+}
+
+.output-block {
+  background: #0d121d;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 12px 14px;
+  font-family: var(--mono);
+  font-size: 12.5px;
+  line-height: 1.65;
+  min-height: 44px;
+}
+.out-line {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  padding: 3px 0;
+}
+.out-line + .out-line { border-top: 1px solid rgba(42,51,70,.5); }
+.out-tag {
+  flex-shrink: 0;
+  font-size: 10px;
+  padding: 1px 6px;
+  border-radius: 4px;
+  background: rgba(138,147,166,.16);
+  color: var(--text-muted);
+  margin-top: 2px;
+}
+.out-return .out-tag { background: rgba(63,178,127,.18); color: var(--green); }
+.out-error .out-tag { background: rgba(232,86,63,.18); color: var(--red); }
+.out-warn .out-tag { background: rgba(242,177,52,.18); color: var(--amber); }
+.out-line pre { margin: 0; white-space: pre-wrap; word-break: break-word; color: #a9e3c3; }
+.out-error { color: #f0a89b; }
+.out-loading { color: var(--text-muted); font-size: 12px; }
+
+.note-plain {
+  background: rgba(74,127,212,.06);
+  border-color: rgba(74,127,212,.22);
+  color: #b4bdd0;
+}
+.note-plain p { margin: 0 0 10px; }
+.note-plain p:last-child { margin-bottom: 0; }
+.note-plain strong { color: #a9c8f5; }
+
 /* ---------- 页脚 ---------- */
 
 .footer {

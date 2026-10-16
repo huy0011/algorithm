@@ -5,9 +5,11 @@
   "type": "module",
   "private": true,
   "scripts": {
-    "test": "node tests/verify.js && node tests/dom-integration.js",
+    "test": "node tests/verify.js && node tests/verify-syntax.js && node tests/ui-integration.js",
     "test:algo": "node tests/verify.js",
-    "test:ui": "node tests/dom-integration.js",
+    "test:syntax": "node tests/verify-syntax.js",
+    "test:ui": "node tests/ui-integration.js",
+    "screenshot": "node tests/make-screenshot.js",
     "start": "node tests/serve.js"
   },
   "keywords": ["algorithm", "visualization", "sorting", "canvas", "education"],
