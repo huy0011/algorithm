@@ -16,6 +16,7 @@ import {
   CPP_BUILD_META,
 } from './syntax/content.js';
 import { luoguTrainingLinks } from './syntax/luogu.js';
+import { LUOGU_TRAINING_SETS } from './syntax/content.js';
 
 const $ = (id) => document.getElementById(id);
 
@@ -330,7 +331,8 @@ function renderSyntaxLinks(algo) {
 
   // 洛谷练习入口
   const links = (cppImpl && cppImpl.luogu) || [];
-  renderLuogu(dom.algoLuogu, links);
+  const problems = (cppImpl && cppImpl.problems) || [];
+  renderLuogu(dom.algoLuogu, links, problems);
 }
 
 /** 生成 C++ 输出的 HTML（供多个位置复用）。 */
@@ -539,7 +541,7 @@ function selectTopic(topicId) {
   renderCppOutput(dom.syntaxOutput, topic);
 
   // 洛谷练习入口
-  renderLuogu(dom.syntaxLuogu, topic.luogu);
+  renderLuogu(dom.syntaxLuogu, topic.luogu, topic.problems);
 }
 
 /**
@@ -595,30 +597,61 @@ function openAlgo(algoId) {
 /**
  * 渲染洛谷练习区。
  *
- * 说明：这里只放「搜索入口」和「官方题单入口」，不写死具体题号 ——
- * 开发环境没有网络，无法核对题号是否仍然有效，写死可能给出死链。
+ * 现在展示的是**具体题目**（题号 + 标题 + 直达链接），而不是搜索入口。
+ * 数据来自 src/syntax/problems.js，题号与链接都经过 tests/verify-problems-online.js
+ * 联网核验（页面可访问 + 标题与题号自洽）。
+ *
+ * 同时保留题单入口，方便顺着官方题单系统练习。
  */
-function renderLuogu(container, links) {
+function renderLuogu(container, topicOrLinks, maybeProblems) {
   if (!container) return;
-  const training = luoguTrainingLinks();
+
+  // 兼容两种调用：renderLuogu(el, links) 与 renderLuogu(el, links, problems)
+  const links = Array.isArray(topicOrLinks) ? topicOrLinks : [];
+  const problems = maybeProblems || [];
+
   const html = [];
 
-  if (links.length > 0) {
-    html.push('<div class="luogu-group"><span class="luogu-label">题目搜索</span>');
-    html.push(links.map((l) =>
-      `<a class="luogu-link" href="${l.url}" target="_blank" rel="noopener noreferrer">${escapeHtml(l.label)} ↗</a>`
-    ).join(''));
+  // ---- 精选真题 ----
+  if (problems.length > 0) {
+    html.push('<div class="luogu-group">');
+    html.push('<span class="luogu-label">精选真题</span>');
+    html.push('<ul class="problem-list">');
+    html.push(problems.map((p) => `
+      <li class="problem-item">
+        <a class="problem-link" href="${p.url}" target="_blank" rel="noopener noreferrer">
+          <span class="problem-id">${escapeHtml(p.id)}</span>
+          <span class="problem-title">${escapeHtml(p.title)}</span>
+        </a>
+      </li>`).join(''));
+    html.push('</ul>');
     html.push('</div>');
   }
 
-  html.push('<div class="luogu-group"><span class="luogu-label">题单入口</span>');
+  // ---- 搜索入口（补充） ----
+  if (links.length > 0) {
+    html.push('<div class="luogu-group"><span class="luogu-label">按关键词搜题</span>');
+    html.push('<div class="luogu-links">');
+    html.push(links.map((l) =>
+      `<a class="luogu-link" href="${l.url}" target="_blank" rel="noopener noreferrer">${escapeHtml(l.label)} ↗</a>`
+    ).join(''));
+    html.push('</div></div>');
+  }
+
+  // ---- 题单入口 ----
+  const training = LUOGU_TRAINING_SETS.length > 0
+    ? LUOGU_TRAINING_SETS.map((s) => ({ label: s.name, url: s.url }))
+    : luoguTrainingLinks();
+
+  html.push('<div class="luogu-group"><span class="luogu-label">配套题单</span>');
+  html.push('<div class="luogu-links">');
   html.push(training.map((l) =>
     `<a class="luogu-link luogu-link-alt" href="${l.url}" target="_blank" rel="noopener noreferrer">${escapeHtml(l.label)} ↗</a>`
   ).join(''));
-  html.push('</div>');
+  html.push('</div></div>');
 
-  html.push('<p class="luogu-note">链接跳到洛谷站内搜索/题单页，关键词已填好。' +
-    '不写死题号是因为题目会调整，搜索入口比固定题号更可靠。</p>');
+  html.push('<p class="luogu-note">题目链接均已核验可访问。' +
+    '这些题单是《深入浅出程序设计竞赛》的配套题单（洛谷官方题单 100-105）。</p>');
 
   container.innerHTML = html.join('');
 }

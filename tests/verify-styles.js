@@ -27,7 +27,12 @@ const assert = (cond, msg) => {
 };
 
 const html = fs.readFileSync(path.join(ROOT, 'index.html'), 'utf8');
-const css = fs.readFileSync(path.join(ROOT, 'styles/main.css'), 'utf8');
+// 现在有两个样式文件：main.css（结构）+ theme.css（视觉升级层）。
+// 必须合并起来检查，否则 theme.css 里的规则不会被任何测试覆盖。
+const css = [
+  fs.readFileSync(path.join(ROOT, 'styles/main.css'), 'utf8'),
+  fs.readFileSync(path.join(ROOT, 'styles/theme.css'), 'utf8'),
+].join('\n');
 
 console.log('样式与标记的静态一致性检查\n' + '='.repeat(56));
 
