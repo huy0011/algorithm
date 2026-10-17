@@ -52,6 +52,11 @@ export const TOPIC_PROBLEMS = {
     p('B2025', '输出字符菱形'),
     p('B2005', '字符三角形'),
   ],
+  'cpp-headers': [
+    p('B2002', 'Hello,World!'),
+    p('P1000', '超级玛丽游戏'),
+    p('B2025', '输出字符菱形'),
+  ],
   'cpp-comments': [
     p('P1000', '超级玛丽游戏'),
     p('B2002', 'Hello,World!'),

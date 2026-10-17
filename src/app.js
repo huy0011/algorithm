@@ -17,6 +17,7 @@ import {
 } from './syntax/content.js';
 import { luoguTrainingLinks } from './syntax/luogu.js';
 import { LUOGU_TRAINING_SETS } from './syntax/content.js';
+import { ALGO_IDEAS } from './syntax/algo-ideas.js';
 
 const $ = (id) => document.getElementById(id);
 
@@ -68,6 +69,9 @@ const dom = {
   placeholderAlgos: $('placeholder-algos'),
   stepDetailMain: $('step-detail-main'),
   stepDetailSub: $('step-detail-sub'),
+  profileTime: $('profile-time'),
+  profileSpace: $('profile-space'),
+  profileIdea: $('profile-idea'),
   legendBars: $('legend-bars'),
   legendGrid: $('legend-grid'),
   legendSearch: $('legend-search'),
@@ -362,6 +366,11 @@ function updateAlgorithmInfo(algo) {
   }
 
   renderSyntaxLinks(algo);
+
+  // 算法档案：复杂度 + 核心思路
+  dom.profileTime.textContent = algo.complexity.time;
+  dom.profileSpace.textContent = algo.complexity.space;
+  dom.profileIdea.textContent = ALGO_IDEAS[algo.id] || '—';
 }
 
 /**

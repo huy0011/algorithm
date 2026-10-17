@@ -4,7 +4,7 @@
  * 内容：每个 C++ 示例经 g++ 真实编译运行后的 stdout。
  * 生成方式：node tests/build-cpp.js → 编译 → node tests/build-cpp.js --collect
  * 编译器：g++ -std=c++17 -O2
- * 生成时间：2026-10-17T03:45:32.568Z
+ * 生成时间：2026-10-17T03:58:45.629Z
  *
  * 为什么页面不直接编译 C++：浏览器没有 C++ 编译器，
  * 且本项目部署在 GitHub Pages（纯静态、无后端），所以只能预先录制输出。
@@ -12,12 +12,12 @@
 
 export const CPP_OUTPUT = {
   "meta": {
-    "generatedAt": "2026-10-17T03:45:32.568Z",
+    "generatedAt": "2026-10-17T03:58:45.629Z",
     "compiler": "g++ -std=c++17 -O2",
     "compilerVersion": "g++.exe (x86_64-posix-seh-rev1, Built by MinGW-Builds project) 16.2.0",
     "note": "本文件由构建脚本生成：每个 C++ 示例都经真实编译运行，stdout 为程序真实输出。浏览器无法编译 C++，所以页面上展示的是这份预先录制的输出，不能重新运行。",
-    "total": 66,
-    "passed": 66,
+    "total": 67,
+    "passed": 67,
     "failed": 0
   },
   "results": {
@@ -26,6 +26,12 @@ export const CPP_OUTPUT = {
       "title": "Hello World",
       "verified": true,
       "stdout": "Hello World\n结果是 2\n第一行\n第二行"
+    },
+    "cpp-headers": {
+      "kind": "topic",
+      "title": "头文件与编译流程",
+      "verified": true,
+      "stdout": "使用cmath里的函数: 4\n使用algorithm里的: 7, 3\n使用string: hello, 长度 5\n有了 using namespace std，前缀 std:: 可以省掉"
     },
     "cpp-comments": {
       "kind": "topic",

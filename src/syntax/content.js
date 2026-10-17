@@ -34,7 +34,58 @@ const CPP_ALGO_SNIPPETS = [...CPP_ALGO_SNIPPETS_BASE, ...CPP_ALGO_SNIPPETS_2];
  * 原来的「变量与基本类型」把 int/long long/double/char/bool 挤在一个知识点里，
  * float 完全没提，对初学者不够。
  */
-const ALL_CPP_TOPICS = [...CPP_TOPICS, ...CPP_DETAIL_TOPICS];
+const ALL_CPP_TOPICS_RAW = [...CPP_TOPICS, ...CPP_DETAIL_TOPICS];
+
+/**
+ * 规范的学习顺序。
+ * 基础层按「程序结构 → 类型 → 运算符 → 流程 → 函数」的依赖顺序排；
+ * STL 系列跟在后面。用 id 显式列出，防止文件合并顺序打乱教学路径。
+ */
+const TOPIC_ORDER = [
+  'cpp-hello',
+  'cpp-headers',
+  'cpp-comments',
+  'cpp-variables',
+  'cpp-int',
+  'cpp-longlong',
+  'cpp-float',
+  'cpp-double',
+  'cpp-char-bool',
+  'cpp-type-range',
+  'cpp-overflow',
+  'cpp-operators',
+  'cpp-arithmetic-detail',
+  'cpp-compare-logic',
+  'cpp-operator-priority',
+  'cpp-cast',
+  'cpp-io',
+  'cpp-branch',
+  'cpp-loops',
+  'cpp-array',
+  'cpp-functions',
+  'cpp-recursion',
+  'cpp-pointer',
+  'cpp-complexity',
+];
+
+/**
+ * 按 TOPIC_ORDER 重排；STL 等不在表里的知识点跟在后面（保持原相对顺序）。
+ * 如果 TOPIC_ORDER 里有未知 id，会在控制台警告 —— 说明列表与内容脱节了。
+ */
+const ALL_CPP_TOPICS = (() => {
+  const byId = new Map(ALL_CPP_TOPICS_RAW.map((t) => [t.id, t]));
+  const ordered = [];
+  const seen = new Set();
+  for (const id of TOPIC_ORDER) {
+    const t = byId.get(id);
+    if (t) { ordered.push(t); seen.add(id); }
+    else console.warn(`TOPIC_ORDER 里的 id 不存在: ${id}`);
+  }
+  for (const t of ALL_CPP_TOPICS_RAW) {
+    if (!seen.has(t.id)) ordered.push(t);
+  }
+  return ordered;
+})();
 
 /**
  * 构建期生成的输出数据。

@@ -404,3 +404,48 @@ body {
 }
 
 .step-detail-sub:empty { display: none; }
+
+/* ---------- 算法档案 ---------- */
+
+.algo-profile {
+  margin-top: 12px;
+  padding: 12px 14px;
+  background: linear-gradient(160deg, rgba(30, 42, 62, 0.75), rgba(20, 27, 42, 0.75));
+  border: 1px solid rgba(120, 160, 220, 0.16);
+  border-radius: var(--radius-sm);
+}
+
+.profile-row {
+  display: flex;
+  gap: 14px;
+  align-items: flex-start;
+  flex-wrap: wrap;
+}
+
+.profile-cell {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.profile-cell strong {
+  font-family: var(--mono);
+  font-size: 13.5px;
+  color: #8fb8ff;
+  white-space: nowrap;
+}
+
+.profile-label {
+  font-size: 10px;
+  letter-spacing: .4px;
+  color: var(--text-muted);
+  text-transform: uppercase;
+}
+
+.profile-idea {
+  flex: 1;
+  min-width: 200px;
+  font-size: 12px;
+  line-height: 1.65;
+  color: #c3ccdd;
+}

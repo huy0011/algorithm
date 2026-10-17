@@ -46,7 +46,42 @@ int main() {
   },
 
   {
-    id: 'cpp-comments',
+    id: 'cpp-headers',
+    group: 'C++ 基础入门',
+    title: '头文件与编译流程',
+    summary: '#include 是「把别人的代码搬进来」。程序从源码到运行要经过编译和链接两步。',
+    points: [
+      '#include <iostream> 引入输入输出；< > 表示在标准库里找，" " 表示在当前目录找',
+      '常用头文件：<iostream> 输入输出、<cmath> 数学函数、<cstring> 字符串处理',
+      'STL 各组件自带头文件：<vector>、<string>、<algorithm>（sort）、<set>、<map>',
+      '竞赛常见万能写法 #include <bits/stdc++.h>（GCC 专属，包含所有标准库）',
+      '编译流程：源码 → 编译成目标文件 → 链接成可执行文件；报错分编译期和运行期',
+      'using namespace std; 让你不用每次写 std::cout，但大型项目里不推荐',
+    ],
+    code: `#include <iostream>       // 输入输出：cin / cout
+#include <cmath>          // 数学：sqrt / pow / fabs
+#include <algorithm>      // 算法：sort / max / min
+#include <string>         // string 类型
+
+using namespace std;      // 之后可以直接写 cout 而不是 std::cout
+
+int main() {
+    cout << "使用cmath里的函数: " << sqrt(16.0) << endl;
+    cout << "使用algorithm里的: " << max(3, 7) << ", " << min(3, 7) << endl;
+
+    string s = "hello";
+    cout << "使用string: " << s << ", 长度 " << s.size() << endl;
+
+    // 没有 using namespace std 时的写法：
+    // std::cout << "..." << std::endl;
+    cout << "有了 using namespace std，前缀 std:: 可以省掉" << endl;
+
+    return 0;
+}`,
+  },
+
+  {
+      id: 'cpp-comments',
     group: 'C++ 基础入门',
     title: '注释：写给人看的说明',
     summary: '注释不会被执行。好注释解释「为什么」，而不是重复「是什么」。',
