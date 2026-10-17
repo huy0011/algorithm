@@ -118,13 +118,10 @@ h1, h2, p, dl, dd, dt { margin: 0; }
   align-items: start;
 }
 
-@media (max-width: 1400px) {
-  .layout { grid-template-columns: 270px minmax(0, 1fr) 340px; }
-}
-@media (max-width: 1100px) {
-  .layout { grid-template-columns: 1fr; }
-  .stage { order: -1; }
-}
+/*
+ * 响应式断点统一在 styles/theme.css 里定义 ——
+ * 这里不再重复声明，避免两套断点（1100 / 1180）互相覆盖导致布局跳变。
+ */
 
 .panel {
   background: var(--bg-panel);
@@ -509,9 +506,7 @@ th.num { text-align: right; }
   padding: 18px 24px;
   align-items: start;
 }
-@media (max-width: 900px) {
-  .syntax-layout { grid-template-columns: 1fr; }
-}
+/* 语法页的单栏断点同样由 theme.css 统一管理（860px） */
 
 .syntax-nav-panel {
   position: sticky;

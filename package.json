@@ -5,7 +5,7 @@
   "type": "module",
   "private": true,
   "scripts": {
-    "test": "node tests/verify.js && node tests/verify-technique.js && node tests/verify-graph.js && node tests/verify-renderers.js && node tests/verify-decoupling.js && node tests/verify-cpp-content.js && node tests/verify-problems-ui.js && node tests/verify-styles.js && node tests/verify-classes.js && node tests/ui-integration.js",
+    "test": "node tests/verify.js && node tests/verify-technique.js && node tests/verify-graph.js && node tests/verify-renderers.js && node tests/verify-decoupling.js && node tests/verify-cpp-content.js && node tests/verify-problems-ui.js && node tests/verify-sizes.js && node tests/verify-mobile.js && node tests/verify-styles.js && node tests/verify-classes.js && node tests/ui-integration.js",
     "test:algo": "node tests/verify.js",
     "test:technique": "node tests/verify-technique.js",
     "test:graph": "node tests/verify-graph.js",
@@ -14,6 +14,8 @@
     "test:cpp": "node tests/verify-cpp-content.js",
     "test:problems": "node tests/verify-problems-ui.js",
     "test:problems:online": "node tests/verify-problems-online.js",
+    "test:sizes": "node tests/verify-sizes.js",
+    "test:mobile": "node tests/verify-mobile.js",
     "build:cpp": "node tests/build-cpp.js",
     "test:styles": "node tests/verify-styles.js",
     "test:classes": "node tests/verify-classes.js",
