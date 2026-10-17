@@ -415,15 +415,32 @@ algo-viz/
     ├── verify-problems-ui.js       真题是否真的渲染到页面
     ├── verify-problems-online.js   真题链接联网核验
     ├── verify-renderers.js         渲染器健壮性（未 load 就 draw、空数据、尺寸为 0）
+    ├── verify-sizes.js             数据规模配置（每种 inputKind 的最小/最大都能跑）
+    ├── verify-mobile.js            移动端布局（断点统一、无横向溢出、触摸区）
     ├── verify-styles.js            HTML/CSS 静态一致性（hidden 是否生效等）
     ├── verify-classes.js           类的重复方法名检查
     ├── verify-decoupling.js        解耦架构静态验证（算法层不碰 DOM、渲染层不认识算法名）
+    ├── audit.js                    项目审计（死代码、可访问性、SEO、一致性）
     ├── ui-integration.js           界面集成测试（DOM 桩跑真实 app.js）
     ├── build-cpp.js                C++ 编译验证：阶段一/三（写出源文件、收集结果）
     ├── build-cpp.ps1               C++ 编译验证：阶段二（调用 g++ 编译运行）
     ├── make-screenshot.js          合成 README 示意图
     └── serve.js                    零依赖本地服务器
 ```
+
+### 项目审计（`npm run audit`）
+
+除了功能测试，还有一个静态审计，检查那些「能跑但有隐患」的问题：
+
+- **死代码**：导出但从未被使用的常量/函数、CSS 里定义但没用到的类
+- **可访问性**：按钮有无可读文字或 `aria-label`、表单控件有无 `label` 关联、`html` 有无 `lang`
+- **SEO/分享**：`title`、`meta description`、Open Graph 标签
+- **健壮性**：`app.js` 是否有全局 `error` / `unhandledrejection` 兜底
+- **一致性**：所有算法是否都有 C++ 知识点关联、复杂度、核心思路文案
+- **资源完整性**：HTML 引用的本地文件是否都存在
+
+> 这个审计在首次运行时找出了 15 个问题，包括缺核心思路文案（bfs/dfs）、
+> 没有全局错误兜底、6 个未使用的 CSS 类、缺失的 Open Graph 标签等，现已全部修复。
 
 四层职责清晰：**算法层**只产出序列，**渲染层**只播放序列，**入口层**翻译用户操作，**语法层**提供可执行的讲解。
 

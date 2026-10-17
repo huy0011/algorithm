@@ -16,6 +16,7 @@
     "test:problems:online": "node tests/verify-problems-online.js",
     "test:sizes": "node tests/verify-sizes.js",
     "test:mobile": "node tests/verify-mobile.js",
+    "audit": "node tests/audit.js",
     "build:cpp": "node tests/build-cpp.js",
     "test:styles": "node tests/verify-styles.js",
     "test:classes": "node tests/verify-classes.js",

@@ -27,11 +27,8 @@ const luoguSearch = (keyword) =>
 const luoguTrainingSearch = (keyword) =>
   `https://www.luogu.com.cn/training/list?keyword=${encodeURIComponent(keyword)}`;
 
-/** 洛谷官方题单列表。 */
-export const LUOGU_TRAINING_LIST = 'https://www.luogu.com.cn/training/list';
-
-/** 洛谷题目列表首页（按难度筛选）。 */
-export const LUOGU_PROBLEM_LIST = 'https://www.luogu.com.cn/problem/list';
+/** 洛谷官方题单列表（luoguTrainingLinks 里作为兜底入口使用）。 */
+const LUOGU_TRAINING_LIST = 'https://www.luogu.com.cn/training/list';
 
 /**
  * 若你已核对过确切题单链接，填在这里，界面会优先展示。
@@ -182,14 +179,4 @@ export const ALGO_LUOGU = {
   queueDemo: ['队列', '单调队列'],
 };
 
-/** 生成某个语法知识点的洛谷入口列表。 */
-export function luoguLinksForSyntax(topicId) {
-  const keywords = SYNTAX_LUOGU[topicId] || [];
-  return keywords.map((kw) => ({ label: `在洛谷搜索「${kw}」`, url: luoguSearch(kw) }));
-}
 
-/** 生成某个算法的洛谷入口列表。 */
-export function luoguLinksForAlgo(algoId) {
-  const keywords = ALGO_LUOGU[algoId] || [];
-  return keywords.map((kw) => ({ label: `在洛谷搜索「${kw}」`, url: luoguSearch(kw) }));
-}

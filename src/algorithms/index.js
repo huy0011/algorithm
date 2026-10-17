@@ -430,10 +430,3 @@ export function algorithmsByCategory(categoryId) {
   return ALGORITHM_ORDER.filter((id) => ALGORITHMS[id].category === categoryId);
 }
 
-/** 取某个算法所属分类的渲染器类型。 */
-export function rendererFor(algoId) {
-  const algo = ALGORITHMS[algoId];
-  if (!algo) return 'bars';
-  const cat = CATEGORIES.find((c) => c.id === algo.category);
-  return cat ? cat.renderer : 'bars';
-}

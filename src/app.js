@@ -959,8 +959,50 @@ function init() {
   }, 500);
 }
 
+/**
+ * 全局错误兜底。
+ *
+ * 页面一旦出运行时错误（比如某个浏览器不支持的 API），用户只会看到
+ * 「点了没反应」，无从判断。这里拦截出来，在页面上给出可见提示，
+ * 同时把细节打到控制台，方便排查。
+ */
+function installErrorBoundary() {
+  const show = (detail) => {
+    let box = document.getElementById('error-banner');
+    if (!box) {
+      box = document.createElement('div');
+      box.id = 'error-banner';
+      box.className = 'error-banner';
+      box.setAttribute('role', 'alert');
+      box.innerHTML =
+        '<strong>页面出错了</strong>'
+        + '<span class="error-banner-msg"></span>'
+        + '<button type="button" class="error-banner-close" aria-label="关闭提示">×</button>';
+      box.querySelector('.error-banner-close').addEventListener('click', () => box.remove());
+      document.body.appendChild(box);
+    }
+    box.querySelector('.error-banner-msg').textContent = detail;
+  };
+
+  window.addEventListener('error', (e) => {
+    const msg = e.message
+      || (e.target && e.target.src ? `资源加载失败：${e.target.src}` : '未知错误');
+    console.error('[AlgoViz] 运行时错误', e.error || e);
+    show(msg);
+  });
+
+  window.addEventListener('unhandledrejection', (e) => {
+    console.error('[AlgoViz] 未捕获的 Promise 异常', e.reason);
+    show(String(e.reason && e.reason.message ? e.reason.message : e.reason));
+  });
+}
+
 if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', init);
+  document.addEventListener('DOMContentLoaded', () => {
+    installErrorBoundary();
+    init();
+  });
 } else {
+  installErrorBoundary();
   init();
 }

@@ -725,4 +725,3 @@ export class GraphTracer {
 
 // 兼容旧名字：原来叫 Tracer，现在按类型拆分了，但排序算法仍用同一个实现。
 export const Tracer = BarTracer;
-export const Op = ArrayOp;

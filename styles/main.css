@@ -647,28 +647,9 @@ th.num { text-align: right; }
   line-height: 1.65;
   min-height: 44px;
 }
-.out-line {
-  display: flex;
-  gap: 10px;
-  align-items: flex-start;
-  padding: 3px 0;
-}
-.out-line + .out-line { border-top: 1px solid rgba(42,51,70,.5); }
-.out-tag {
-  flex-shrink: 0;
-  font-size: 10px;
-  padding: 1px 6px;
-  border-radius: 4px;
-  background: rgba(138,147,166,.16);
-  color: var(--text-muted);
-  margin-top: 2px;
-}
-.out-return .out-tag { background: rgba(63,178,127,.18); color: var(--green); }
-.out-error .out-tag { background: rgba(232,86,63,.18); color: var(--red); }
-.out-warn .out-tag { background: rgba(242,177,52,.18); color: var(--amber); }
-.out-line pre { margin: 0; white-space: pre-wrap; word-break: break-word; color: #a9e3c3; }
-.out-error { color: #f0a89b; }
-.out-loading { color: var(--text-muted); font-size: 12px; }
+
+/* 说明：.out-line / .out-tag / .out-return 等是旧 JS 教程页的样式，
+   教程已改为 C++ 静态展示，这些类不再使用，已移除。 */
 
 .note-plain {
   background: rgba(74,127,212,.06);
