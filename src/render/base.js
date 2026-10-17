@@ -206,8 +206,12 @@ export class BaseVisualizer {
   /** 画一条顶部进度条。 */
   _drawProgressBar(plotLeft, plotW) {
     const { ctx } = this;
+    // 画布极窄时 plotW 可能算成负数，fillRect 收到负宽高会画出退化矩形
+    const w = Math.max(0, plotW);
+    const filled = w * Math.max(0, Math.min(1, this.progress));
+    if (filled <= 0) return;
     ctx.fillStyle = 'rgba(110,168,254,0.55)';
-    ctx.fillRect(plotLeft, 6, plotW * this.progress, 3);
+    ctx.fillRect(plotLeft, 6, filled, 3);
   }
 
   /** 在画布中央画一句提示文字。 */

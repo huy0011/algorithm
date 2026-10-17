@@ -14,7 +14,19 @@ import { BaseVisualizer, COLORS } from './base.js';
 import { GraphOp } from '../algorithms/tracer.js';
 
 const NODE_R = 17;          // 节点半径（会在窄屏下缩小）
-const PADDING = { top: 62, right: 30, bottom: 58, left: 30 };
+
+/**
+ * 内边距按画布尺寸自适应。
+ *
+ * 原来写死 top:62 / bottom:58 —— 手机上画布只有 220px 高时，
+ * 上下留白就吃掉 120px，绘图区只剩 100px，图被压成一条线。
+ * 现在小画布自动收紧上下留白，保证绘图区至少占 55%。
+ */
+function paddingFor(H) {
+  if (H < 300) return { top: 34, right: 14, bottom: 40, left: 14 };
+  if (H < 420) return { top: 48, right: 22, bottom: 50, left: 22 };
+  return { top: 62, right: 30, bottom: 58, left: 30 };
+}
 
 /** 边的状态配色 */
 const EDGE_COLORS = {
@@ -120,6 +132,7 @@ export class GraphVisualizer extends BaseVisualizer {
   draw() {
     const { ctx } = this;
     const { W, H } = this._clear();
+    const pad = paddingFor(H);
 
     if (this.nodes.size === 0) {
       this._drawCenteredText('没有图数据');
@@ -131,22 +144,22 @@ export class GraphVisualizer extends BaseVisualizer {
     ctx.textBaseline = 'top';
     ctx.font = '13px system-ui, sans-serif';
     ctx.fillStyle = '#e6ebf5';
-    ctx.fillText(this.meta.title || '图算法', PADDING.left, 13);
+    ctx.fillText(this.meta.title || '图算法', pad.left, 13);
 
     if (this.meta.explain) {
       ctx.font = '11px system-ui, sans-serif';
       ctx.fillStyle = '#8a93a6';
       const ex = this.meta.explain.length > 74 ? this.meta.explain.slice(0, 74) + '…' : this.meta.explain;
-      ctx.fillText(ex, PADDING.left, 32);
+      ctx.fillText(ex, pad.left, 32);
     }
 
     // ---- 坐标换算：归一化 → 像素 ----
-    const plotW = W - PADDING.left - PADDING.right;
-    const plotH = H - PADDING.top - PADDING.bottom;
+    const plotW = W - pad.left - pad.right;
+    const plotH = H - pad.top - pad.bottom;
     const R = Math.max(11, Math.min(NODE_R, plotW / 14, plotH / 8));
 
-    const px = (x) => PADDING.left + (x ?? 0.5) * plotW;
-    const py = (y) => PADDING.top + (y ?? 0.5) * plotH;
+    const px = (x) => pad.left + (x ?? 0.5) * plotW;
+    const py = (y) => pad.top + (y ?? 0.5) * plotH;
 
     // ---- 先画边（在节点下层）----
     for (const e of this.edges) {
@@ -268,21 +281,21 @@ export class GraphVisualizer extends BaseVisualizer {
     }
 
     // ---- 底部说明 ----
-    const noteY = H - PADDING.bottom + 12;
+    const noteY = H - pad.bottom + 12;
     ctx.textAlign = 'left';
     ctx.textBaseline = 'top';
 
     if (this.lastDetail) {
       ctx.fillStyle = this.lastOk === false ? '#f0a89b' : '#f2b134';
       ctx.font = '12px system-ui, sans-serif';
-      ctx.fillText(this.lastDetail.slice(0, 82), PADDING.left, noteY);
+      ctx.fillText(this.lastDetail.slice(0, 82), pad.left, noteY);
     }
     if (this.lastNote) {
       ctx.fillStyle = '#8a93a6';
       ctx.font = '11px system-ui, sans-serif';
-      ctx.fillText(this.lastNote.slice(0, 90), PADDING.left, noteY + 20);
+      ctx.fillText(this.lastNote.slice(0, 90), pad.left, noteY + 20);
     }
 
-    this._drawProgressBar(PADDING.left, plotW);
+    this._drawProgressBar(pad.left, plotW);
   }
 }

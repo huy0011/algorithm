@@ -58,6 +58,26 @@ assert(phoneBlock.includes('.gh-link span'), 'GitHub 按钮在手机上隐藏文
 assert(phoneBlock.includes('.tabs'), '页签在手机上独占一行');
 assert(phoneBlock.includes('min-height: 40px'), '传输按钮加大触摸区域到 40px');
 
+// ---------- 2b. 吸顶遮挡（用户反馈「遮挡部分可视化」的根因）----------
+console.log('\n[2b] 吸顶元素是否遮挡画布');
+assert(/\.topbar\s*\{[^}]*position:\s*static/.test(phoneBlock),
+  '手机端顶栏取消吸顶（否则折成两行后吸顶会盖住画布上半部）');
+
+// 横屏也应取消
+const landscape = (() => {
+  const s = themeCss.indexOf('(max-height: 520px) and (orientation: landscape)');
+  if (s < 0) return '';
+  const next = themeCss.indexOf('@media', s + 10);
+  return themeCss.slice(s, next > 0 ? next : themeCss.length);
+})();
+assert(landscape === '' || /\.topbar\s*\{[^}]*position:\s*static/.test(landscape),
+  '横屏顶栏同样不吸顶');
+
+// 画布高度不能超过视口一大半，否则滚动体验差
+const canvasRule = /\.canvas-wrap\s*\{[^}]*max-height:\s*(\d+)vh/.exec(phoneBlock);
+assert(canvasRule && Number(canvasRule[1]) <= 60,
+  `手机上画布高度上限 ${canvasRule ? canvasRule[1] + 'vh' : '未设置'}（应 ≤ 60vh，保证一屏能看到完整画布）`);
+
 // 单栏断点里应移除面板最小高度
 const singleCol = (() => {
   const s = themeCss.indexOf('@media (max-width: 860px)');

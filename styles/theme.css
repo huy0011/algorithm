@@ -385,7 +385,13 @@ img, canvas, pre, table { max-width: 100%; }
 
 @media (max-width: 560px) {
   /* ---- 顶栏：品牌 + 页签占一行，GitHub 收成图标 ---- */
+  /*
+   * 关键：手机上取消吸顶。
+   * 顶栏折成两行后吸顶高度约 100px，滚动时会盖住画布上半部分 ——
+   * 这正是「遮挡可视化」的原因。改为随页面滚走。
+   */
   .topbar {
+    position: static;
     flex-wrap: wrap;
     padding: 10px 12px;
     gap: 8px 10px;
@@ -403,7 +409,14 @@ img, canvas, pre, table { max-width: 100%; }
   .tab { flex: 1; text-align: center; padding: 8px 6px; font-size: 12.5px; }
 
   /* ---- 画布：改用宽高比，横竖屏都合适 ---- */
-  .canvas-wrap { height: auto; aspect-ratio: 4 / 3; min-height: 200px; max-height: 62vh; }
+  /* 画布：按宽度算高度（横竖屏都合理），并限制不超过视口的 55%
+     保证滚动时不会出现「只能看到一小条」的情况 */
+  .canvas-wrap {
+    height: auto;
+    aspect-ratio: 1 / 1;
+    min-height: 220px;
+    max-height: 55vh;
+  }
 
   /* ---- 控件：加大触摸区域 ---- */
   .transport { width: 100%; }
@@ -449,7 +462,7 @@ img, canvas, pre, table { max-width: 100%; }
 /* ---------- 横屏手机：竖向空间紧张，画布按高度算 ---------- */
 @media (max-height: 520px) and (orientation: landscape) {
   .canvas-wrap { aspect-ratio: auto; height: 62vh; min-height: 150px; max-height: none; }
-  .topbar { padding: 6px 12px; }
+  .topbar { position: static; padding: 6px 12px; }
   .brand-sub, .brand-mark { display: none; }
   .tabs { order: 0; width: auto; }
   .tab { flex: 0 0 auto; }

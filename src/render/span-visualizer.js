@@ -150,9 +150,13 @@ export class SpanVisualizer extends BaseVisualizer {
     }
 
     // ---- 布局 ----
-    const cellsTop = 62;
-    const cellsH = Math.min(64, Math.max(34, H * 0.16));
-    const windowBarY = cellsTop - 16;           // 窗口条画在格子上方
+    // 小画布（手机）收紧留白，否则格子被挤出可视区
+    const compact = H < 300;
+    const cellsTop = compact ? 46 : 62;
+    const cellsH = compact
+      ? Math.min(38, Math.max(24, H * 0.14))
+      : Math.min(64, Math.max(34, H * 0.16));
+    const windowBarY = cellsTop - (compact ? 10 : 16);   // 窗口条画在格子上方
 
     const plotW = W - padLeft - padRight;
     const slot = plotW / n;
