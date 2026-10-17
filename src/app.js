@@ -8,6 +8,7 @@
 
 import { ALGORITHMS, ALGORITHM_ORDER, CATEGORIES, algorithmsByCategory } from './algorithms/index.js';
 import { createVisualizer, buildInput } from './render/factory.js';
+import { hasSize, getSizeConfig, applySize } from './render/size-config.js';
 import { Player } from './render/player.js';
 import {
   CPP_GROUPS,
@@ -32,6 +33,7 @@ const dom = {
   algoSelect: $('algo-select'),
   sizeRange: $('size-range'),
   sizeValue: $('size-value'),
+  sizeLabel: $('size-label'),
   sizeGroup: $('size-group'),
   shapeSelect: $('shape-select'),
   shapeGroup: $('shape-group'),
@@ -203,9 +205,9 @@ function refreshControlsForAlgo() {
   const algo = ALGORITHMS[state.activeAlgo];
   const kind = algo.inputKind;
 
-  // 数据规模：只有数组类/网格类才有意义
-  const sizeRelevant = ['array', 'boundedArray', 'positArray', 'grid'].includes(kind);
-  dom.sizeGroup.hidden = !sizeRelevant;
+  // 数据规模：每种 inputKind 有自己的滑块配置（含义、范围都不同）
+  const sizeCfg = getSizeConfig(kind);
+  dom.sizeGroup.hidden = !sizeCfg;
 
   // 数据分布：只有普通数组排序才有意义
   dom.shapeGroup.hidden = kind !== 'array';
@@ -217,21 +219,18 @@ function refreshControlsForAlgo() {
   dom.comparePlaceholder.hidden = comparable;
   if (!comparable) renderPlaceholder(algo.category);
 
-  // 规模范围按类型调整
-  if (kind === 'grid') {
-    dom.sizeRange.min = '8';
-    dom.sizeRange.max = '40';
-    dom.sizeRange.step = '2';
-    if (Number(dom.sizeRange.value) > 40 || Number(dom.sizeRange.value) < 8) {
-      dom.sizeRange.value = '18';
+  // 滑块的标签与范围随 inputKind 切换；超出范围时重置为该类型的默认值
+  if (sizeCfg) {
+    dom.sizeRange.min = String(sizeCfg.min);
+    dom.sizeRange.max = String(sizeCfg.max);
+    dom.sizeRange.step = String(sizeCfg.step);
+    const cur = Number(dom.sizeRange.value);
+    if (cur < sizeCfg.min || cur > sizeCfg.max || Number.isNaN(cur)) {
+      dom.sizeRange.value = String(sizeCfg.def);
     }
     dom.sizeValue.textContent = dom.sizeRange.value;
-  } else {
-    dom.sizeRange.min = '8';
-    dom.sizeRange.max = '120';
-    dom.sizeRange.step = '2';
-    if (Number(dom.sizeRange.value) < 8) dom.sizeRange.value = '40';
-    dom.sizeValue.textContent = dom.sizeRange.value;
+    // 标签文字也随类型变（「元素个数」「数字位数」「节点个数」…）
+    if (dom.sizeLabel) dom.sizeLabel.textContent = sizeCfg.label;
   }
 
   // 图例按渲染器切换
@@ -314,7 +313,8 @@ function runCurrentAlgorithm(reuseInput = false) {
   if (!reuseInput || !state.lastInput) {
     const size = Number(dom.sizeRange.value);
     const shape = dom.shapeSelect.value;
-    const config = { size, shape, rows: size, cols: size * 2 };
+    // 按当前算法的 inputKind 把滑块值映射到对应的 config 字段
+    const config = applySize({ size, shape }, algo.inputKind, size);
     const { input, options } = buildInput(algo, config);
     state.lastInput = input;
     state.lastOptions = options;

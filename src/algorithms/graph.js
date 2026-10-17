@@ -15,8 +15,11 @@ import { GraphTracer } from './tracer.js';
 /**
  * 生成一张用于演示的有权无向图。
  * 点的位置手工安排（比圆形排布更能看清结构），坐标是归一化的。
+ *
+ * count 参数：想要几个点（4~10）。超过固定布局的 6 个时，
+ * 多余的点用圆形排布补在右侧，并生成连向已有点的边 —— 保证连通。
  */
-export function makeWeightedGraph(seed = 0) {
+export function makeWeightedGraph(seed = 0, count = null) {
   // 6 个点的固定布局，故意让边交叉少一点，看着清楚
   const layouts = [
     [
@@ -39,7 +42,40 @@ export function makeWeightedGraph(seed = 0) {
   ];
   const edges = edgeSets[seed % edgeSets.length];
 
-  return { nodes: pos, edges };
+  // 需要 6 个点就直接返回固定布局
+  if (!count || count === pos.length) return { nodes: pos, edges };
+
+  if (count < pos.length) {
+    // 少于 6：截取前面的点，并过滤掉涉及被删点的边
+    const keep = new Set(pos.slice(0, count).map((p) => p.id));
+    return {
+      nodes: pos.slice(0, count),
+      edges: edges.filter(([u, v]) => keep.has(u) && keep.has(v)),
+    };
+  }
+
+  // 多于 6：补点（圆形排布在下半区），并加连边保证连通
+  const nodes = pos.slice();
+  const extraEdges = edges.map((e) => e.slice());
+  let nextId = pos.length;
+  let placed = 0;
+  while (nodes.length < count) {
+    const angle = Math.PI * 0.15 + (Math.PI * 0.7 * placed) / Math.max(1, count - pos.length);
+    const x = 0.18 + 0.64 * ((nextId % 3) / 2);
+    const y = 0.9 - 0.1 * (nextId % 2);
+    nodes.push({ id: nextId, x, y });
+    // 连一个已存在的点（随机挑，保证连通），再连一个近距离点
+    const attach = Math.floor(Math.random() * nextId);
+    const w1 = 1 + Math.floor(Math.random() * 9);
+    extraEdges.push([nextId, attach, w1]);
+    const attach2 = (nextId + 1) % nextId;
+    if (attach2 !== attach) {
+      extraEdges.push([nextId, attach2, 1 + Math.floor(Math.random() * 5)]);
+    }
+    nextId++;
+    placed++;
+  }
+  return { nodes, edges: extraEdges };
 }
 
 /**
