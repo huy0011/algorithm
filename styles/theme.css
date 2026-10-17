@@ -43,6 +43,14 @@
 
 /* ---------- 背景：渐变光晕 ---------- */
 
+html {
+  /*
+   * 与 body 铺同一套底色。
+   * 之前 body 背景是透明的，露出 html 的 --bg(#0f1420)，
+   * 而 body 的渐变从 --bg-deep 开始，两者色差在边缘形成深色竖带。
+   */
+  background: var(--bg-deep);
+}
 body {
   background:
     radial-gradient(1200px 600px at 15% -10%, rgba(91, 141, 239, 0.16), transparent 60%),
@@ -437,11 +445,22 @@ img, canvas, pre, table { max-width: 100%; }
   /* ---- 画布：改用宽高比，横竖屏都合适 ---- */
   /* 画布：按宽度算高度（横竖屏都合理），并限制不超过视口的 55%
      保证滚动时不会出现「只能看到一小条」的情况 */
+  /*
+   * 画布尺寸：两段式声明。
+   * 老浏览器不认识 aspect-ratio，用固定高度兜底；
+   * 支持 aspect-ratio 的浏览器会覆盖成正方形。
+   */
   .canvas-wrap {
-    height: auto;
-    aspect-ratio: 1 / 1;
-    min-height: 220px;
-    max-height: 55vh;
+    height: 78vw;            /* 兜底：老浏览器按视口宽度算，接近正方形 */
+    max-height: 60vh;
+    min-height: 200px;
+  }
+  @supports (aspect-ratio: 1 / 1) {
+    .canvas-wrap {
+      height: auto;
+      aspect-ratio: 1 / 1;
+      max-height: 55vh;
+    }
   }
 
   /* ---- 控件：加大触摸区域 ---- */
@@ -473,6 +492,19 @@ img, canvas, pre, table { max-width: 100%; }
   .compare-table { font-size: 11px; }
   .footer { padding: 14px 12px 24px; font-size: 10px; }
   .syntax-title { font-size: 16px; }
+}
+
+/*
+ * 旧内核（部分 QQ/UC 内置浏览器）不支持 flex 的 gap 属性，
+ * 会导致按钮和标签挤成一片。这里给关键容器补 margin 兜底。
+ * 支持 gap 的浏览器会同时应用两者，视觉上仍可接受（间距略大）。
+ */
+@supports not (gap: 1px) {
+  .transport > * + * { margin-left: 8px; }
+  .tabs > * + * { margin-left: 8px; }
+  .stats > * + * { margin-left: 8px; }
+  .legend-item + .legend-item { margin-left: 12px; }
+  .brand > * + * { margin-left: 10px; }
 }
 
 @media (max-width: 400px) {
@@ -630,21 +662,34 @@ img, canvas, pre, table { max-width: 100%; }
   .nav-toggle {
     display: flex;
     align-items: center;
+    /* gap 在旧 Safari/QQ 内核上不生效，用 margin 兜底 */
     gap: 8px;
     width: 100%;
+    box-sizing: border-box;
     padding: 11px 13px;
-    margin-bottom: 0;
+    margin: 0 0 0 0;
+    -webkit-appearance: none;
     appearance: none;
-    background: rgba(91, 141, 239, 0.10);
+    /* 显式重置按钮默认样式，避免部分内核渲染成白底 */
+    background-color: rgba(91, 141, 239, 0.10);
+    background-image: none;
     border: 1px solid rgba(91, 141, 239, 0.28);
     border-radius: var(--radius-sm);
-    color: var(--text);
+    color: #e6ebf5;
     font-size: 13px;
     font-family: inherit;
+    font-weight: 400;
+    line-height: 1.5;
     text-align: left;
+    text-shadow: none;
+    box-shadow: none;
+    outline: none;
     cursor: pointer;
     min-height: 44px;
   }
+
+  /* 旧内核不支持 gap 时的间距兜底 */
+  .nav-toggle > * + * { margin-left: 8px; }
 
   .nav-toggle-label {
     flex-shrink: 0;
@@ -678,8 +723,26 @@ img, canvas, pre, table { max-width: 100%; }
     margin-top: 10px;
   }
 
+  /*
+   * 展开时限定高度并内部滚动。
+   * 之前没有高度限制，35 个知识点把页面撑到 1100px 以上，
+   * 展开后仍然要滚很久才看得到正文 —— 等于没折叠。
+   */
+  /* 搜索框在抽屉内吸顶，滚动列表时始终可见 */
+  .nav-body .syntax-search-wrap {
+    position: sticky;
+    top: 0;
+    z-index: 1;
+    background: var(--bg-panel);
+    padding-bottom: 8px;
+  }
+
   .nav-toggle[aria-expanded="true"] + .nav-body {
     display: block;
+    max-height: 60vh;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    -webkit-overflow-scrolling: touch;
   }
 
   /* 收起时导航面板不再需要额外的内边距 */

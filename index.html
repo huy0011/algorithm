@@ -328,6 +328,29 @@
   <span>算法层只产出操作序列，渲染层只播放序列 —— 两者完全解耦，新增算法无需改动渲染代码。</span>
 </footer>
 
+<!--
+  老浏览器兜底：部分内置浏览器（QQ/UC 等）不支持 <script type="module">，
+  此时页面会完全空白且没有任何提示。nomodule 脚本只在不支持模块的
+  浏览器里执行，用来告知用户升级浏览器，而不是对着白屏无从判断。
+-->
+<script nomodule>
+  (function () {
+    var el = document.createElement('div');
+    el.style.cssText = 'position:fixed;left:0;top:0;right:0;bottom:0;z-index:99999;'
+      + 'display:flex;align-items:center;justify-content:center;padding:24px;'
+      + 'background:#0f1420;color:#e6ebf5;text-align:center;'
+      + 'font:14px/1.7 -apple-system,BlinkMacSystemFont,"Segoe UI","Microsoft YaHei",sans-serif;';
+    el.innerHTML = '<div style="max-width:420px">'
+      + '<div style="font-size:17px;font-weight:600;margin-bottom:10px">浏览器版本过低</div>'
+      + '<div style="color:#8a93a6;font-size:13px">'
+      + '这个页面的动画需要现代浏览器。请点右上角的「⋯」，'
+      + '选择「用其他浏览器打开」，或使用系统自带的 Chrome / Safari。</div>'
+      + '<div style="margin-top:14px"><a href="https://www.google.com/chrome/" '
+      + 'style="color:#6ea8fe">下载 Chrome</a></div>'
+      + '</div>';
+    document.body.appendChild(el);
+  })();
+</script>
 <script type="module" src="./src/app.js"></script>
 </body>
 </html>

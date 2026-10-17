@@ -22,8 +22,16 @@
     "test:classes": "node tests/verify-classes.js",
     "test:ui": "node tests/ui-integration.js",
     "screenshot": "node tests/make-screenshot.js",
-    "start": "node tests/serve.js"
+    "start": "node tests/serve.js",
+    "test:visual": "node tests/verify-visual.js",
+    "test:nav": "node tests/verify-nav.js"
   },
-  "keywords": ["algorithm", "visualization", "sorting", "canvas", "education"],
+  "keywords": [
+    "algorithm",
+    "visualization",
+    "sorting",
+    "canvas",
+    "education"
+  ],
   "license": "MIT"
 }
