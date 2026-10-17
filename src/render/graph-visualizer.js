@@ -33,6 +33,8 @@ export class GraphVisualizer extends BaseVisualizer {
     this.nodes = new Map();
     /** 边列表 */
     this.edges = [];
+    /** 已声明过的边（去重用） */
+    this._edgeKeys = new Set();
     /** 各类状态集合 */
     this.frontier = new Set();
     this.visited = new Set();
@@ -54,9 +56,18 @@ export class GraphVisualizer extends BaseVisualizer {
         this.nodes.set(op.id, { id: op.id, label: op.label, x: op.x, y: op.y });
         break;
 
-      case GraphOp.EDGE:
+      case GraphOp.EDGE: {
+        // 去重：同一条边可能被声明多次（如 Trie 里重复走过的分支），
+        // 重复画会叠出粗细不一的线。无向边按无序对去重。
+        const key = op.directed
+          ? `${op.from}->${op.to}`
+          : GraphVisualizer.ek(op.from, op.to);
+        if (!this._edgeKeys) this._edgeKeys = new Set();
+        if (this._edgeKeys.has(key)) break;
+        this._edgeKeys.add(key);
         this.edges.push({ from: op.from, to: op.to, weight: op.weight, directed: op.directed });
         break;
+      }
 
       case GraphOp.FRONTIER:
         this.frontier.add(op.id);

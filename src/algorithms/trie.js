@@ -61,9 +61,9 @@ function trieDemo(input, options = {}) {
   const children = new Map();
   let nextId = 1;
 
-  nodes.set(0, { id: 0, label: '根', x: 0, y: 0, isWord: false });
+  nodes.set(0, { id: 0, label: '根', x: 0.08, y: 0.5, isWord: false, depth: 0 });
   children.set(0, []);
-  t.addNode(0, '根', 0, 0);
+  t.addNode(0, '根', 0.08, 0.5);
   t.note(`准备插入 ${words.length} 个单词：${words.join('、')}`);
 
   /** 插入一个单词，返回路径上的节点 id。 */
@@ -76,14 +76,25 @@ function trieDemo(input, options = {}) {
       let found = kids.find(([c]) => c === ch);
       if (!found) {
         const id = nextId++;
-        nodes.set(id, { id, label: ch, x: 0, y: 0, isWord: false });
+        // 创建时就给临时坐标（深度=当前路径长度），否则中途所有点叠在原点看不清
+        const depth = path.length;
+        const sameDepth = [...nodes.values()].filter((n) => (n.depth || 0) === depth).length;
+        nodes.set(id, {
+          id,
+          label: ch,
+          x: 0.08 + (0.84 * depth) / 8,
+          y: 0.5 + 0.34 * Math.sin(sameDepth * 2.1),
+          isWord: false,
+          depth,
+        });
         children.set(id, []);
         kids.push([ch, id]);
-        // 新节点的坐标先给 0，布局阶段会重算并通过 NODE 操作写回序列
-        t.addNode(id, ch, 0, 0);
+        t.addNode(id, ch, nodes.get(id).x, nodes.get(id).y);
+        t.addEdge(cur, id, 1, true);   // 把父子边画出来（relax 只负责高亮，不建边）
         t.relax(cur, id, 1, true, `没有字符「${ch}」的分支 → 新建节点`);
         found = [ch, id];
       } else {
+        t.addEdge(cur, found[1], 1, true);   // 已有边也声明一次（幂等，渲染层去重）
         t.relax(cur, found[1], 1, false, `已有字符「${ch}」的分支 → 直接复用（这就是省空间的原因）`);
       }
       cur = found[1];
@@ -159,7 +170,7 @@ export const TRIE_ALGORITHMS = {
     id: 'trie',
     name: 'Trie 字典树',
     en: 'Trie',
-    category: 'string',
+    category: 'graph',
     complexity: { time: 'O(总字符数) 建树 / O(前缀长) 查询', space: 'O(总字符数 × 字符集)' },
     blurb: '相同前缀共用一条路径，所以查前缀非常快。是自动补全、敏感词过滤、AC 自动机的基础。',
     inputKind: 'words',

@@ -142,6 +142,11 @@ function dijkstra(input, options = {}) {
     }
     if (u === -1) break;   // 剩下的都不可达
 
+    // 所有「已知非无穷距离、未确定」的点都是候选 —— 用待处理色标出
+    for (let i = 0; i < n; i++) {
+      if (!done[i] && dist[i] < INF) t.frontier(i);
+    }
+
     done[u] = true;
     t.current(u);
     t.visit(u, `第 ${round + 1} 轮：确定点 ${u}（距离 ${dist[u]}）—— 这是它最终的答案`);
@@ -160,6 +165,7 @@ function dijkstra(input, options = {}) {
         dist[v] = nd;
         prev[v] = u;
         t.label(v, nd);
+        t.frontier(v);                    // 距离被更新的点进入待处理集合
       }
     }
   }

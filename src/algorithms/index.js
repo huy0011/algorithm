@@ -421,7 +421,7 @@ export const CATEGORIES = [
   { id: 'string', name: '字符串', renderer: 'span' },
   { id: 'bits', name: '位运算', renderer: 'bits' },
   { id: 'bignum', name: '高精度', renderer: 'span' },
-  { id: 'graph', name: '图论', renderer: 'graph' },
+  { id: 'graph', name: '图与树', renderer: 'graph' },
   { id: 'structure', name: '数据结构', renderer: 'structure' },
 ];
 
