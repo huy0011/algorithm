@@ -110,33 +110,17 @@ const luoguSearch = (kw) =>
 const luoguProblem = (id) => `https://www.luogu.com.cn/problem/${id}`;
 
 /**
- * 每个模板分组对应的洛谷官方题单。
+ * 生成某个模板对应的题单链接。
  *
- * 模板是「按章节」组织的，所以题单也按章节配：
- * 学完一组模板，顺着对应的官方题单刷一遍，覆盖最全。
+ * 每个模板只配 1~2 个最贴切的题单（写在 code-templates.js 的 trainingSets 里），
+ * 不再把整个章节的题单都列出来 —— 那样噪音太大，用户不知道点哪个。
  */
-const TEMPLATE_SECTION_SETS = {
-  '竞赛代码模板 · 基础算法': [106, 107, 108, 109, 111, 200],
-  '竞赛代码模板 · 数据结构': [113, 114, 115, 205],
-  '竞赛代码模板 · 搜索与图论': [112, 116, 208, 209, 210],
-  '竞赛代码模板 · 数学知识': [117, 216, 217],
-  '竞赛代码模板 · 动态规划': [211, 212, 213],
-  '竞赛代码模板 · 贪心': [110],
-};
-
-/** 生成模板分组的题单链接。 */
-function templateSetLinks(groupName) {
-  const ids = TEMPLATE_SECTION_SETS[groupName] || [];
-  const links = ids
+function templateSetLinks(topic) {
+  const ids = Array.isArray(topic && topic.trainingSets) ? topic.trainingSets : [];
+  return ids
     .map((id) => LUOGU_TRAINING_SETS.find((s) => s.id === id))
     .filter(Boolean)
     .map((s) => ({ label: s.name, url: s.url }));
-  // 兜底：万一某组没有配题单，给一个该组的搜索入口，避免整块空着
-  if (!links.length) {
-    const kw = groupName.replace(/^竞赛代码模板 · /, '');
-    links.push({ label: `搜索「${kw}」题单`, url: `https://www.luogu.com.cn/training/list?keyword=${encodeURIComponent(kw)}` });
-  }
-  return links;
 }
 
 
@@ -173,9 +157,9 @@ export const CPP_TOPIC_LIST = ALL_CPP_TOPICS.map((topic) => {
     problems,
     // 竞赛代码模板是片段，没有构建期编译结果
     isTemplate: topic.id.startsWith('tpl-'),
-    // 模板用「官方题单」入口（按章节配），普通知识点用关键词搜索
+    // 模板用「对应题单」（每个只配 1~2 个），普通知识点用关键词搜索
     luogu: topic.id.startsWith('tpl-')
-      ? templateSetLinks(topic.group)
+      ? templateSetLinks(topic)
       : keywords.map((kw) => ({ label: `搜索「${kw}」`, url: luoguSearch(kw) })),
   };
 });

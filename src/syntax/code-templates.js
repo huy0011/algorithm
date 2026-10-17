@@ -42,6 +42,7 @@ export const CODE_TEMPLATE_TOPICS = [
       { pid: 'P1923', title: "【深基9.例4】求第 k 小的数" },
       { pid: 'P1093', title: "[NOIP 2007 普及组] 奖学金" },
     ],
+    trainingSets: [107],
   },
   {
     id: 'tpl-base-2',
@@ -118,6 +119,7 @@ int main() {
       { pid: 'P1908', title: "逆序对" },
       { pid: 'P1116', title: "车厢重组" },
     ],
+    trainingSets: [107, 202],
   },
   {
     id: 'tpl-base-3',
@@ -157,6 +159,7 @@ int bsearch_2(int l, int r)
       { pid: 'P1102', title: "A-B 数对" },
       { pid: 'P1678', title: "烦恼的高考志愿" },
     ],
+    trainingSets: [111],
   },
   {
     id: 'tpl-base-4',
@@ -185,6 +188,7 @@ double bsearch_3(double l, double r)
       { pid: 'P2440', title: "木材加工" },
       { pid: 'P1873', title: "[COCI 2011/2012 #5] EKO / 砍树" },
     ],
+    trainingSets: [111],
   },
   {
     id: 'tpl-base-5',
@@ -221,6 +225,7 @@ vector<int> add(vector<int> &a,vector<int> &b){
       { pid: 'P1255', title: "数楼梯" },
       { pid: 'P1009', title: "[NOIP 1998 普及组] 阶乘之和" },
     ],
+    trainingSets: [106],
   },
   {
     id: 'tpl-base-6',
@@ -268,6 +273,7 @@ bool cmp(vector<int> &A, vector<int> &B) {
       { pid: 'P2142', title: "高精度减法" },
       { pid: 'P1601', title: "高精度加法" },
     ],
+    trainingSets: [106],
   },
   {
     id: 'tpl-base-7',
@@ -298,6 +304,7 @@ bool cmp(vector<int> &A, vector<int> &B) {
       { pid: 'P1303', title: "A*B Problem" },
       { pid: 'P1009', title: "[NOIP 1998 普及组] 阶乘之和" },
     ],
+    trainingSets: [106],
   },
   {
     id: 'tpl-base-8',
@@ -328,6 +335,7 @@ int main(){
       { pid: 'P5638', title: "【CSGRound2】光骓者的荣耀" },
       { pid: 'P3131', title: "[USACO16JAN] Subsequences Summing to Sevens S" },
     ],
+    trainingSets: [200],
   },
   {
     id: 'tpl-base-9',
@@ -360,6 +368,7 @@ int main(){
       { pid: 'P2280', title: "[HNOI2003] 激光炸弹" },
       { pid: 'P1387', title: "最大正方形" },
     ],
+    trainingSets: [200],
   },
   {
     id: 'tpl-base-10',
@@ -394,6 +403,7 @@ int main(){
       { pid: 'P4552', title: "[Poetize6] IncDec Sequence" },
       { pid: 'P1083', title: "[NOIP 2012 提高组] 借教室" },
     ],
+    trainingSets: [200],
   },
   {
     id: 'tpl-base-11',
@@ -418,6 +428,7 @@ int main(){
       { pid: 'P3143', title: "[USACO16OPEN] Diamond Collector S" },
       { pid: 'P1638', title: "逛画展" },
     ],
+    trainingSets: [201],
   },
   {
     id: 'tpl-base-12',
@@ -494,6 +505,7 @@ int main()
       { pid: 'P1884', title: "[USACO12FEB] Overplanting S" },
       { pid: 'P1908', title: "逆序对" },
     ],
+    trainingSets: [200],
   },
   {
     id: 'tpl-ds-1',
@@ -526,6 +538,7 @@ void merge(vector<PII> &segs)
       { pid: 'P2082', title: "区间覆盖（加强版）" },
       { pid: 'P5019', title: "[NOIP 2018 提高组] 铺设道路" },
     ],
+    trainingSets: [201],
   },
   {
     id: 'tpl-ds-2',
@@ -584,6 +597,7 @@ return 0;
       { pid: 'P1160', title: "队列安排" },
       { pid: 'P1996', title: "约瑟夫问题" },
     ],
+    trainingSets: [113],
   },
   {
     id: 'tpl-ds-3',
@@ -635,6 +649,7 @@ return 0;
       { pid: 'P1449', title: "后缀表达式" },
       { pid: 'B3614', title: "【模板】栈" },
     ],
+    trainingSets: [113],
   },
   {
     id: 'tpl-ds-4',
@@ -686,6 +701,7 @@ return 0;
       { pid: 'P1540', title: "[NOIP 2010 提高组] 机器翻译" },
       { pid: 'B3616', title: "【模板】队列" },
     ],
+    trainingSets: [113],
   },
   {
     id: 'tpl-ds-5',
@@ -723,6 +739,7 @@ int main(){
       { pid: 'P2866', title: "[USACO06NOV] Bad Hair Day S" },
       { pid: 'P1901', title: "发射站" },
     ],
+    trainingSets: [113],
   },
   {
     id: 'tpl-ds-6',
@@ -775,6 +792,7 @@ int main()
       { pid: 'P1440', title: "求m区间内的最小值" },
       { pid: 'P2032', title: "扫描" },
     ],
+    trainingSets: [113],
   },
   {
     id: 'tpl-ds-7',
@@ -891,6 +909,7 @@ int main()
       { pid: 'P4824', title: "[USACO15FEB] Censoring S" },
       { pid: 'P2375', title: "[NOI2014] 动物园" },
     ],
+    trainingSets: [203],
   },
   {
     id: 'tpl-ds-8',
@@ -994,6 +1013,7 @@ int main(){
       { pid: 'P1030', title: "[NOIP 2001 普及组] 求先序排列" },
       { pid: 'P1087', title: "[NOIP 2004 普及组] FBI 树" },
     ],
+    trainingSets: [114],
   },
   {
     id: 'tpl-ds-9',
@@ -1075,6 +1095,7 @@ int main()
       { pid: 'P2580', title: "于是他错误的点名开始了" },
       { pid: 'P3879', title: "[TJOI2010] 阅读理解" },
     ],
+    trainingSets: [203],
   },
   {
     id: 'tpl-ds-10',
@@ -1165,6 +1186,7 @@ int main(){
       { pid: 'P1551', title: "亲戚" },
       { pid: 'P2024', title: "[NOI2001] 食物链" },
     ],
+    trainingSets: [115],
   },
   {
     id: 'tpl-graph-1',
@@ -1191,6 +1213,7 @@ memset(h, -1, sizeof h);`,
       { pid: 'P5318', title: "【深基18.例3】查找文献" },
       { pid: 'P3916', title: "图的遍历" },
     ],
+    trainingSets: [116],
   },
   {
     id: 'tpl-graph-2',
@@ -1344,6 +1367,7 @@ int main()
       { pid: 'P1706', title: "全排列问题" },
       { pid: 'P1605', title: "迷宫" },
     ],
+    trainingSets: [112],
   },
   {
     id: 'tpl-graph-3',
@@ -1452,6 +1476,7 @@ int main() {
       { pid: 'P1135', title: "奇怪的电梯" },
       { pid: 'P1746', title: "离开中山路" },
     ],
+    trainingSets: [112],
   },
   {
     id: 'tpl-graph-4',
@@ -1530,6 +1555,7 @@ int main() {
       { pid: 'P1347', title: "[ECNA 2001] 排序" },
       { pid: 'P1038', title: "[NOIP 2003 提高组] 神经网络" },
     ],
+    trainingSets: [116],
   },
   {
     id: 'tpl-graph-5',
@@ -1650,6 +1676,7 @@ n/content/38323/`,
       { pid: 'P3371', title: "【模板】单源最短路径（弱化版）" },
       { pid: 'P1629', title: "邮递员送信" },
     ],
+    trainingSets: [208],
   },
   {
     id: 'tpl-graph-6',
@@ -1729,6 +1756,7 @@ int main(){
       { pid: 'P3371', title: "【模板】单源最短路径（弱化版）" },
       { pid: 'P3905', title: "道路重建" },
     ],
+    trainingSets: [208],
   },
   {
     id: 'tpl-graph-7',
@@ -1870,6 +1898,7 @@ bool spfa()
       { pid: 'P3385', title: "【模板】负环" },
       { pid: 'P1144', title: "最短路计数" },
     ],
+    trainingSets: [208],
   },
   {
     id: 'tpl-graph-8',
@@ -1933,6 +1962,7 @@ int main()
       { pid: 'P1522', title: "[USACO2.4] 牛的旅行 Cow Tours" },
       { pid: 'P1119', title: "灾后重建" },
     ],
+    trainingSets: [208],
   },
   {
     id: 'tpl-graph-9',
@@ -2008,6 +2038,7 @@ int main()
       { pid: 'P1547', title: "[USACO05MAR] Out of Hay S" },
       { pid: 'P2121', title: "拆地毯" },
     ],
+    trainingSets: [209],
   },
   {
     id: 'tpl-graph-10',
@@ -2111,6 +2142,7 @@ int main()
       { pid: 'P1546', title: "[USACO3.1] 最短网络 Agri-Net" },
       { pid: 'P1195', title: "口袋的天空" },
     ],
+    trainingSets: [209],
   },
   {
     id: 'tpl-math-1',
@@ -2135,6 +2167,7 @@ int main()
       { pid: 'P3383', title: "【模板】线性筛素数" },
       { pid: 'B2136', title: "素数回文数的个数" },
     ],
+    trainingSets: [117],
   },
   {
     id: 'tpl-math-2',
@@ -2163,6 +2196,7 @@ int main()
       { pid: 'P2563', title: "[AHOI2001] 质数和分解" },
       { pid: 'P2043', title: "质因子分解" },
     ],
+    trainingSets: [117],
   },
   {
     id: 'tpl-math-3',
@@ -2191,6 +2225,7 @@ void get_primes(int n)
       { pid: 'P1835', title: "素数密度" },
       { pid: 'P3383', title: "【模板】线性筛素数" },
     ],
+    trainingSets: [117],
   },
   {
     id: 'tpl-math-4',
@@ -2221,6 +2256,7 @@ void get_primes(int n)
       { pid: 'P1835', title: "素数密度" },
       { pid: 'P3912', title: "素数个数" },
     ],
+    trainingSets: [117],
   },
   {
     id: 'tpl-math-5',
@@ -2248,6 +2284,7 @@ void get_primes(int n)
       { pid: 'P1463', title: "[POI 2001 R1 / ZJOI2006 / HAOI2007] 反素数" },
       { pid: 'P2424', title: "约数和" },
     ],
+    trainingSets: [117],
   },
   {
     id: 'tpl-math-6',
@@ -2268,6 +2305,7 @@ void get_primes(int n)
       { pid: 'P4549', title: "【模板】裴蜀定理" },
       { pid: 'P4057', title: "[Code+#1] 晨跑" },
     ],
+    trainingSets: [117],
   },
   {
     id: 'tpl-math-7',
@@ -2288,6 +2326,7 @@ void get_primes(int n)
       { pid: 'P4057', title: "[Code+#1] 晨跑" },
       { pid: 'P4626', title: "一道水题 II" },
     ],
+    trainingSets: [117],
   },
   {
     id: 'tpl-math-8',
@@ -2317,6 +2356,7 @@ int qmi(int m, int k, int p)
       { pid: 'P1045', title: "[NOIP 2003 普及组] 麦森数" },
       { pid: 'P1965', title: "[NOIP 2013 提高组] 转圈游戏" },
     ],
+    trainingSets: [216],
   },
   {
     id: 'tpl-math-9',
@@ -2345,6 +2385,7 @@ int exgcd(int a, int b, int &x, int &y)
       { pid: 'P5656', title: "【模板】二元一次不定方程 (exgcd)" },
       { pid: 'P1516', title: "[ZJOI2002] 青蛙的约会" },
     ],
+    trainingSets: [216],
   },
   {
     id: 'tpl-dp-1',
@@ -2400,6 +2441,7 @@ int main(){
       { pid: 'P1060', title: "[NOIP 2006 普及组] 开心的金明" },
       { pid: 'P2871', title: "[USACO07DEC] Charm Bracelet S" },
     ],
+    trainingSets: [211],
   },
   {
     id: 'tpl-dp-2',
@@ -2432,6 +2474,7 @@ int main(){
       { pid: 'P2722', title: "[USACO3.1] 总分 Score Inflation" },
       { pid: 'P1853', title: "[NWERC 2004] 投资的最大效益" },
     ],
+    trainingSets: [211],
   },
   {
     id: 'tpl-dp-3',
@@ -2502,6 +2545,7 @@ int main()
       { pid: 'P2340', title: "[USACO03FALL] Cow Exhibition G" },
       { pid: 'P1833', title: "樱花" },
     ],
+    trainingSets: [211],
   },
   {
     id: 'tpl-dp-4',
@@ -2541,6 +2585,7 @@ int main(){
       { pid: 'P1064', title: "[NOIP 2006 提高组] 金明的预算方案" },
       { pid: 'P1988', title: "火炬" },
     ],
+    trainingSets: [211],
   },
   {
     id: 'tpl-dp-5',
@@ -2583,6 +2628,7 @@ int main(){
       { pid: 'P1004', title: "[NOIP 2000 提高组] 方格取数" },
       { pid: 'P1006', title: "[NOIP 2008 提高组] 传纸条" },
     ],
+    trainingSets: [212],
   },
   {
     id: 'tpl-greedy-1',
@@ -2626,6 +2672,7 @@ int main()
       { pid: 'P1803', title: "凌乱的yyy / 线段覆盖" },
       { pid: 'P1094', title: "[NOIP 2007 普及组] 纪念品分组" },
     ],
+    trainingSets: [110],
   },
   {
     id: 'tpl-greedy-2',
@@ -2669,6 +2716,7 @@ int main()
       { pid: 'P1094', title: "[NOIP 2007 普及组] 纪念品分组" },
       { pid: 'P2645', title: "斯诺克" },
     ],
+    trainingSets: [110],
   },
   {
     id: 'tpl-greedy-3',
@@ -2715,6 +2763,7 @@ int main()
       { pid: 'P2672', title: "[NOIP 2015 普及组] 推销员" },
       { pid: 'P4995', title: "跳跳！" },
     ],
+    trainingSets: [110],
   },
   {
     id: 'tpl-greedy-4',
@@ -2764,5 +2813,6 @@ int main() {
       { pid: 'P6033', title: "[NOIP 2004 提高组] 合并果子 加强版" },
       { pid: 'P1334', title: "瑞瑞的木板" },
     ],
+    trainingSets: [110],
   },
 ];

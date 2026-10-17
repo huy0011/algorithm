@@ -16,7 +16,6 @@ import {
   CPP_ALGO_BY_ALGO_ID,
   CPP_BUILD_META,
 } from './syntax/content.js';
-import { luoguTrainingLinks } from './syntax/luogu.js';
 import { LUOGU_TRAINING_SETS } from './syntax/content.js';
 import { ALGO_IDEAS } from './syntax/algo-ideas.js';
 
@@ -767,7 +766,10 @@ function openAlgo(algoId) {
  * 数据来自 src/syntax/problems.js，题号与链接都经过 tests/verify-problems-online.js
  * 联网核验（页面可访问 + 标题与题号自洽）。
  *
- * 同时保留题单入口，方便顺着官方题单系统练习。
+ * links 有两种来源：
+ *   - 普通语法知识点 → 关键词搜索入口
+ *   - 竞赛代码模板   → 该模板对应的官方题单（只配 1~2 个）
+ * 所以标签用中性的「配套题单 / 更多练习」，不再写死「按关键词搜题」。
  */
 function renderLuogu(container, topicOrLinks, maybeProblems) {
   if (!container) return;
@@ -775,6 +777,10 @@ function renderLuogu(container, topicOrLinks, maybeProblems) {
   // 兼容两种调用：renderLuogu(el, links) 与 renderLuogu(el, links, problems)
   const links = Array.isArray(topicOrLinks) ? topicOrLinks : [];
   const problems = maybeProblems || [];
+
+  // 只要链接里出现 /training/ 就认为是题单，用题单的标签
+  const isTrainingSet = links.some((l) => /\/training\//.test(l.url || ''));
+  const linkLabel = isTrainingSet ? '配套题单' : '按关键词搜题';
 
   const html = [];
 
@@ -794,9 +800,9 @@ function renderLuogu(container, topicOrLinks, maybeProblems) {
     html.push('</div>');
   }
 
-  // ---- 搜索入口（补充） ----
+  // ---- 题单 / 搜索入口 ----
   if (links.length > 0) {
-    html.push('<div class="luogu-group"><span class="luogu-label">按关键词搜题</span>');
+    html.push(`<div class="luogu-group"><span class="luogu-label">${linkLabel}</span>`);
     html.push('<div class="luogu-links">');
     html.push(links.map((l) =>
       `<a class="luogu-link" href="${l.url}" target="_blank" rel="noopener noreferrer">${escapeHtml(l.label)} ↗</a>`
@@ -804,20 +810,11 @@ function renderLuogu(container, topicOrLinks, maybeProblems) {
     html.push('</div></div>');
   }
 
-  // ---- 题单入口 ----
-  const training = LUOGU_TRAINING_SETS.length > 0
-    ? LUOGU_TRAINING_SETS.map((s) => ({ label: s.name, url: s.url }))
-    : luoguTrainingLinks();
-
-  html.push('<div class="luogu-group"><span class="luogu-label">配套题单</span>');
-  html.push('<div class="luogu-links">');
-  html.push(training.map((l) =>
-    `<a class="luogu-link luogu-link-alt" href="${l.url}" target="_blank" rel="noopener noreferrer">${escapeHtml(l.label)} ↗</a>`
-  ).join(''));
-  html.push('</div></div>');
-
-  html.push('<p class="luogu-note">题目链接均已核验可访问。' +
-    '这些题单是《深入浅出程序设计竞赛》的配套题单（洛谷官方题单 100-105）。</p>');
+  // ---- 说明 ----
+  // 注意：这里不再把所有官方题单全列一遍。
+  // 题单已经按「每个知识点/模板只配对应的那一个」放在上面的 links 里了，
+  // 全量罗列（现在有 36 个）只会变成噪音，用户不知道该点哪个。
+  html.push('<p class="luogu-note">题目链接均已核验可访问。</p>');
 
   container.innerHTML = html.join('');
 }

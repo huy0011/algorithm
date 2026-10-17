@@ -116,7 +116,13 @@ const syntaxHtml = el('syntax-luogu').innerHTML;
 assert(syntaxHtml.includes('problem-list'), '渲染出了真题列表容器');
 assert(syntaxHtml.includes('problem-id'), '包含题号元素');
 assert(/href="https:\/\/www\.luogu\.com\.cn\/problem\/[A-Z]?\d+"/.test(syntaxHtml), '包含指向具体题目的链接');
-assert(syntaxHtml.includes('配套题单') || syntaxHtml.includes('training/'), '包含题单入口');
+// 练习区除真题外，还应有一组补充入口：
+//   普通语法知识点 → 关键词搜索入口
+//   竞赛代码模板   → 该模板对应的官方题单（每个只配 1~2 个）
+assert(
+  syntaxHtml.includes('配套题单') || syntaxHtml.includes('按关键词搜题') || syntaxHtml.includes('/training/'),
+  '包含补充练习入口（题单或搜索）'
+);
 
 const syntaxProblemIds = [...syntaxHtml.matchAll(/problem-id">([^<]+)</g)].map((m) => m[1]);
 assert(syntaxProblemIds.length > 0, `当前知识点展示了 ${syntaxProblemIds.length} 道真题：${syntaxProblemIds.join(', ')}`);

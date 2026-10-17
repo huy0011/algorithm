@@ -738,16 +738,8 @@ th.num { text-align: right; }
   color: #cfe0f8;
 }
 
-.luogu-link-alt {
-  color: #c9bfa4;
-  background: rgba(242, 177, 52, .09);
-  border-color: rgba(242, 177, 52, .26);
-}
-.luogu-link-alt:hover {
-  background: rgba(242, 177, 52, .2);
-  border-color: var(--amber);
-  color: #e6d9b8;
-}
+/* 说明：.luogu-link-alt 原本给「全量题单罗列」用，
+   现在题单按模板精确对应（每个 1~2 个），不再需要这个区分样式。 */
 
 .luogu-note {
   margin: 2px 0 0;
