@@ -246,42 +246,42 @@ int main() {
   {
     id: 'cpp-type-range',
     group: 'C++ 基础入门',
-    title: '各类型的范围与选择',
-    summary: '一张表记住什么时候用哪个类型。选错 = 静默溢出 = 最难查的 bug。',
+    title: '怎么选类型：估算与决策',
+    summary: '选类型只有一条准则：先估最大可能值，再选能装下的最小类型。这一节给一套可操作的估算流程。',
     points: [
-      'char 1 字节、int 4 字节、long long 8 字节、float 4 字节、double 8 字节',
-      'int 上限约 2.1×10⁹（21 亿）；long long 上限约 9.2×10¹⁸',
-      '**估算准则**：先估最大可能值，再选类型，别等 WA 了才改',
-      '题目里 n ≤ 10⁵ 时，n² = 10¹⁰ 已经超 int，必须 long long',
-      '无符号 unsigned 能多一倍正数范围，但减法下溢更危险，竞赛里尽量不用',
-      '用 <climits> / <cfloat> 里的常量查看精确边界',
+      '**估算三步**：看数据范围 → 算中间量的最大值 → 选类型（拿不准就升级一档）',
+      '看到 n ≤ 10⁵ 就要警惕：n² = 10¹⁰ 已超 int，求和/乘积必须 long long',
+      '看到「对 1e9+7 取模」就知道中间结果会爆，全程 long long',
+      '小数默认 double；float 只在数据量极大、精度要求低时才考虑',
+      'unsigned 能多一倍正数范围，但减法下溢更危险，竞赛里尽量不用',
+      '写完后用边界数据自测：最大值、0、1、单元素 —— 溢出问题当场暴露',
     ],
     code: `#include <iostream>
-#include <climits>
-#include <cfloat>
 using namespace std;
 
 int main() {
-    cout << "类型          字节    近似范围" << endl;
-    cout << "-----------------------------------------" << endl;
-    cout << "char          " << sizeof(char) << "       " << CHAR_MIN << " ~ " << CHAR_MAX << endl;
-    cout << "short         " << sizeof(short) << "       " << SHRT_MIN << " ~ " << SHRT_MAX << endl;
-    cout << "int           " << sizeof(int) << "       " << INT_MIN << " ~ " << INT_MAX << endl;
-    cout << "unsigned int  " << sizeof(unsigned int) << "       0 ~ " << UINT_MAX << endl;
-    cout << "long long     " << sizeof(long long) << "       " << LLONG_MIN << " ~ " << LLONG_MAX << endl;
-    cout << endl;
+    // 例 1：n ≤ 1e5，求 n 个 ≤1e5 的数的和
+    // 最大和 = 1e5 × 1e5 = 1e10 → 超 int（约 2.1e9），必须 long long
+    int n = 100000;
+    long long sum = (long long)n * (n + 1) / 2;
+    cout << "1..100000 的和 = " << sum << endl;
 
-    cout << "浮点类型有效位数: float " << FLT_DIG << " 位, double " << DBL_DIG << " 位" << endl;
-    cout << endl;
-
-    // 选型演示
-    int n = 100000;                      // n <= 1e5 是常见约束
-    int wrong = n * n;                   // 1e10，超 int 了
+    // 例 2：面积 = 长 × 宽，两边都 ≤ 1e5
+    int wrong = n * n;                        // 先按 int 乘，已溢出
     long long right = (long long)n * n;
-    cout << "n = " << n << endl;
-    cout << "n * n 用 int 算:       " << wrong << "  <- 溢出" << endl;
-    cout << "n * n 用 long long 算: " << right << "  <- 正确" << endl;
-    cout << "这就是为什么看到 n<=1e5 就要想到 long long" << endl;
+    cout << "n*n 用 int:       " << wrong << "  <- 溢出" << endl;
+    cout << "n*n 用 long long: " << right << "  <- 正确" << endl;
+    cout << endl;
+
+    // 例 3：判断一道题需要不需要 long long
+    cout << "快速判断表：" << endl;
+    cout << "  结果 <= 2e9        -> int 够用" << endl;
+    cout << "  2e9 < 结果 <= 9e18 -> long long" << endl;
+    cout << "  结果是小数         -> double" << endl;
+    cout << "  结果位数不确定     -> 高精度（数组逐位存）" << endl;
+    cout << endl;
+
+    cout << "记忆锚点：int 上限 21 亿；10 万的平方是 100 亿 —— 已经超了" << endl;
 
     return 0;
 }`,

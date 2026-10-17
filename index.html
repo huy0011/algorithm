@@ -183,6 +183,12 @@
       <span class="legend-item"><i style="background:#e8563f"></i>——</i>丢弃的边</span>
     </div>
 
+    <!-- 当前步骤详解：把渲染层最近的一句解释常驻显示，填充画布与统计之间的空间 -->
+    <div class="step-detail" id="step-detail">
+      <div class="step-detail-main" id="step-detail-main">点击播放或单步，这里会解释当前这一步在做什么</div>
+      <div class="step-detail-sub" id="step-detail-sub"></div>
+    </div>
+
     <div class="stats">
       <div class="stat">
         <span class="stat-label" id="stat-primary-label">比较次数</span>
@@ -237,14 +243,11 @@
   </aside>
 
   <aside class="panel compare" id="compare-placeholder" hidden>
-    <h2 class="panel-title">这一类的看点</h2>
-    <div class="note note-plain">
-      <p><strong>查找 / 二分：</strong>关注「候选区间怎么收窄」。每次折半都能排除一半，
-      所以 n 个元素最多只需 log₂n 次 —— 数据翻倍，步数只加 1。</p>
-      <p><strong>路径查找：</strong>对比 BFS 和 DFS 的扩散形状。BFS 用队列，一圈圈规则扩散，
-      找到的必然是最短路径；DFS 用栈，一条道窜到底，路径通常不是最短。</p>
-      <p><strong>数据结构：</strong>栈是后进先出，队列是先进先出 ——
-      这正是 DFS 与 BFS 唯一的实现差别。</p>
+    <h2 class="panel-title" id="placeholder-title">这一类的看点</h2>
+    <div id="placeholder-body" class="note note-plain"></div>
+    <div class="group" style="margin-top:16px">
+      <div class="label">本分类的算法</div>
+      <div id="placeholder-algos" class="syntax-chips"></div>
     </div>
   </aside>
 </main>

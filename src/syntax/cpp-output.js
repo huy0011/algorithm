@@ -4,7 +4,7 @@
  * 内容：每个 C++ 示例经 g++ 真实编译运行后的 stdout。
  * 生成方式：node tests/build-cpp.js → 编译 → node tests/build-cpp.js --collect
  * 编译器：g++ -std=c++17 -O2
- * 生成时间：2026-10-16T15:52:29.743Z
+ * 生成时间：2026-10-17T03:45:32.568Z
  *
  * 为什么页面不直接编译 C++：浏览器没有 C++ 编译器，
  * 且本项目部署在 GitHub Pages（纯静态、无后端），所以只能预先录制输出。
@@ -12,7 +12,7 @@
 
 export const CPP_OUTPUT = {
   "meta": {
-    "generatedAt": "2026-10-16T15:52:29.743Z",
+    "generatedAt": "2026-10-17T03:45:32.568Z",
     "compiler": "g++ -std=c++17 -O2",
     "compilerVersion": "g++.exe (x86_64-posix-seh-rev1, Built by MinGW-Builds project) 16.2.0",
     "note": "本文件由构建脚本生成：每个 C++ 示例都经真实编译运行，stdout 为程序真实输出。浏览器无法编译 C++，所以页面上展示的是这份预先录制的输出，不能重新运行。",
@@ -35,9 +35,9 @@ export const CPP_OUTPUT = {
     },
     "cpp-variables": {
       "kind": "topic",
-      "title": "变量与基本类型",
+      "title": "变量：声明、初始化与作用域",
       "verified": true,
-      "stdout": "int: 42\nlong long: 123456789012345\ndouble: 3.14159\nchar: A\nbool: 1 (false 显示为 0)\nsizeof(int)=4 sizeof(long long)=8 sizeof(double)=8"
+      "stdout": "未初始化的 garbage（垃圾值）: 0\nMAX = 100\n内层 inner = 5\n内层 value = 2（遮蔽了外层的 1）\n外层 value = 1\nglobalCount = 1"
     },
     "cpp-io": {
       "kind": "topic",
@@ -191,9 +191,9 @@ export const CPP_OUTPUT = {
     },
     "cpp-type-range": {
       "kind": "topic",
-      "title": "各类型的范围与选择",
+      "title": "怎么选类型：估算与决策",
       "verified": true,
-      "stdout": "类型          字节    近似范围\n-----------------------------------------\nchar          1       -128 ~ 127\nshort         2       -32768 ~ 32767\nint           4       -2147483648 ~ 2147483647\nunsigned int  4       0 ~ 4294967295\nlong long     8       -9223372036854775808 ~ 9223372036854775807\n\n浮点类型有效位数: float 6 位, double 15 位\n\nn = 100000\nn * n 用 int 算:       1410065408  <- 溢出\nn * n 用 long long 算: 10000000000  <- 正确\n这就是为什么看到 n<=1e5 就要想到 long long"
+      "stdout": "1..100000 的和 = 5000050000\nn*n 用 int:       1410065408  <- 溢出\nn*n 用 long long: 10000000000  <- 正确\n\n快速判断表：\n  结果 <= 2e9        -> int 够用\n  2e9 < 结果 <= 9e18 -> long long\n  结果是小数         -> double\n  结果位数不确定     -> 高精度（数组逐位存）\n\n记忆锚点：int 上限 21 亿；10 万的平方是 100 亿 —— 已经超了"
     },
     "cpp-overflow": {
       "kind": "topic",

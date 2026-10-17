@@ -96,35 +96,52 @@ int main() {
   {
     id: 'cpp-variables',
     group: 'C++ 基础入门',
-    title: '变量与基本类型',
-    summary: 'int 存整数，double 存小数，char 存单个字符，bool 存真假。',
+    title: '变量：声明、初始化与作用域',
+    summary: '变量就是给一块内存起名字。这一节讲声明、初始化、const 和作用域——各类型本身的细节见后面几节。',
     points: [
-      'int 通常 4 字节，范围约 ±21 亿；long long 约 ±9.2×10¹⁸（竞赛常用）',
-      'double 是双精度小数，默认输出 6 位有效数字',
-      'char 存单个字符，用单引号；字符串用双引号',
-      'bool 只有 true / false，输出时显示 1 / 0',
-      '变量必须先声明再使用，名字区分大小写',
+      '声明 = 类型 + 名字：int x; 这一句才真正分配内存',
+      '未初始化的局部变量是**垃圾值**，读它是未定义行为 —— 声明时顺手赋初值',
+      'const 变量必须在声明时初始化，之后不能改：const int MAX = 100;',
+      '作用域：一对 {} 就是一个作用域，出了 {} 名字就不可见',
+      '内层可以遮蔽（shadow）外层同名变量，但这是 bug 高发区，别这么写',
+      '命名规则：字母/下划线开头，只能含字母数字下划线；区分大小写',
     ],
     code: `#include <iostream>
 using namespace std;
 
+int globalCount = 0;          // 全局变量：整个文件可见，自动初始化为 0
+
 int main() {
-    int a = 42;
-    long long big = 123456789012345LL;
-    double pi = 3.14159;
-    char grade = 'A';
-    bool flag = true;
+    // 声明 + 初始化（推荐：声明时顺手给值）
+    int count = 10;
+    double total = 0.0;
 
-    cout << "int: " << a << endl;
-    cout << "long long: " << big << endl;
-    cout << "double: " << pi << endl;
-    cout << "char: " << grade << endl;
-    cout << "bool: " << flag << " (false 显示为 " << false << ")" << endl;
+    // 未初始化的局部变量是垃圾值（每次运行可能不同）
+    int garbage;
+    cout << "未初始化的 garbage（垃圾值）: " << garbage << endl;
 
-    // sizeof 查看类型占多少字节
-    cout << "sizeof(int)=" << sizeof(int)
-         << " sizeof(long long)=" << sizeof(long long)
-         << " sizeof(double)=" << sizeof(double) << endl;
+    // const：必须在声明时初始化，之后不能改
+    const int MAX = 100;
+    cout << "MAX = " << MAX << endl;
+
+    // 作用域：内层 {} 里声明的变量出了 } 就没了
+    {
+        int inner = 5;
+        cout << "内层 inner = " << inner << endl;
+    }
+    // cout << inner;   // 取消注释会编译错误：inner 未定义
+
+    // 遮蔽（shadow）：内层同名变量盖住外层 —— 别这么写
+    int value = 1;
+    {
+        int value = 2;        // 遮蔽了外层的 value
+        cout << "内层 value = " << value << "（遮蔽了外层的 1）" << endl;
+    }
+    cout << "外层 value = " << value << endl;
+
+    // 全局变量
+    globalCount++;
+    cout << "globalCount = " << globalCount << endl;
 
     return 0;
 }`,

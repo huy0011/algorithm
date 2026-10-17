@@ -377,3 +377,30 @@ body {
   .progress-bar { animation: none; }
   * { transition: none !important; }
 }
+
+/* ---------- 当前步骤详解 ---------- */
+
+.step-detail {
+  margin-top: 12px;
+  padding: 12px 14px;
+  background: linear-gradient(135deg, rgba(91, 141, 239, 0.10), rgba(124, 92, 255, 0.06));
+  border: 1px solid rgba(91, 141, 239, 0.22);
+  border-left: 3px solid var(--accent);
+  border-radius: var(--radius-sm);
+  min-height: 58px;
+}
+
+.step-detail-main {
+  font-size: 13px;
+  line-height: 1.6;
+  color: #dfe8f6;
+}
+
+.step-detail-sub {
+  margin-top: 4px;
+  font-size: 11.5px;
+  line-height: 1.5;
+  color: var(--text-muted);
+}
+
+.step-detail-sub:empty { display: none; }

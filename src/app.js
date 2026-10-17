@@ -62,6 +62,12 @@ const dom = {
   tableBody: $('compare-table-body'),
   btnCompare: $('btn-compare'),
   compareSection: $('compare-section'),
+  comparePlaceholder: $('compare-placeholder'),
+  placeholderTitle: $('placeholder-title'),
+  placeholderBody: $('placeholder-body'),
+  placeholderAlgos: $('placeholder-algos'),
+  stepDetailMain: $('step-detail-main'),
+  stepDetailSub: $('step-detail-sub'),
   legendBars: $('legend-bars'),
   legendGrid: $('legend-grid'),
   legendSearch: $('legend-search'),
@@ -105,6 +111,53 @@ let visualizer;
 let player;
 /** 当前渲染器类型，切换类型时需要重建 visualizer */
 let currentRendererKind = null;
+
+// =====================================================================
+// 各分类的「看点」文案：当效率对比表不适用时，右侧面板展示这些内容，
+// 避免大片空白。键是分类 id。
+// =====================================================================
+const CATEGORY_INSIGHTS = {
+  sort: {
+    title: '比较排序的看点',
+    body: '关注「比较次数」：同样是排 10 万个数，O(n²) 要算 100 亿次而 O(n log n) 只要 170 万次 —— 差 6000 倍。把规模拉到 120，点「对比全部算法」看得最直观。',
+  },
+  noncompare: {
+    title: '非比较排序的看点',
+    body: '统计区的「比较次数」始终是 0 —— 它们根本不做比较，靠计数、按位分配或分桶完成排序。代价是额外空间和对数据分布的要求。',
+  },
+  search: {
+    title: '查找 / 二分的看点',
+    body: '关注「候选区间怎么收窄」：每次折半排除一半，n 翻倍步数只加 1。数据分布选「完全逆序」可以看出二分对数据有序性的依赖。',
+  },
+  path: {
+    title: '路径查找的看点',
+    body: '同一张地图分别跑 BFS 和 DFS：BFS 用队列一圈圈规则扩散，找到的必然是最短路径；DFS 用栈一条道窜到底，路径通常不是最短。',
+  },
+  technique: {
+    title: '基础技巧的看点',
+    body: '这些技巧的共同点是「不搬数据，只维护指针和区间」。看双指针每一步排除了多少组合，看差分数组只在区间两端各标记一次。',
+  },
+  string: {
+    title: '字符串算法的看点',
+    body: 'KMP 看失配那一刻：主串指针 i 从不回退，只有 j 按 next 跳。Trie 看相同前缀如何共用一条路径。',
+  },
+  bits: {
+    title: '位运算的看点',
+    body: '切换与/或/异或，看逐位计算时高亮列怎么移动。注意左移一位等于乘 2，右移一位等于除以 2 向下取整。',
+  },
+  bignum: {
+    title: '高精度的看点',
+    body: '普通整数类型最多 19 位，高精度用数组存每一位、手工模拟竖式。看进位怎么从个位一路传到最高位。',
+  },
+  graph: {
+    title: '图论算法的看点',
+    body: 'Dijkstra 看每轮「确定哪个点」以及松弛怎么更新邻居；Kruskal 看边按权值从小到大试、成环就丢；Trie 看树形结构怎么长出来。',
+  },
+  structure: {
+    title: '数据结构的看点',
+    body: '栈是后进先出，队列是先进先出 —— 这正是 DFS 与 BFS 唯一的实现差别。括号匹配看栈顶怎么被逐个配对弹出。',
+  },
+};
 
 // =====================================================================
 // 页签
@@ -154,8 +207,11 @@ function refreshControlsForAlgo() {
   dom.shapeGroup.hidden = kind !== 'array';
 
   // 对比表只对可以横向比较的算法有意义（排序/非比较排序）
+  // 其余分类显示「这一类的看点」面板，避免右侧大片空白
   const comparable = algo.category === 'sort' || algo.category === 'noncompare';
   dom.compareSection.hidden = !comparable;
+  dom.comparePlaceholder.hidden = comparable;
+  if (!comparable) renderPlaceholder(algo.category);
 
   // 规模范围按类型调整
   if (kind === 'grid') {
@@ -308,6 +364,30 @@ function updateAlgorithmInfo(algo) {
   renderSyntaxLinks(algo);
 }
 
+/**
+ * 渲染「这一类的看点」面板。
+ *
+ * 效率对比表只对排序类有意义；图论、高精度、Trie 这些分类没有可比的指标，
+ * 之前右侧会整块隐藏，留下大片空白。现在改为展示：
+ *   1. 这个分类的看点说明（怎么观察动画、关注什么指标）
+ *   2. 本分类全部算法的标签（点击可跳转）
+ */
+function renderPlaceholder(categoryId) {
+  const insight = CATEGORY_INSIGHTS[categoryId];
+  if (!insight) { dom.comparePlaceholder.hidden = true; return; }
+
+  dom.placeholderTitle.textContent = insight.title;
+  dom.placeholderBody.textContent = insight.body;
+
+  const ids = algorithmsByCategory(categoryId);
+  dom.placeholderAlgos.innerHTML = ids
+    .map((id) => `<button class="syntax-chip chip-algo" data-algo="${id}">${ALGORITHMS[id].name}</button>`)
+    .join('');
+  dom.placeholderAlgos.querySelectorAll('[data-algo]').forEach((btn) => {
+    btn.addEventListener("click", () => openAlgo(btn.dataset.algo));
+  });
+}
+
 /** 算法 → C++ 语法点的跳转链接。 */
 function renderSyntaxLinks(algo) {
   const topics = algo.cppTopics || [];
@@ -429,6 +509,28 @@ function updateStatsUI() {
   const finished = visualizer.finished;
   dom.playLabel.textContent = player.playing ? '暂停' : finished && total > 0 ? '重播' : '播放';
   dom.playIcon.textContent = player.playing ? '❚❚' : '▶';
+
+  // ---- 当前步骤详解 ----
+  // 各渲染器维护的字段名不同（span 是 lastNote/lastCheckNote，
+  // graph 是 lastNote/lastDetail，bars/bits/structure 只有 lastNote）。
+  // 这里按优先级聚合，把最有信息量的一句常驻显示。
+  const v = visualizer;
+  let mainText = "";
+  let subText = "";
+  if (v.lastCheckNote) { mainText = v.lastCheckNote; }
+  else if (v.lastDetail) { mainText = v.lastDetail; }
+  else if (v.lastNote) { mainText = v.lastNote; }
+  else if (v.bucketLabel) { mainText = v.bucketLabel; }
+  else if (v.narrowReason) { mainText = v.narrowReason; }
+  else if (v.answerNote) { mainText = v.answerNote; }
+  else if (v.windowLabel) { mainText = v.windowLabel; }
+
+  if (v.lastNote && v.lastNote !== mainText) { subText = v.lastNote; }
+  else if (v.lastCheckNote && v.lastCheckNote !== mainText) { subText = v.lastCheckNote; }
+  else if (v.windowLabel && v.windowLabel !== mainText) { subText = v.windowLabel; }
+
+  dom.stepDetailMain.textContent = mainText || "点击播放或单步，这里会解释当前这一步在做什么";
+  dom.stepDetailSub.textContent = subText;
 }
 
 function bindVisualizerEvents() {
