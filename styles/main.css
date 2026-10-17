@@ -518,13 +518,50 @@ th.num { text-align: right; }
 /* 语法页的单栏断点同样由 theme.css 统一管理（860px） */
 
 .syntax-nav-panel {
+  /* 目录固定在视口内一屏高，超出部分在面板内部滚动（原来会溢出压住正文） */
   position: sticky;
-  top: 82px;
+  top: 84px;
   max-height: calc(100vh - 100px);
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  overflow: hidden;
 }
+
+/* 搜索框固定在面板顶部，不随列表滚动 */
+.syntax-search-wrap { flex: 0 0 auto; }
+
+/* 列表自己滚动 */
+.syntax-nav {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(140, 170, 220, 0.4) transparent;
+}
+.syntax-nav::-webkit-scrollbar { width: 8px; }
+.syntax-nav::-webkit-scrollbar-thumb {
+  background: rgba(140, 170, 220, 0.4);
+  border-radius: 4px;
+}
+.syntax-nav::-webkit-scrollbar-thumb:hover {
+  background: rgba(140, 170, 220, 0.65);
+}
+.syntax-nav::-webkit-scrollbar-track { background: transparent; }
+
+/*
+ * 桌面端：nav-body 是 aside 里唯一的可见子元素（折叠按钮 display:none），
+ * 它必须是 flex 容器并允许收缩，否则内部的 .syntax-nav 拿不到高度约束，
+ * 会溢出面板把内容顶出去。
+ */
+.syntax-nav-panel > .nav-body {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 auto;
+  min-height: 0;
+  margin-top: 0;
+}
+
 
 .syntax-search-wrap { display: flex; align-items: center; gap: 8px; }
 

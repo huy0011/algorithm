@@ -746,7 +746,90 @@ img, canvas, pre, table { max-width: 100%; }
   }
 
   /* 收起时导航面板不再需要额外的内边距 */
+
+  /*
+   * 手机端：面板自身不滚动，由 nav-body 承担。
+   * 这里用更高的优先级覆盖桌面端 .syntax-nav-panel > .nav-body 的 flex 约束，
+   * 否则展开后列表会把整页撑长（实测从 1849px 涨到 4595px）。
+   */
+  .syntax-nav-panel { max-height: none; overflow: visible; }
+  .syntax-nav-panel > .nav-body {
+    display: none;
+    flex: none;
+    min-height: 0;
+    overflow: visible;
+  }
+  .nav-toggle[aria-expanded="true"] + .nav-body {
+    display: block;
+    max-height: 60vh;
+    overflow-y: auto;
+  }
+  .nav-body .syntax-nav {
+    overflow: visible;
+    max-height: none;
+  }
+
   .syntax-nav-panel { padding: 10px; }
+
+  /*
+   * 手机：优先靠「缩小字号」让整行放下，而不是横滑或折行。
+   * 实测 KMP 最长行 63 字符，在 390px 宽、11.5px 字号下需要约 400px，
+   * 缩到 10px 后 346px 就能放下绝大多数行；个别更长的才折行。
+   */
+  .code-block,
+  .cpp-stdout {
+    font-size: 10.5px;
+    line-height: 1.7;
+    white-space: pre-wrap;
+    word-break: break-all;
+    overflow-x: hidden;
+    padding-left: 12px;
+    padding-right: 12px;
+    letter-spacing: -0.1px;
+  }
 }
 
 
+
+
+/* =====================================================================
+   代码块的滚动与折行
+   ===================================================================== */
+
+/*
+ * 桌面：宽屏下保留横向滚动（大多数行放得下，很少需要滚），
+ * 但把滚动条做得明显一些，否则用户不知道右边还有内容。
+ */
+.code-block::-webkit-scrollbar,
+.cpp-stdout::-webkit-scrollbar {
+  height: 10px;
+  width: 10px;
+}
+.code-block::-webkit-scrollbar-thumb,
+.cpp-stdout::-webkit-scrollbar-thumb {
+  background: rgba(140, 170, 220, 0.45);
+  border-radius: 5px;
+}
+.code-block::-webkit-scrollbar-thumb:hover,
+.cpp-stdout::-webkit-scrollbar-thumb:hover {
+  background: rgba(140, 170, 220, 0.7);
+}
+.code-block::-webkit-scrollbar-track,
+.cpp-stdout::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.04);
+  border-radius: 5px;
+}
+/* Firefox */
+.code-block, .cpp-stdout {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(140, 170, 220, 0.45) rgba(255, 255, 255, 0.04);
+}
+
+/*
+ * 手机：代码自动折行，不横向滚动。
+ *
+ * 框内横滑在触屏上很难用 —— 手指一滑容易连带页面滚动，
+ * 而且看不全整行。折行后加一点左缩进，仍能看出代码层级。
+ *
+ * word-break: break-all 让长标识符也能断开（不会有某个词撑出屏幕）。
+ */

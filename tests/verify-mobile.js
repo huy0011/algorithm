@@ -110,6 +110,26 @@ assert(/overflow-x:\s*hidden/.test(themeCss) || /max-width:\s*100%/.test(themeCs
 assert(/\.code-block[\s\S]{0,200}overflow/.test(mainCss) || /\.code-block[\s\S]{0,200}overflow/.test(themeCss),
   '代码块有自己的横向滚动（不撑破页面）');
 
+// ---------- 4b. 代码块在手机上不能横滑 ----------
+console.log('\n[4b] 代码块移动端可读性');
+// 把所有 860px 断点块拼起来检查（规则可能分布在多个同名断点里）
+const codeMobile = (() => {
+  const out = [];
+  let i = -1;
+  while ((i = themeCss.indexOf('@media (max-width: 860px)', i + 1)) >= 0) {
+    const next = themeCss.indexOf('@media', i + 10);
+    out.push(themeCss.slice(i, next > 0 ? next : themeCss.length));
+  }
+  return out.join('\n');
+})();
+
+assert(/\.code-block[\s\S]{0,400}white-space:\s*pre-wrap/.test(codeMobile),
+  '手机上代码块改为折行（pre-wrap），不再要求横滑');
+assert(/\.code-block[\s\S]{0,400}overflow-x:\s*hidden/.test(codeMobile),
+  '手机上代码块横向溢出被隐藏（不留横向滚动条）');
+assert(/\.code-block[\s\S]{0,300}font-size:\s*1[01](\.\d)?px/.test(codeMobile),
+  '手机上代码块字号收小（保证整行放得下）');
+
 // ---------- 5. viewport meta ----------
 console.log('\n[5] viewport 设置');
 const html = fs.readFileSync(path.join(ROOT, 'index.html'), 'utf8');

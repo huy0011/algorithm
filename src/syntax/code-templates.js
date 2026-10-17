@@ -37,6 +37,11 @@ export const CODE_TEMPLATE_TOPICS = [
     //对左右部分排序
     quick_sort(q, l, j), quick_sort(q, j + 1, r);
 }`,
+    problems: [
+      { pid: 'P1177', title: "【模板】排序" },
+      { pid: 'P1923', title: "【深基9.例4】求第 k 小的数" },
+      { pid: 'P1093', title: "[NOIP 2007 普及组] 奖学金" },
+    ],
   },
   {
     id: 'tpl-base-2',
@@ -108,6 +113,11 @@ int main() {
     cout << merge_sort(0, n - 1) << endl;
     return 0;
 }`,
+    problems: [
+      { pid: 'P1177', title: "【模板】排序" },
+      { pid: 'P1908', title: "逆序对" },
+      { pid: 'P1116', title: "车厢重组" },
+    ],
   },
   {
     id: 'tpl-base-3',
@@ -142,6 +152,11 @@ int bsearch_2(int l, int r)
     }
     return l;
 }`,
+    problems: [
+      { pid: 'P2249', title: "【深基13.例1】查找" },
+      { pid: 'P1102', title: "A-B 数对" },
+      { pid: 'P1678', title: "烦恼的高考志愿" },
+    ],
   },
   {
     id: 'tpl-base-4',
@@ -165,6 +180,11 @@ double bsearch_3(double l, double r)
     }
     return l;
 }`,
+    problems: [
+      { pid: 'P1024', title: "[NOIP 2001 提高组] 一元三次方程求解" },
+      { pid: 'P2440', title: "木材加工" },
+      { pid: 'P1873', title: "[COCI 2011/2012 #5] EKO / 砍树" },
+    ],
   },
   {
     id: 'tpl-base-5',
@@ -196,6 +216,11 @@ vector<int> add(vector<int> &a,vector<int> &b){
     if(t)c.push_back(1);
     return c;
 }`,
+    problems: [
+      { pid: 'P1601', title: "高精度加法" },
+      { pid: 'P1255', title: "数楼梯" },
+      { pid: 'P1009', title: "[NOIP 1998 普及组] 阶乘之和" },
+    ],
   },
   {
     id: 'tpl-base-6',
@@ -239,6 +264,10 @@ bool cmp(vector<int> &A, vector<int> &B) {
     return A[i] > B[i];
     return true;
 }`,
+    problems: [
+      { pid: 'P2142', title: "高精度减法" },
+      { pid: 'P1601', title: "高精度加法" },
+    ],
   },
   {
     id: 'tpl-base-7',
@@ -265,6 +294,10 @@ bool cmp(vector<int> &A, vector<int> &B) {
 // 最高位很可能是  0
     return C;
 }`,
+    problems: [
+      { pid: 'P1303', title: "A*B Problem" },
+      { pid: 'P1009', title: "[NOIP 1998 普及组] 阶乘之和" },
+    ],
   },
   {
     id: 'tpl-base-8',
@@ -290,6 +323,11 @@ int main(){
     }
     return 0;
 }`,
+    problems: [
+      { pid: 'P8218', title: "【深进1.例1】求区间和" },
+      { pid: 'P5638', title: "【CSGRound2】光骓者的荣耀" },
+      { pid: 'P3131', title: "[USACO16JAN] Subsequences Summing to Sevens S" },
+    ],
   },
   {
     id: 'tpl-base-9',
@@ -317,6 +355,11 @@ int main(){
     }
     return 0;
 }`,
+    problems: [
+      { pid: 'P2004', title: "领地选择" },
+      { pid: 'P2280', title: "[HNOI2003] 激光炸弹" },
+      { pid: 'P1387', title: "最大正方形" },
+    ],
   },
   {
     id: 'tpl-base-10',
@@ -346,6 +389,11 @@ int main(){
     }// 给差分数组计算前缀和， 就求出了原数组
     return 0;
 }`,
+    problems: [
+      { pid: 'P2367', title: "语文成绩" },
+      { pid: 'P4552', title: "[Poetize6] IncDec Sequence" },
+      { pid: 'P1083', title: "[NOIP 2012 提高组] 借教室" },
+    ],
   },
   {
     id: 'tpl-base-11',
@@ -365,6 +413,11 @@ int main(){
 // 常见问题分类:
 (1) 对于一个序列, 用两个指针维护一段区间
 (2) 对于两个序列, 维护某种次序, 比如归并排序中合并两个有序序列的操作`,
+    problems: [
+      { pid: 'P1102', title: "A-B 数对" },
+      { pid: 'P3143', title: "[USACO16OPEN] Diamond Collector S" },
+      { pid: 'P1638', title: "逛画展" },
+    ],
   },
   {
     id: 'tpl-base-12',
@@ -436,6 +489,11 @@ int main()
     {
         int x = find(item.first);//将 add容器的 add.secend值存入数组 a[]当中，
         a[x] += item.second;//在去重之后的下标集合 alls内寻找对应的下标并添加数值`,
+    problems: [
+      { pid: 'P1955', title: "[NOI2015] 程序自动分析" },
+      { pid: 'P1884', title: "[USACO12FEB] Overplanting S" },
+      { pid: 'P1908', title: "逆序对" },
+    ],
   },
   {
     id: 'tpl-ds-1',
@@ -463,6 +521,11 @@ void merge(vector<PII> &segs)
     if (st != -2e9) res.push_back({st, ed});
     segs = res;
 }`,
+        problems: [
+      { pid: 'P1204', title: "[USACO1.2] 挤牛奶 Milking Cows" },
+      { pid: 'P2082', title: "区间覆盖（加强版）" },
+      { pid: 'P5019', title: "[NOIP 2018 提高组] 铺设道路" },
+    ],
   },
   {
     id: 'tpl-ds-2',
@@ -517,6 +580,10 @@ for(int i=head;i!=-1;i=ne[i])cout<<e[i]<<' ';
 cout<<endl;
 return 0;
 }`,
+    problems: [
+      { pid: 'P1160', title: "队列安排" },
+      { pid: 'P1996', title: "约瑟夫问题" },
+    ],
   },
   {
     id: 'tpl-ds-3',
@@ -563,6 +630,11 @@ else cout<<"NO"<<endl;
 }
 return 0;
 }`,
+    problems: [
+      { pid: 'P1739', title: "表达式括号匹配" },
+      { pid: 'P1449', title: "后缀表达式" },
+      { pid: 'B3614', title: "【模板】栈" },
+    ],
   },
   {
     id: 'tpl-ds-4',
@@ -609,6 +681,11 @@ else cout<<"NO"<<endl;
 }
 return 0;
 }`,
+    problems: [
+      { pid: 'P1996', title: "约瑟夫问题" },
+      { pid: 'P1540', title: "[NOIP 2010 提高组] 机器翻译" },
+      { pid: 'B3616', title: "【模板】队列" },
+    ],
   },
   {
     id: 'tpl-ds-5',
@@ -641,6 +718,11 @@ int main(){
     }
     return 0;
 }`,
+    problems: [
+      { pid: 'P5788', title: "【模板】单调栈" },
+      { pid: 'P2866', title: "[USACO06NOV] Bad Hair Day S" },
+      { pid: 'P1901', title: "发射站" },
+    ],
   },
   {
     id: 'tpl-ds-6',
@@ -688,6 +770,11 @@ int main()
         if(i >= k) cout << q.front() << " ";
     }
 }`,
+    problems: [
+      { pid: 'P1886', title: "【模板】单调队列 / 滑动窗口" },
+      { pid: 'P1440', title: "求m区间内的最小值" },
+      { pid: 'P2032', title: "扫描" },
+    ],
   },
   {
     id: 'tpl-ds-7',
@@ -799,6 +886,11 @@ int main()
     }
     return 0;
 }`,
+    problems: [
+      { pid: 'P3375', title: "【模板】KMP" },
+      { pid: 'P4824', title: "[USACO15FEB] Censoring S" },
+      { pid: 'P2375', title: "[NOI2014] 动物园" },
+    ],
   },
   {
     id: 'tpl-ds-8',
@@ -897,6 +989,11 @@ int main(){
     // a b c d e f g
     return 0;
 }`,
+    problems: [
+      { pid: 'P1305', title: "新二叉树" },
+      { pid: 'P1030', title: "[NOIP 2001 普及组] 求先序排列" },
+      { pid: 'P1087', title: "[NOIP 2004 普及组] FBI 树" },
+    ],
   },
   {
     id: 'tpl-ds-9',
@@ -973,6 +1070,11 @@ int main()
     }
     return 0;
 }`,
+    problems: [
+      { pid: 'P8306', title: "【模板】字典树 / Trie" },
+      { pid: 'P2580', title: "于是他错误的点名开始了" },
+      { pid: 'P3879', title: "[TJOI2010] 阅读理解" },
+    ],
   },
   {
     id: 'tpl-ds-10',
@@ -1058,6 +1160,11 @@ int main(){
     }
     return 0;
 }`,
+    problems: [
+      { pid: 'P3367', title: "【模板】并查集" },
+      { pid: 'P1551', title: "亲戚" },
+      { pid: 'P2024', title: "[NOI2001] 食物链" },
+    ],
   },
   {
     id: 'tpl-graph-1',
@@ -1080,6 +1187,10 @@ void add(int a, int b)
 // 初始化
 idx = 0;
 memset(h, -1, sizeof h);`,
+    problems: [
+      { pid: 'P5318', title: "【深基18.例3】查找文献" },
+      { pid: 'P3916', title: "图的遍历" },
+    ],
   },
   {
     id: 'tpl-graph-2',
@@ -1228,6 +1339,11 @@ int main()
     dfs(0);
     return 0;
 }`,
+    problems: [
+      { pid: 'P5318', title: "【深基18.例3】查找文献" },
+      { pid: 'P1706', title: "全排列问题" },
+      { pid: 'P1605', title: "迷宫" },
+    ],
   },
   {
     id: 'tpl-graph-3',
@@ -1331,6 +1447,11 @@ int main() {
     cout<<bfs(state)<<endl;
     return 0;
 }`,
+    problems: [
+      { pid: 'P1443', title: "马的遍历" },
+      { pid: 'P1135', title: "奇怪的电梯" },
+      { pid: 'P1746', title: "离开中山路" },
+    ],
   },
   {
     id: 'tpl-graph-4',
@@ -1404,6 +1525,11 @@ int main() {
     topsort();//进行拓扑排序
     return 0;
 }`,
+    problems: [
+      { pid: 'P1113', title: "[USACO02FEB] 杂务" },
+      { pid: 'P1347', title: "[ECNA 2001] 排序" },
+      { pid: 'P1038', title: "[NOIP 2003 提高组] 神经网络" },
+    ],
   },
   {
     id: 'tpl-graph-5',
@@ -1519,6 +1645,11 @@ int dijkstra(){
 olution/content/38318/
 [AcWing 850. Dijkstra            求最短路       II:详解     +代码注释       - AcWing]: https://www.acwing.com/solutio
 n/content/38323/`,
+    problems: [
+      { pid: 'P4779', title: "【模板】单源最短路径（标准版）" },
+      { pid: 'P3371', title: "【模板】单源最短路径（弱化版）" },
+      { pid: 'P1629', title: "邮递员送信" },
+    ],
   },
   {
     id: 'tpl-graph-6',
@@ -1593,6 +1724,11 @@ int main(){
 代,只有      3会被更新,因为只有            1, 2的 dist  不是   +∞,第二次迭代就是不超过            2条边走到      i节点的最短
 距离.这就是为什么            k次迭代最多是走了            k条边,同时也是为什么一共只用迭代            n-1  次,因为      n个点的
 有向图,如果能走到,原点到            n号点的最短距离最多是            n-1  次,也就是        1->2->…->n         直线这种.`,
+    problems: [
+      { pid: 'P3385', title: "【模板】负环" },
+      { pid: 'P3371', title: "【模板】单源最短路径（弱化版）" },
+      { pid: 'P3905', title: "道路重建" },
+    ],
   },
   {
     id: 'tpl-graph-7',
@@ -1729,6 +1865,11 @@ bool spfa()
     }
     return false;
 }`,
+    problems: [
+      { pid: 'P3371', title: "【模板】单源最短路径（弱化版）" },
+      { pid: 'P3385', title: "【模板】负环" },
+      { pid: 'P1144', title: "最短路计数" },
+    ],
   },
   {
     id: 'tpl-graph-8',
@@ -1787,6 +1928,11 @@ int main()
     }
     return 0;
 }`,
+    problems: [
+      { pid: 'P2419', title: "[USACO08JAN] Cow Contest S" },
+      { pid: 'P1522', title: "[USACO2.4] 牛的旅行 Cow Tours" },
+      { pid: 'P1119', title: "灾后重建" },
+    ],
   },
   {
     id: 'tpl-graph-9',
@@ -1857,6 +2003,11 @@ int main()
     else printf("%d\\n", t);
     return 0;
 }`,
+    problems: [
+      { pid: 'P1265', title: "公路修建" },
+      { pid: 'P1547', title: "[USACO05MAR] Out of Hay S" },
+      { pid: 'P2121', title: "拆地毯" },
+    ],
   },
   {
     id: 'tpl-graph-10',
@@ -1955,6 +2106,11 @@ int main()
     else printf("%d\\n", t);
     return 0;
 }`,
+    problems: [
+      { pid: 'P3366', title: "【模板】最小生成树" },
+      { pid: 'P1546', title: "[USACO3.1] 最短网络 Agri-Net" },
+      { pid: 'P1195', title: "口袋的天空" },
+    ],
   },
   {
     id: 'tpl-math-1',
@@ -1974,6 +2130,11 @@ int main()
     return false;
     return true;
 }`,
+    problems: [
+      { pid: 'P5736', title: "【深基7.例2】质数筛" },
+      { pid: 'P3383', title: "【模板】线性筛素数" },
+      { pid: 'B2136', title: "素数回文数的个数" },
+    ],
   },
   {
     id: 'tpl-math-2',
@@ -1997,6 +2158,11 @@ int main()
     if (x > 1) cout << x << ' ' << 1 << endl;
     cout << endl;
 }`,
+    problems: [
+      { pid: 'P1075', title: "[NOIP 2012 普及组] 质因数分解" },
+      { pid: 'P2563', title: "[AHOI2001] 质数和分解" },
+      { pid: 'P2043', title: "质因子分解" },
+    ],
   },
   {
     id: 'tpl-math-3',
@@ -2020,6 +2186,11 @@ void get_primes(int n)
         st[j] = true;
     }
 }`,
+    problems: [
+      { pid: 'P5736', title: "【深基7.例2】质数筛" },
+      { pid: 'P1835', title: "素数密度" },
+      { pid: 'P3383', title: "【模板】线性筛素数" },
+    ],
   },
   {
     id: 'tpl-math-4',
@@ -2045,6 +2216,11 @@ void get_primes(int n)
         }
     }
 }`,
+    problems: [
+      { pid: 'P3383', title: "【模板】线性筛素数" },
+      { pid: 'P1835', title: "素数密度" },
+      { pid: 'P3912', title: "素数个数" },
+    ],
   },
   {
     id: 'tpl-math-5',
@@ -2067,6 +2243,11 @@ void get_primes(int n)
     sort(res.begin(), res.end());
     return res;
 }`,
+        problems: [
+      { pid: 'P1403', title: "[AHOI2005] 约数研究" },
+      { pid: 'P1463', title: "[POI 2001 R1 / ZJOI2006 / HAOI2007] 反素数" },
+      { pid: 'P2424', title: "约数和" },
+    ],
   },
   {
     id: 'tpl-math-6',
@@ -2082,6 +2263,11 @@ void get_primes(int n)
 {
     return b ? gcd(b, a % b) : a;
 }`,
+        problems: [
+      { pid: 'P1029', title: "[NOIP 2001 普及组] 最大公约数和最小公倍数问题" },
+      { pid: 'P4549', title: "【模板】裴蜀定理" },
+      { pid: 'P4057', title: "[Code+#1] 晨跑" },
+    ],
   },
   {
     id: 'tpl-math-7',
@@ -2097,6 +2283,11 @@ void get_primes(int n)
 {
     return abs(a * b) / gcd(a, b);
 }`,
+    problems: [
+      { pid: 'P1029', title: "[NOIP 2001 普及组] 最大公约数和最小公倍数问题" },
+      { pid: 'P4057', title: "[Code+#1] 晨跑" },
+      { pid: 'P4626', title: "一道水题 II" },
+    ],
   },
   {
     id: 'tpl-math-8',
@@ -2121,6 +2312,11 @@ int qmi(int m, int k, int p)
     }
     return res;
 }`,
+    problems: [
+      { pid: 'P1226', title: "【模板】快速幂" },
+      { pid: 'P1045', title: "[NOIP 2003 普及组] 麦森数" },
+      { pid: 'P1965', title: "[NOIP 2013 提高组] 转圈游戏" },
+    ],
   },
   {
     id: 'tpl-math-9',
@@ -2144,6 +2340,11 @@ int exgcd(int a, int b, int &x, int &y)
     y -= (a/b) * x;
     return d;
 }`,
+    problems: [
+      { pid: 'P1082', title: "[NOIP 2012 提高组] 同余方程" },
+      { pid: 'P5656', title: "【模板】二元一次不定方程 (exgcd)" },
+      { pid: 'P1516', title: "[ZJOI2002] 青蛙的约会" },
+    ],
   },
   {
     id: 'tpl-dp-1',
@@ -2194,6 +2395,11 @@ int main(){
     return 0;
 }
 状态转移方程: dp[j]=max(dp[j],dp[j-v[i]]+w[i]);`,
+    problems: [
+      { pid: 'P1048', title: "[NOIP 2005 普及组] 采药" },
+      { pid: 'P1060', title: "[NOIP 2006 普及组] 开心的金明" },
+      { pid: 'P2871', title: "[USACO07DEC] Charm Bracelet S" },
+    ],
   },
   {
     id: 'tpl-dp-2',
@@ -2221,6 +2427,11 @@ int main(){
 }
 完全背包问题和            01 背包优化版的区别在于第二重循环的            v[i]  和 m 做交换
 状态转移方程: dp[j]=max(dp[j],dp[j-v[i]]+w[i]);`,
+    problems: [
+      { pid: 'P1616', title: "疯狂的采药" },
+      { pid: 'P2722', title: "[USACO3.1] 总分 Score Inflation" },
+      { pid: 'P1853', title: "[NWERC 2004] 投资的最大效益" },
+    ],
   },
   {
     id: 'tpl-dp-3',
@@ -2286,6 +2497,11 @@ int main()
     cout << f[m] << endl;
     return 0;
 }`,
+    problems: [
+      { pid: 'P1776', title: "宝物筛选" },
+      { pid: 'P2340', title: "[USACO03FALL] Cow Exhibition G" },
+      { pid: 'P1833', title: "樱花" },
+    ],
   },
   {
     id: 'tpl-dp-4',
@@ -2320,6 +2536,11 @@ int main(){
     cout<<f[m]<<endl;
 }
 状态转移方程: f[j]=max(f[j],f[j-v[i][k]]+w[i][k]);`,
+    problems: [
+      { pid: 'P1757', title: "通天之分组背包" },
+      { pid: 'P1064', title: "[NOIP 2006 提高组] 金明的预算方案" },
+      { pid: 'P1988', title: "火炬" },
+    ],
   },
   {
     id: 'tpl-dp-5',
@@ -2357,6 +2578,11 @@ int main(){
     return 0;
 }
 状态转移方程: f[i][j]=max(f[i-1][j-1]+a[i][j],f[i-1][j]+a[i][j]);`,
+    problems: [
+      { pid: 'P1216', title: "[IOI 1994 / USACO1.5] 数字三角形 Number Triangles" },
+      { pid: 'P1004', title: "[NOIP 2000 提高组] 方格取数" },
+      { pid: 'P1006', title: "[NOIP 2008 提高组] 传纸条" },
+    ],
   },
   {
     id: 'tpl-greedy-1',
@@ -2395,6 +2621,11 @@ int main()
     printf("%d\\n",res);
     return 0;
 }`,
+        problems: [
+      { pid: 'P2082', title: "区间覆盖（加强版）" },
+      { pid: 'P1803', title: "凌乱的yyy / 线段覆盖" },
+      { pid: 'P1094', title: "[NOIP 2007 普及组] 纪念品分组" },
+    ],
   },
   {
     id: 'tpl-greedy-2',
@@ -2433,6 +2664,11 @@ int main()
     printf("%d\\n",res);
     return 0;
 }`,
+    problems: [
+      { pid: 'P1803', title: "凌乱的yyy / 线段覆盖" },
+      { pid: 'P1094', title: "[NOIP 2007 普及组] 纪念品分组" },
+      { pid: 'P2645', title: "斯诺克" },
+    ],
   },
   {
     id: 'tpl-greedy-3',
@@ -2474,6 +2710,11 @@ int main()
     printf("%d\\n",heap.size());
     return 0;
 }`,
+        problems: [
+      { pid: 'P1094', title: "[NOIP 2007 普及组] 纪念品分组" },
+      { pid: 'P2672', title: "[NOIP 2015 普及组] 推销员" },
+      { pid: 'P4995', title: "跳跳！" },
+    ],
   },
   {
     id: 'tpl-greedy-4',
@@ -2518,5 +2759,10 @@ int main() {
     // 输出最终的体力消耗值
     cout << total_cost << endl;
     return 0;`,
+    problems: [
+      { pid: 'P1090', title: "[NOIP 2004 提高组] 合并果子" },
+      { pid: 'P6033', title: "[NOIP 2004 提高组] 合并果子 加强版" },
+      { pid: 'P1334', title: "瑞瑞的木板" },
+    ],
   },
 ];
