@@ -68,6 +68,7 @@ const dom = {
   legendStructure: $('legend-structure'),
   legendSpan: $('legend-span'),
   legendBits: $('legend-bits'),
+  legendGraph: $('legend-graph'),
 
   // 语法页
   syntaxNav: $('syntax-nav'),
@@ -179,8 +180,9 @@ function refreshControlsForAlgo() {
   dom.legendSearch.hidden = renderer !== 'search';
   dom.legendGrid.hidden = renderer !== 'path';
   dom.legendStructure.hidden = renderer !== 'structure';
-  if (dom.legendSpan) dom.legendSpan.hidden = !(renderer === 'technique' || renderer === 'string');
+  if (dom.legendSpan) dom.legendSpan.hidden = !(renderer === 'technique' || renderer === 'string' || renderer === 'bignum');
   if (dom.legendBits) dom.legendBits.hidden = renderer !== 'bits';
+  if (dom.legendGraph) dom.legendGraph.hidden = renderer !== 'graph';
 }
 
 /** 统计区的标签随可视化类型变化（网格没有「交换次数」）。 */
@@ -207,6 +209,14 @@ function refreshStatLabels() {
     dom.statPrimaryLabel.textContent = '逐位运算';
     dom.statSecondaryLabel.textContent = '操作数';
     dom.statTertiaryLabel.textContent = '结果位';
+  } else if (cat === 'graph') {
+    dom.statPrimaryLabel.textContent = '访问点数';
+    dom.statSecondaryLabel.textContent = '待处理';
+    dom.statTertiaryLabel.textContent = '松弛/选边';
+  } else if (cat === 'bignum') {
+    dom.statPrimaryLabel.textContent = '已处理位数';
+    dom.statSecondaryLabel.textContent = '进位/借位';
+    dom.statTertiaryLabel.textContent = '结果位数';
   } else {
     dom.statPrimaryLabel.textContent = '比较次数';
     dom.statSecondaryLabel.textContent = '交换次数';
@@ -391,6 +401,20 @@ function updateStatsUI() {
     dom.statComparisons.textContent = (s.steps || 0).toLocaleString();
     dom.statSwaps.textContent = (visualizer.rows ? visualizer.rows.length : 0).toLocaleString();
     dom.statWrites.textContent = knownBits.toLocaleString();
+  } else if (cat === 'graph') {
+    // 图论：访问的点数、待处理集合大小、松弛/选边计数
+    dom.statComparisons.textContent = (visualizer.visited ? visualizer.visited.size : 0).toLocaleString();
+    dom.statSwaps.textContent = (visualizer.frontier ? visualizer.frontier.size : 0).toLocaleString();
+    dom.statWrites.textContent = (s.writes || 0).toLocaleString();
+  } else if (cat === 'bignum') {
+    // 高精度：用 stats 里的 writes（逐位写）与 steps（进位次数）近似表示
+    dom.statComparisons.textContent = (s.steps || 0).toLocaleString();
+    dom.statSwaps.textContent = (s.writes || 0).toLocaleString();
+    // 结果位数：从 span 的 accumulates 里取最后的值，或退回 0
+    const acc = visualizer.accumulates || {};
+    const vals = Object.values(acc);
+    const lastVal = vals.length > 0 ? vals[vals.length - 1].value : 0;
+    dom.statWrites.textContent = (typeof lastVal === 'number' ? lastVal : 0).toLocaleString();
   } else {
     dom.statComparisons.textContent = (s.comparisons || 0).toLocaleString();
     dom.statSwaps.textContent = (s.swaps || 0).toLocaleString();
