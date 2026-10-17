@@ -127,19 +127,31 @@ const { CPP_TOPIC_LIST } = await import(pathToFileURL(path.join(ROOT, 'src/synta
 
 let shown = 0;
 const noShow = [];
+const tplSkipped = [];
 for (const topic of CPP_TOPIC_LIST) {
   const navNodes = el('syntax-nav')._qsa('[data-topic]');
   const target = navNodes.find((n) => n.dataset.topic === topic.id);
   if (!target) { noShow.push(`${topic.id}(导航缺失)`); continue; }
   target.click();
   await sleep(12);
+
+  // 代码模板是片段，不配专属真题（有通用题单入口即可），跳过真题检查
+  if (topic.isTemplate) {
+    const html = el('syntax-luogu').innerHTML;
+    if (!html || html.trim() === '') noShow.push(`${topic.title}(模板无任何链接)`);
+    else tplSkipped.push(topic.title);
+    continue;
+  }
+
   const h = el('syntax-luogu').innerHTML;
   const ids = [...h.matchAll(/problem-id">([^<]+)</g)].map((m) => m[1]);
   if (ids.length === 0) { noShow.push(`${topic.title}(无真题)`); continue; }
   shown++;
 }
 assert(noShow.length === 0,
-  noShow.length ? `这些知识点没显示真题：${noShow.slice(0, 6).join(', ')}` : `全部 ${CPP_TOPIC_LIST.length} 个知识点都展示了真题`);
+  noShow.length
+    ? `这些知识点没显示真题：${noShow.slice(0, 6).join(', ')}`
+    : `${shown} 个知识点展示了真题，${tplSkipped.length} 个代码模板展示了题单/搜索入口`);
 
 // ---------- 算法页的真题 ----------
 console.log('\n[3] 算法页真题展示');

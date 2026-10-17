@@ -20,6 +20,7 @@ import { luoguTrainingLinks } from './syntax/luogu.js';
 import { LUOGU_TRAINING_SETS } from './syntax/content.js';
 import { ALGO_IDEAS } from './syntax/algo-ideas.js';
 
+
 const $ = (id) => document.getElementById(id);
 
 const dom = {
@@ -92,6 +93,7 @@ const dom = {
   syntaxCode: $('syntax-code'),
   syntaxRun: $('syntax-run'),
   syntaxOutput: $('syntax-output'),
+  syntaxOutputSection: $('syntax-output-section'),
   syntaxUsedBy: $('syntax-used-by'),
   syntaxSearch: $('syntax-search'),
   syntaxCount: $('syntax-count'),
@@ -439,6 +441,13 @@ function renderSyntaxLinks(algo) {
 /** 生成 C++ 输出的 HTML（供多个位置复用）。 */
 function renderCppOutputHtml(item) {
   const parts = [];
+
+  // 竞赛代码模板是片段，本来就不预置编译结果 ——
+  // 直接显示「未通过编译」会误导读者，所以跳过这一块。
+  if (item.isTemplate) {
+    return '';
+  }
+
   if (item.outputOk) {
     parts.push(
       '<div class="cpp-output-head">' +
@@ -608,6 +617,8 @@ function renderComparison() {
   }, 2500);
 }
 
+
+
 // =====================================================================
 // 语法教程
 // =====================================================================
@@ -665,6 +676,11 @@ function selectTopic(topicId) {
   dom.syntaxPoints.innerHTML = topic.points.map((p) => `<li>${escapeHtml(p)}</li>`).join('');
   dom.syntaxCode.textContent = topic.code;
 
+  // 模板是代码片段，没有构建期编译结果 —— 隐藏那个说明按钮
+  if (dom.syntaxRun) {
+    dom.syntaxRun.hidden = Boolean(topic.isTemplate);
+  }
+
   // 「哪些算法用到了它」反向关联（用 C++ 知识点 id 去匹配算法的 cppTopics）
   const usedBy = ALGORITHM_ORDER.filter((id) => (ALGORITHMS[id].cppTopics || []).includes(topicId));
   if (usedBy.length === 0) {
@@ -694,6 +710,15 @@ function selectTopic(topicId) {
  */
 function renderCppOutput(container, topic) {
   if (!container) return;
+
+  // 竞赛代码模板是片段，不预置编译结果，这里整块跳过
+  if (topic.isTemplate) {
+    container.innerHTML = '';
+    if (dom.syntaxOutputSection) dom.syntaxOutputSection.hidden = true;
+    return;
+  }
+  if (dom.syntaxOutputSection) dom.syntaxOutputSection.hidden = false;
+
   const html = [];
 
   if (topic.outputOk) {

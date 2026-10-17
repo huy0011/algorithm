@@ -38,7 +38,10 @@ const { ALGORITHMS, ALGORITHM_ORDER } = await import(
 const { CPP_TOPICS: BASE } = await import(pathToFileURL(path.join(ROOT, 'src/syntax/cpp-topics.js')).href);
 const { CPP_DETAIL_TOPICS } = await import(pathToFileURL(path.join(ROOT, 'src/syntax/cpp-detail-topics.js')).href);
 // 源知识点的总数 = 基础层 + 细化层
-const CPP_TOPICS = [...BASE, ...CPP_DETAIL_TOPICS];
+const { CODE_TEMPLATE_TOPICS: TPL } = await import(
+  pathToFileURL(path.join(ROOT, 'src/syntax/code-templates.js')).href
+);
+const CPP_TOPICS = [...BASE, ...CPP_DETAIL_TOPICS, ...TPL];
 const { CPP_ALGO_SNIPPETS: SNIPPETS_A } = await import(pathToFileURL(path.join(ROOT, 'src/syntax/cpp-algos.js')).href);
 const { CPP_ALGO_SNIPPETS_2 } = await import(pathToFileURL(path.join(ROOT, 'src/syntax/cpp-algos2.js')).href);
 // 与 content.js 保持一致：两批合并
@@ -52,23 +55,30 @@ assert(CPP_TOPIC_LIST.length === CPP_TOPICS.length,
   `知识点数量一致：装配层 ${CPP_TOPIC_LIST.length} 个，源 ${CPP_TOPICS.length} 个`);
 assert(CPP_GROUPS.length >= 3, `分组数量：${CPP_GROUPS.map((g) => g.name + '(' + g.topics.length + ')').join('、')}`);
 
+// 代码模板是片段（无 #include/main/编译输出），单独用宽松标准检查
+const isTemplate = (t) => Boolean(t.isTemplate);
+
 const badTopics = [];
 for (const t of CPP_TOPIC_LIST) {
   if (!t.code || t.code.length < 40) badTopics.push(`${t.id}(代码过短)`);
-  if (!t.code.includes('#include')) badTopics.push(`${t.id}(缺 #include)`);
-  if (!t.code.includes('int main')) badTopics.push(`${t.id}(缺 main)`);
   if (!t.summary) badTopics.push(`${t.id}(缺简介)`);
   if (!Array.isArray(t.points) || t.points.length === 0) badTopics.push(`${t.id}(缺要点)`);
+  if (isTemplate(t)) continue;   // 模板不要求完整程序与专属真题
+  if (!t.code.includes('#include')) badTopics.push(`${t.id}(缺 #include)`);
+  if (!t.code.includes('int main')) badTopics.push(`${t.id}(缺 main)`);
   if (t.luogu.length === 0) badTopics.push(`${t.id}(缺练习链接)`);
 }
+const tplCount = CPP_TOPIC_LIST.filter(isTemplate).length;
 assert(badTopics.length === 0,
-  badTopics.length ? `问题：${badTopics.join(', ')}` : `${CPP_TOPIC_LIST.length} 个知识点都有完整代码、简介、要点和练习链接`);
+  badTopics.length
+    ? `问题：${badTopics.join(', ')}`
+    : `${CPP_TOPIC_LIST.length} 个知识点都合规（其中 ${tplCount} 个是代码模板，按片段标准检查）`);
 
 // ---------- 2. 真实输出 ----------
 console.log('\n[2] 示例输出（必须来自构建期真实编译）');
-const noOutput = CPP_TOPIC_LIST.filter((t) => !t.outputOk);
+const noOutput = CPP_TOPIC_LIST.filter((t) => !t.outputOk && !t.isTemplate);
 assert(noOutput.length === 0,
-  noOutput.length ? `这些知识点没有编译成功的输出：${noOutput.map((t) => t.id).join(', ')}` : '全部知识点都有编译成功的输出');
+  noOutput.length ? `这些知识点没有编译成功的输出：${noOutput.map((t) => t.id).join(', ')}` : '全部可编译知识点都有编译成功的输出（代码模板除外）');
 
 const emptyOutput = CPP_TOPIC_LIST.filter((t) => t.outputOk && !t.output.trim());
 assert(emptyOutput.length === 0,

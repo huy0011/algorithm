@@ -16,6 +16,7 @@ import { CPP_TOPICS } from './cpp-topics.js';
 import { CPP_DETAIL_TOPICS } from './cpp-detail-topics.js';
 import { CPP_ALGO_SNIPPETS as CPP_ALGO_SNIPPETS_BASE } from './cpp-algos.js';
 import { CPP_ALGO_SNIPPETS_2 } from './cpp-algos2.js';
+import { CODE_TEMPLATE_TOPICS } from './code-templates.js';
 import { SYNTAX_LUOGU, ALGO_LUOGU } from './luogu.js';
 import { TOPIC_PROBLEMS, ALGO_PROBLEMS, LUOGU_TRAINING_SETS } from './problems.js';
 
@@ -34,7 +35,8 @@ const CPP_ALGO_SNIPPETS = [...CPP_ALGO_SNIPPETS_BASE, ...CPP_ALGO_SNIPPETS_2];
  * 原来的「变量与基本类型」把 int/long long/double/char/bool 挤在一个知识点里，
  * float 完全没提，对初学者不够。
  */
-const ALL_CPP_TOPICS_RAW = [...CPP_TOPICS, ...CPP_DETAIL_TOPICS];
+// 竞赛代码模板以知识点形式并入，排在 STL 之后。
+const ALL_CPP_TOPICS_RAW = [...CPP_TOPICS, ...CPP_DETAIL_TOPICS, ...CODE_TEMPLATE_TOPICS];
 
 /**
  * 规范的学习顺序。
@@ -130,6 +132,8 @@ export const CPP_TOPIC_LIST = ALL_CPP_TOPICS.map((topic) => {
     outputOk: Boolean(out.verified),
     outputError: out.error || '',
     problems,
+    // 竞赛代码模板是片段，没有构建期编译结果
+    isTemplate: topic.id.startsWith('tpl-'),
     luogu: keywords.map((kw) => ({ label: `搜索「${kw}」`, url: luoguSearch(kw) })),
   };
 });

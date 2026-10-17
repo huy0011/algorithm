@@ -296,6 +296,18 @@ for (const topic of SYNTAX_TOPICS) {
 
   if (el('syntax-title').textContent !== topic.title) { topicProblems.push(`${topic.id}(标题)`); continue; }
   if (el('syntax-code').textContent.length < 20) { topicProblems.push(`${topic.id}(代码)`); continue; }
+
+  // 代码模板是片段：不要求 #include / main / 编译输出，
+  // 只要求代码已渲染、且运行结果区块被隐藏（不该显示「未通过编译」）
+  if (topic.isTemplate) {
+    if (!el('syntax-output-section').hidden) {
+      topicProblems.push(`${topic.id}(模板不该显示运行结果区)`);
+      continue;
+    }
+    topicOk++;
+    continue;
+  }
+
   // C++ 示例的输出来自构建期编译，界面会标注「已编译运行」；
   // 代码里必须能看到 #include（确认展示的是完整可编译的 C++ 程序）
   if (!el('syntax-code').textContent.includes('#include')) {

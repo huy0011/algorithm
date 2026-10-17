@@ -111,6 +111,7 @@ const SPLIT_OK = new Set([
   'src/syntax/cpp-algos.js',
   'src/syntax/cpp-algos2.js',
   'src/syntax/cpp-detail-topics.js',
+  'src/syntax/code-templates.js',
 ]);
 for (const f of jsFiles) {
   const rel = path.relative(ROOT, f).replace(/\\/g, '/');

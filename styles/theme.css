@@ -748,3 +748,5 @@ img, canvas, pre, table { max-width: 100%; }
   /* 收起时导航面板不再需要额外的内边距 */
   .syntax-nav-panel { padding: 10px; }
 }
+
+
