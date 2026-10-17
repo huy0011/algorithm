@@ -135,6 +135,18 @@ h1, h2, p, dl, dd, dt { margin: 0; }
 
 .panel-title { font-size: 14px; font-weight: 650; margin-bottom: 6px; }
 
+/* 右侧面板撑起最小高度，避免内容少时底部塌陷显空 */
+#cpp-section,
+#compare-section,
+#compare-placeholder {
+  min-height: 420px;
+}
+
+#cpp-section .algo-cpp {
+  display: flex;
+  flex-direction: column;
+}
+
 .group { margin-bottom: 18px; }
 .group:last-child { margin-bottom: 0; }
 
@@ -333,7 +345,7 @@ h1, h2, p, dl, dd, dt { margin: 0; }
 .canvas-wrap {
   position: relative;
   width: 100%;
-  height: clamp(260px, 42vh, 460px);
+  height: clamp(320px, 52vh, 640px);
   background: #121722;
   border: 1px solid var(--border);
   border-radius: var(--radius-sm);

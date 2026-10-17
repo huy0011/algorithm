@@ -191,12 +191,12 @@ body {
 
 .code-block {
   /* 代码区加大：细节教程里代码是主角 */
-  max-height: 460px;
+  max-height: 560px;
   font-size: 12.5px;
   line-height: 1.75;
 }
 
-.code-cpp { max-height: 420px; }
+.code-cpp { max-height: 520px; }
 
 .cpp-stdout {
   border-left: 3px solid var(--accent-3);
