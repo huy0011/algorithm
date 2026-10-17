@@ -61,6 +61,38 @@ export const GridOp = {
 };
 
 /**
+ * 图 / 树类操作。
+ *
+ * 用于图论算法（Dijkstra、拓扑排序、最小生成树）与 Trie。
+ * 这类算法的数据不是「一排格子」，而是「点 + 边」的网络，
+ * 所以要记录的是：哪个点被访问、哪条边被选中、权值怎么更新。
+ *
+ * 树是图的一种特例，所以 Trie 也复用这套操作与渲染器。
+ */
+export const GraphOp = {
+  /** 声明一个点 { id, label, x, y }（x/y 是归一化位置 0~1，渲染器按画布缩放） */
+  NODE: 'node',
+  /** 声明一条边 { from, to, weight, directed } */
+  EDGE: 'edge',
+  /** 把某个点加入待处理集合 { id } */
+  FRONTIER: 'frontier',
+  /** 访问/确定一个点 { id, note } */
+  VISIT: 'visit',
+  /** 当前正在处理的点 { id } */
+  CURRENT: 'current',
+  /** 沿一条边松弛/考察 { from, to, weight, ok, note } */
+  RELAX: 'relax',
+  /** 把一条边标记为「最终选中」（最小生成树用）{ from, to } */
+  SELECT_EDGE: 'selectEdge',
+  /** 排除一条边（Kruskal 里因成环而放弃）{ from, to, note } */
+  REJECT_EDGE: 'rejectEdge',
+  /** 更新某个点的距离/权值标签 { id, value } */
+  LABEL: 'label',
+  /** 设置整体结论文字 { note } */
+  NOTE: 'note',
+};
+
+/**
  * 指针 / 区间类操作。
  *
  * 用于「双指针、滑动窗口、前缀和、差分」这类算法。
@@ -552,6 +584,116 @@ export class BitTracer {
       operations: this.operations,
       stats: { ...this.stats },
       meta: { bitWidth: this.bitWidth, ...this.meta },
+    };
+  }
+}
+
+// =====================================================================
+// 图 / 树类（Dijkstra、拓扑排序、最小生成树、Trie）
+// =====================================================================
+
+export class GraphTracer {
+  /**
+   * @param {object} meta { title, explain, directed, weighted, layout }
+   *   layout: 'circle' | 'tree' | 'grid'，提示渲染器怎么摆点
+   */
+  constructor(meta = {}) {
+    this.operations = [];
+    this.stats = makeStats();
+    this.meta = { ...meta };
+    /** 已声明的点与边，便于算法内部查询（渲染器另外从操作序列重建） */
+    this.nodes = new Map();
+    this.edges = [];
+  }
+
+  _push(op) {
+    this.operations.push({ ...op, stats: { ...this.stats } });
+  }
+
+  /**
+   * 声明一个点。
+   * x / y 用 0~1 的归一化坐标，渲染器按画布尺寸缩放 ——
+   * 这样算法层不必知道画布多大，符合「算法不认识渲染」的约定。
+   */
+  addNode(id, label = '', x = null, y = null) {
+    this.nodes.set(id, { id, label: label || String(id), x, y });
+    this._push({ type: GraphOp.NODE, id, label: label || String(id), x, y });
+  }
+
+  /** 声明一条边。weight 默认 1（无权图）。 */
+  addEdge(from, to, weight = 1, directed = false) {
+    this.edges.push({ from, to, weight, directed });
+    this._push({ type: GraphOp.EDGE, from, to, weight, directed });
+  }
+
+  /** 把点加入待处理集合（如 Dijkstra 的优先队列、拓扑排序的入度为 0 集合）。 */
+  frontier(id, note = '') {
+    this._push({ type: GraphOp.FRONTIER, id, note });
+  }
+
+  /** 访问/确定一个点。 */
+  visit(id, note = '') {
+    this.stats.visits++;
+    this._push({ type: GraphOp.VISIT, id, note });
+  }
+
+  /** 当前正在处理的点。 */
+  current(id) {
+    this._push({ type: GraphOp.CURRENT, id });
+  }
+
+  /** 沿一条边松弛（更新距离）。ok 表示这次松弛是否真的改进了。 */
+  relax(from, to, weight, ok, note = '') {
+    this.stats.comparisons++;
+    if (ok) this.stats.writes++;
+    this._push({ type: GraphOp.RELAX, from, to, weight, ok, note });
+  }
+
+  /** 最小生成树：把一条边纳入答案。 */
+  selectEdge(from, to, note = '') {
+    this.stats.writes++;
+    this._push({ type: GraphOp.SELECT_EDGE, from, to, note });
+  }
+
+  /** 最小生成树：因成环等原因放弃一条边。 */
+  rejectEdge(from, to, note = '') {
+    this._push({ type: GraphOp.REJECT_EDGE, from, to, note });
+  }
+
+  /** 更新点上的标签（距离、入度、前缀等）。 */
+  label(id, value) {
+    this._push({ type: GraphOp.LABEL, id, value });
+  }
+
+  note(text) {
+    this._push({ type: GraphOp.NOTE, note: text });
+  }
+
+  /**
+   * 自动排布：按圆形摆放所有点。
+   * 算法里调用它就不必手写坐标；也可以自己传 x/y 覆盖。
+   */
+  autoLayout() {
+    const ids = [...this.nodes.keys()];
+    const n = ids.length;
+    ids.forEach((id, i) => {
+      const node = this.nodes.get(id);
+      if (node.x === null || node.y === null) {
+        const angle = (2 * Math.PI * i) / n - Math.PI / 2;
+        node.x = 0.5 + 0.36 * Math.cos(angle);
+        node.y = 0.5 + 0.36 * Math.sin(angle);
+        // 补一条 NODE 操作把坐标写进序列（渲染器只认序列）
+        this._push({ type: GraphOp.NODE, id: node.id, label: node.label, x: node.x, y: node.y });
+      }
+    });
+  }
+
+  result() {
+    return {
+      kind: 'graph',
+      operations: this.operations,
+      stats: { ...this.stats },
+      meta: { ...this.meta },
     };
   }
 }

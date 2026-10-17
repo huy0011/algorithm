@@ -44,6 +44,21 @@ export const ALGO_CPP_TOPICS = {
   // ---------- 位运算 ----------
   bitwise: ['cpp-bitset', 'cpp-operators', 'cpp-variables'],
 
+  // ---------- 高精度 ----------
+  bigAdd: ['cpp-array', 'cpp-loops', 'cpp-char-bool'],
+  bigSub: ['cpp-array', 'cpp-loops', 'cpp-branch'],
+  bigMul: ['cpp-array', 'cpp-loops', 'cpp-longlong'],
+  bigFactorial: ['cpp-array', 'cpp-loops', 'cpp-overflow'],
+
+  // ---------- 图论 ----------
+  graphStorage: ['cpp-vector', 'cpp-array', 'cpp-struct'],
+  dijkstra: ['cpp-priority-queue', 'cpp-vector', 'cpp-loops'],
+  topologicalSort: ['cpp-stack-queue', 'cpp-vector', 'cpp-loops'],
+  kruskal: ['cpp-struct', 'cpp-sort', 'cpp-vector'],
+
+  // ---------- Trie ----------
+  trie: ['cpp-struct', 'cpp-array', 'cpp-recursion'],
+
   // ---------- 数据结构 ----------
   stackDemo: ['cpp-stack-queue', 'cpp-string', 'cpp-branch'],
   queueDemo: ['cpp-stack-queue', 'cpp-string', 'cpp-loops'],

@@ -168,6 +168,15 @@ export const ALGO_LUOGU = {
   bitwise: ['位运算', '状态压缩'],
 
   // 数据结构
+  bigAdd: ['高精度', '高精度加法'],
+  bigSub: ['高精度', '高精度减法'],
+  bigMul: ['高精度', '高精度乘法'],
+  bigFactorial: ['高精度', '阶乘'],
+  graphStorage: ['图的存储', '邻接表'],
+  dijkstra: ['最短路', 'Dijkstra'],
+  topologicalSort: ['拓扑排序'],
+  kruskal: ['最小生成树', 'Kruskal'],
+  trie: ['字典树', 'Trie'],
   stackDemo: ['栈', '括号匹配'],
   queueDemo: ['队列', '单调队列'],
 };

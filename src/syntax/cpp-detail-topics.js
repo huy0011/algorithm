@@ -14,7 +14,7 @@ export const CPP_DETAIL_TOPICS = [
   // ==================== 整数类型 ====================
   {
     id: 'cpp-int',
-    group: 'C++ 基础',
+    group: 'C++ 基础入门',
     title: 'int —— 最常用的整数',
     summary: 'int 占 4 字节，范围约 ±21 亿。超出这个范围会溢出，而且不会报错。',
     points: [
@@ -53,7 +53,7 @@ int main() {
 
   {
     id: 'cpp-longlong',
-    group: 'C++ 基础',
+    group: 'C++ 基础入门',
     title: 'long long —— 竞赛必备的大整数',
     summary: '占 8 字节，范围约 ±9.2×10¹⁸。竞赛里「拿不准就用它」。',
     points: [
@@ -94,7 +94,7 @@ int main() {
   // ==================== 浮点类型 ====================
   {
     id: 'cpp-float',
-    group: 'C++ 基础',
+    group: 'C++ 基础入门',
     title: 'float —— 单精度小数',
     summary: '占 4 字节，只有约 7 位有效数字。竞赛里一般用 double，很少用 float。',
     points: [
@@ -144,7 +144,7 @@ int main() {
 
   {
     id: 'cpp-double',
-    group: 'C++ 基础',
+    group: 'C++ 基础入门',
     title: 'double —— 默认的小数类型',
     summary: '占 8 字节，约 15-16 位有效数字。竞赛里说到「小数」基本就是它。',
     points: [
@@ -191,7 +191,7 @@ int main() {
 
   {
     id: 'cpp-char-bool',
-    group: 'C++ 基础',
+    group: 'C++ 基础入门',
     title: 'char 与 bool',
     summary: 'char 存单个字符（本质是 1 字节整数），bool 存真假（本质是 0/1）。',
     points: [
@@ -245,7 +245,7 @@ int main() {
 
   {
     id: 'cpp-type-range',
-    group: 'C++ 基础',
+    group: 'C++ 基础入门',
     title: '各类型的范围与选择',
     summary: '一张表记住什么时候用哪个类型。选错 = 静默溢出 = 最难查的 bug。',
     points: [
@@ -289,7 +289,7 @@ int main() {
 
   {
     id: 'cpp-overflow',
-    group: 'C++ 基础',
+    group: 'C++ 基础入门',
     title: '整数溢出：最隐蔽的错误',
     summary: '溢出不会报错，只会给你一个错误的数字。这是竞赛里最常见的 WA 原因之一。',
     points: [
@@ -337,7 +337,7 @@ int main() {
   // ==================== 运算符细化 ====================
   {
     id: 'cpp-arithmetic-detail',
-    group: 'C++ 基础',
+    group: 'C++ 基础入门',
     title: '算术运算符与整数除法',
     summary: '+ - * / % 五个运算符，其中整除和取余最容易出错。',
     points: [
@@ -392,7 +392,7 @@ int main() {
 
   {
     id: 'cpp-compare-logic',
-    group: 'C++ 基础',
+    group: 'C++ 基础入门',
     title: '比较与逻辑运算符',
     summary: '== != < > <= >= 和 && || !，注意 = 和 == 写混是经典错误。',
     points: [
@@ -450,7 +450,7 @@ int main() {
 
   {
     id: 'cpp-operator-priority',
-    group: 'C++ 基础',
+    group: 'C++ 基础入门',
     title: '运算符优先级',
     summary: '先乘除后加减，逻辑运算优先级低于比较。搞不清就加括号。',
     points: [
@@ -498,7 +498,7 @@ int main() {
   // ==================== 类型转换细化 ====================
   {
     id: 'cpp-cast',
-    group: 'C++ 基础',
+    group: 'C++ 基础入门',
     title: '类型转换',
     summary: '隐式转换悄悄发生，显式转换（强制类型转换）才是可控的。',
     points: [

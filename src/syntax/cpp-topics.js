@@ -19,7 +19,7 @@ export const CPP_TOPICS = [
   // ==================== 一、零基础入门 ====================
   {
     id: 'cpp-hello',
-    group: '零基础入门',
+    group: 'C++ 基础入门',
     title: 'Hello World',
     summary: 'C++ 的第一行代码。cout 负责输出，endl 负责换行。',
     points: [
@@ -47,7 +47,7 @@ int main() {
 
   {
     id: 'cpp-comments',
-    group: '零基础入门',
+    group: 'C++ 基础入门',
     title: '注释：写给人看的说明',
     summary: '注释不会被执行。好注释解释「为什么」，而不是重复「是什么」。',
     points: [
@@ -95,7 +95,7 @@ int main() {
 
   {
     id: 'cpp-variables',
-    group: '零基础入门',
+    group: 'C++ 基础入门',
     title: '变量与基本类型',
     summary: 'int 存整数，double 存小数，char 存单个字符，bool 存真假。',
     points: [
@@ -132,7 +132,7 @@ int main() {
 
   {
     id: 'cpp-io',
-    group: '零基础入门',
+    group: 'C++ 基础入门',
     title: '输入与输出',
     summary: 'cin >> 读入，cout << 输出。方向就是数据流动的方向。',
     points: [
@@ -165,7 +165,7 @@ int main() {
 
   {
     id: 'cpp-operators',
-    group: '零基础入门',
+    group: 'C++ 基础入门',
     title: '运算符',
     summary: '加减乘除取余，以及整数除法的陷阱。',
     points: [
@@ -203,7 +203,7 @@ int main() {
 
   {
     id: 'cpp-branch',
-    group: '零基础入门',
+    group: 'C++ 基础入门',
     title: '条件分支',
     summary: 'if / else if / else，以及三目运算符。',
     points: [
@@ -243,7 +243,7 @@ int main() {
 
   {
     id: 'cpp-loops',
-    group: '零基础入门',
+    group: 'C++ 基础入门',
     title: '循环',
     summary: 'for 适合已知次数，while 适合条件驱动。',
     points: [
@@ -289,7 +289,7 @@ int main() {
 
   {
     id: 'cpp-array',
-    group: '零基础入门',
+    group: 'C++ 基础入门',
     title: '数组',
     summary: '定长数组 int a[100]，下标从 0 到 n-1 开始。',
     points: [
@@ -337,7 +337,7 @@ int main() {
 
   {
     id: 'cpp-functions',
-    group: '零基础入门',
+    group: 'C++ 基础入门',
     title: '函数',
     summary: '把一段逻辑封装起来，用参数传入、用 return 传出。',
     points: [
@@ -390,7 +390,7 @@ int main() {
 
   {
     id: 'cpp-recursion',
-    group: '零基础入门',
+    group: 'C++ 基础入门',
     title: '递归',
     summary: '函数调用自己。关键是找准「终止条件」和「如何缩小规模」。',
     points: [
@@ -438,7 +438,7 @@ int main() {
 
   {
     id: 'cpp-pointer',
-    group: '零基础入门',
+    group: 'C++ 基础入门',
     title: '指针与引用',
     summary: '指针存地址，引用是别名。竞赛里引用用得更多。',
     points: [
@@ -480,7 +480,7 @@ int main() {
 
   {
     id: 'cpp-complexity',
-    group: '零基础入门',
+    group: 'C++ 基础入门',
     title: '复杂度入门',
     summary: '同一件事，算法不同，快慢能差上百万倍。看数据范围就能反推该用什么算法。',
     points: [

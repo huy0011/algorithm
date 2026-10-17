@@ -14,9 +14,18 @@
 
 import { CPP_TOPICS } from './cpp-topics.js';
 import { CPP_DETAIL_TOPICS } from './cpp-detail-topics.js';
-import { CPP_ALGO_SNIPPETS } from './cpp-algos.js';
+import { CPP_ALGO_SNIPPETS as CPP_ALGO_SNIPPETS_BASE } from './cpp-algos.js';
+import { CPP_ALGO_SNIPPETS_2 } from './cpp-algos2.js';
 import { SYNTAX_LUOGU, ALGO_LUOGU } from './luogu.js';
 import { TOPIC_PROBLEMS, ALGO_PROBLEMS, LUOGU_TRAINING_SETS } from './problems.js';
+
+/**
+ * 算法的 C++ 实现分两批文件：
+ *   cpp-algos.js   最初 23 个算法
+ *   cpp-algos2.js  后来新增的高精度 / 图论 / Trie
+ * 这里合并成一份，避免调用方关心文件怎么分。
+ */
+const CPP_ALGO_SNIPPETS = [...CPP_ALGO_SNIPPETS_BASE, ...CPP_ALGO_SNIPPETS_2];
 
 /**
  * 全部知识点 = 基础层 + 细化层。
@@ -126,6 +135,16 @@ const SNIPPET_TO_ALGO = {
   'algo-rabin-karp': 'rabinKarp',
   'algo-stack': 'stackDemo',
   'algo-queue': 'queueDemo',
+  // 第二批：高精度 / 图论 / Trie
+  'algo-bigadd': 'bigAdd',
+  'algo-bigsub': 'bigSub',
+  'algo-bigmul': 'bigMul',
+  'algo-bigfactorial': 'bigFactorial',
+  'algo-graph-storage': 'graphStorage',
+  'algo-dijkstra': 'dijkstra',
+  'algo-topological-sort': 'topologicalSort',
+  'algo-kruskal': 'kruskal',
+  'algo-trie': 'trie',
 };
 
 export const CPP_ALGO_LIST = CPP_ALGO_SNIPPETS.map((snippet) => {

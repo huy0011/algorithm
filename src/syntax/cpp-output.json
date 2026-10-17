@@ -1,11 +1,11 @@
 {
   "meta": {
-    "generatedAt": "2026-10-16T15:33:58.813Z",
+    "generatedAt": "2026-10-16T15:52:29.743Z",
     "compiler": "g++ -std=c++17 -O2",
     "compilerVersion": "g++.exe (x86_64-posix-seh-rev1, Built by MinGW-Builds project) 16.2.0",
     "note": "本文件由构建脚本生成：每个 C++ 示例都经真实编译运行，stdout 为程序真实输出。浏览器无法编译 C++，所以页面上展示的是这份预先录制的输出，不能重新运行。",
-    "total": 57,
-    "passed": 57,
+    "total": 66,
+    "passed": 66,
     "failed": 0
   },
   "results": {
@@ -350,6 +350,60 @@
       "title": "队列 · 任务调度",
       "verified": true,
       "stdout": "初始队列大小: 2\n处理第 1 个任务: 渲染画面\n  -> 新任务入队: 播放动画\n处理第 2 个任务: 计算坐标\n  -> 新任务入队: 清理临时值\n处理第 3 个任务: 播放动画\n处理第 4 个任务: 清理临时值\n全部处理完，共 4 个任务"
+    },
+    "algo-bigadd": {
+      "kind": "algo",
+      "title": "高精度加法",
+      "verified": true,
+      "stdout": "98765432109876543210 + 12345678901234567890 = 111111111011111111100\n结果共 21 位"
+    },
+    "algo-bigsub": {
+      "kind": "algo",
+      "title": "高精度减法",
+      "verified": true,
+      "stdout": "98765432109876543210 - 12345678901234567890 = 86419753208641975320"
+    },
+    "algo-bigmul": {
+      "kind": "algo",
+      "title": "高精度乘法",
+      "verified": true,
+      "stdout": "98765 * 43210 = 4267635650"
+    },
+    "algo-bigfactorial": {
+      "kind": "algo",
+      "title": "高精度阶乘",
+      "verified": true,
+      "stdout": "计算 25!\n20! 已有 19 位\n21! 已有 20 位\n25! = 15511210043330985984000000\n共 26 位\n(long long 最多约 19 位，所以 20! 之后必须用高精度)"
+    },
+    "algo-graph-storage": {
+      "kind": "algo",
+      "title": "图的存储",
+      "verified": true,
+      "stdout": "邻接矩阵（0 表示不通）:\n0 4 0 2 0 0 \n4 0 5 0 3 0 \n0 5 0 0 0 6 \n2 0 0 0 1 0 \n0 3 0 1 0 7 \n0 0 6 0 7 0 \n\n邻接表:\n  0 -> 1(权4) 3(权2) \n  1 -> 0(权4) 2(权5) 4(权3) \n  2 -> 1(权5) 5(权6) \n  3 -> 0(权2) 4(权1) \n  4 -> 1(权3) 3(权1) 5(权7) \n  5 -> 2(权6) 4(权7) \n\n矩阵用 36 个格子，邻接表只用 14 条记录"
+    },
+    "algo-dijkstra": {
+      "kind": "algo",
+      "title": "Dijkstra 最短路",
+      "verified": true,
+      "stdout": "从点 0 出发的最短距离:\n  到点 0: 0\n  到点 1: 4\n  到点 2: 9\n  到点 3: 2\n  到点 4: 3\n  到点 5: 10"
+    },
+    "algo-topological-sort": {
+      "kind": "algo",
+      "title": "拓扑排序",
+      "verified": true,
+      "stdout": "拓扑序: 0 1 2 3 5 4"
+    },
+    "algo-kruskal": {
+      "kind": "algo",
+      "title": "最小生成树 Kruskal",
+      "verified": true,
+      "stdout": "选中的边:\n  3 - 4 (权 1)\n  0 - 3 (权 2)\n  1 - 4 (权 3)\n  1 - 2 (权 5)\n  2 - 5 (权 6)\n最小生成树总权值: 17\n边数: 5（应为 n-1 = 5）"
+    },
+    "algo-trie": {
+      "kind": "algo",
+      "title": "Trie 字典树",
+      "verified": true,
+      "stdout": "插入 6 个单词，共 27 个字符\nTrie 用了 17 个节点（根不算）\n共用前缀省了 10 个节点\n\n前缀 \"app\": 存在, 完整单词: 是\n前缀 \"ban\": 存在, 完整单词: 否\n前缀 \"cat\": 不存在, 完整单词: 否\n前缀 \"bat\": 存在, 完整单词: 是\n前缀 \"batc\": 存在, 完整单词: 否"
     }
   }
 }

@@ -39,7 +39,10 @@ const { CPP_TOPICS: BASE } = await import(pathToFileURL(path.join(ROOT, 'src/syn
 const { CPP_DETAIL_TOPICS } = await import(pathToFileURL(path.join(ROOT, 'src/syntax/cpp-detail-topics.js')).href);
 // 源知识点的总数 = 基础层 + 细化层
 const CPP_TOPICS = [...BASE, ...CPP_DETAIL_TOPICS];
-const { CPP_ALGO_SNIPPETS } = await import(pathToFileURL(path.join(ROOT, 'src/syntax/cpp-algos.js')).href);
+const { CPP_ALGO_SNIPPETS: SNIPPETS_A } = await import(pathToFileURL(path.join(ROOT, 'src/syntax/cpp-algos.js')).href);
+const { CPP_ALGO_SNIPPETS_2 } = await import(pathToFileURL(path.join(ROOT, 'src/syntax/cpp-algos2.js')).href);
+// 与 content.js 保持一致：两批合并
+const CPP_ALGO_SNIPPETS = [...SNIPPETS_A, ...CPP_ALGO_SNIPPETS_2];
 
 console.log('C++ 教程内容验证\n' + '='.repeat(58));
 

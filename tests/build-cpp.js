@@ -42,7 +42,9 @@ const MANIFEST_FILE = path.join(BUILD_DIR, 'manifest.json');
 const { CPP_TOPICS: CPP_TOPICS_BASE } = await import(pathToFileURL(path.join(ROOT, 'src/syntax/cpp-topics.js')).href);
 const { CPP_DETAIL_TOPICS } = await import(pathToFileURL(path.join(ROOT, 'src/syntax/cpp-detail-topics.js')).href);
 const CPP_TOPICS = [...CPP_TOPICS_BASE, ...CPP_DETAIL_TOPICS];
-const { CPP_ALGO_SNIPPETS } = await import(pathToFileURL(path.join(ROOT, 'src/syntax/cpp-algos.js')).href);
+const { CPP_ALGO_SNIPPETS: BASE_SNIPPETS } = await import(pathToFileURL(path.join(ROOT, 'src/syntax/cpp-algos.js')).href);
+const { CPP_ALGO_SNIPPETS_2 } = await import(pathToFileURL(path.join(ROOT, 'src/syntax/cpp-algos2.js')).href);
+const CPP_ALGO_SNIPPETS = [...BASE_SNIPPETS, ...CPP_ALGO_SNIPPETS_2];
 
 const mode = process.argv.includes('--collect') ? 'collect' : 'write';
 

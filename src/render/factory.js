@@ -10,16 +10,19 @@ import { BarVisualizer } from './bar-visualizer.js';
 import { SearchVisualizer } from './search-visualizer.js';
 import { GridVisualizer } from './grid-visualizer.js';
 import { StructureVisualizer } from './structure-visualizer.js';
+import { GraphVisualizer } from './graph-visualizer.js';
 import { SpanVisualizer } from './span-visualizer.js';
 import { BitVisualizer } from './bit-visualizer.js';
 import { pickSearchTarget } from '../algorithms/search.js';
 import { generateGrid } from '../algorithms/path.js';
+import { makeWeightedGraph } from '../algorithms/graph.js';
 
 const RENDERERS = {
   bars: BarVisualizer,
   search: SearchVisualizer,
   grid: GridVisualizer,
   structure: StructureVisualizer,
+  graph: GraphVisualizer,
   span: SpanVisualizer,
   bits: BitVisualizer,
 };
@@ -145,6 +148,59 @@ export function buildInput(algo, config = {}) {
           op: ops[Math.floor(Math.random() * ops.length)],
         },
       };
+    }
+
+    // 高精度：两个大数（字符串形式，位数远超整数类型上限）
+    case 'bigNumbers': {
+      const randBig = (len) => {
+        const first = String(1 + Math.floor(Math.random() * 9));
+        let rest = '';
+        for (let i = 1; i < len; i++) rest += String(Math.floor(Math.random() * 10));
+        return first + rest;
+      };
+      const lenA = 18 + Math.floor(Math.random() * 4);
+      const lenB = 14 + Math.floor(Math.random() * 4);
+      let a = randBig(lenA);
+      let b = randBig(lenB);
+      // 减法要求 a >= b，保证不出负数
+      if (BigInt(a) < BigInt(b)) [a, b] = [b, a];
+      return { input: [], options: { a, b } };
+    }
+
+    case 'bigNumbersSmall': {
+      const randBig = (len) => {
+        let s = String(1 + Math.floor(Math.random() * 9));
+        for (let i = 1; i < len; i++) s += String(Math.floor(Math.random() * 10));
+        return s;
+      };
+      return { input: [], options: { a: randBig(5), b: randBig(5) } };
+    }
+
+    case 'factorial': {
+      return { input: [], options: { n: 22 + Math.floor(Math.random() * 8) } };
+    }
+
+    // 图论：小规模带权图
+    case 'graph': {
+      const seed = Math.floor(Math.random() * 2);
+      const graph = makeWeightedGraph(seed);
+      return { input: [], options: { graph, start: 0 } };
+    }
+
+    case 'dag': {
+      // 有向无环：任务依赖
+      const n = 6;
+      const edges = [[0, 1], [0, 2], [1, 3], [2, 3], [3, 4], [2, 5], [5, 4]];
+      return { input: [], options: { n, edges } };
+    }
+
+    case 'words': {
+      const sets = [
+        ['apple', 'app', 'april', 'banana', 'bat', 'batch'],
+        ['cat', 'car', 'card', 'care', 'dog', 'do'],
+      ];
+      const words = sets[Math.floor(Math.random() * sets.length)];
+      return { input: [], options: { words, queries: ['app', 'car', 'zzz'].filter((q) => q) } };
     }
 
     // 字符串：栈/队列演示的场景输入

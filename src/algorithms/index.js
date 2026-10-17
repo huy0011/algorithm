@@ -14,6 +14,9 @@ import { PATH_ALGORITHMS } from './path.js';
 import { STRUCTURE_ALGORITHMS } from './structures.js';
 import { TECHNIQUE_ALGORITHMS, BIT_ALGORITHMS } from './technique.js';
 import { STRING_ALGORITHMS } from './string.js';
+import { GRAPH_ALGORITHMS } from './graph.js';
+import { BIGNUM_ALGORITHMS } from './bignum.js';
+import { TRIE_ALGORITHMS } from './trie.js';
 import { ALGO_CPP_TOPICS } from '../syntax/algo-topics.js';
 
 /** 冒泡排序：相邻两两比较，大的往后冒。 */
@@ -340,6 +343,21 @@ export const ALGORITHMS = {
   dfs: PATH_ALGORITHMS.dfs,
 
   // ---------------- 数据结构 ----------------
+  // ---------------- 高精度 ----------------
+  bigAdd: BIGNUM_ALGORITHMS.bigAdd,
+  bigSub: BIGNUM_ALGORITHMS.bigSub,
+  bigMul: BIGNUM_ALGORITHMS.bigMul,
+  bigFactorial: BIGNUM_ALGORITHMS.bigFactorial,
+
+  // ---------------- 图论 ----------------
+  graphStorage: GRAPH_ALGORITHMS.graphStorage,
+  dijkstra: GRAPH_ALGORITHMS.dijkstra,
+  topologicalSort: GRAPH_ALGORITHMS.topologicalSort,
+  kruskal: GRAPH_ALGORITHMS.kruskal,
+
+  // ---------------- Trie ----------------
+  trie: TRIE_ALGORITHMS.trie,
+
   stackDemo: STRUCTURE_ALGORITHMS.stackDemo,
   queueDemo: STRUCTURE_ALGORITHMS.queueDemo,
 
@@ -383,6 +401,12 @@ export const ALGORITHM_ORDER = [
   'kmp', 'rabinKarp',
   // 位运算
   'bitwise',
+  // 高精度
+  'bigAdd', 'bigSub', 'bigMul', 'bigFactorial',
+  // 图论
+  'graphStorage', 'dijkstra', 'topologicalSort', 'kruskal',
+  // Trie
+  'trie',
   // 数据结构
   'stackDemo', 'queueDemo',
 ];
@@ -396,6 +420,8 @@ export const CATEGORIES = [
   { id: 'technique', name: '基础技巧', renderer: 'span' },
   { id: 'string', name: '字符串', renderer: 'span' },
   { id: 'bits', name: '位运算', renderer: 'bits' },
+  { id: 'bignum', name: '高精度', renderer: 'span' },
+  { id: 'graph', name: '图论', renderer: 'graph' },
   { id: 'structure', name: '数据结构', renderer: 'structure' },
 ];
 
