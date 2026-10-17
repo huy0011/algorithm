@@ -34,6 +34,8 @@ const dom = {
   sizeRange: $('size-range'),
   sizeValue: $('size-value'),
   sizeLabel: $('size-label'),
+  navToggle: $('nav-toggle'),
+  navToggleCurrent: $('nav-toggle-current'),
   sizeGroup: $('size-group'),
   shapeSelect: $('shape-select'),
   shapeGroup: $('shape-group'),
@@ -654,6 +656,10 @@ function selectTopic(topicId) {
     b.classList.toggle('is-active', b.dataset.topic === topicId);
   });
 
+  // 手机上导航是折叠抽屉：更新按钮上显示的当前知识点，并自动收起
+  if (dom.navToggleCurrent) dom.navToggleCurrent.textContent = topic.title;
+  if (dom.navToggle) dom.navToggle.setAttribute('aria-expanded', 'false');
+
   dom.syntaxTitle.textContent = topic.title;
   dom.syntaxSummary.textContent = topic.summary;
   dom.syntaxPoints.innerHTML = topic.points.map((p) => `<li>${escapeHtml(p)}</li>`).join('');
@@ -803,6 +809,14 @@ function escapeHtml(s) {
 // =====================================================================
 
 function bindEvents() {
+  // 语法页导航的折叠抽屉（仅窄屏显示折叠按钮）
+  if (dom.navToggle) {
+    dom.navToggle.addEventListener('click', () => {
+      const open = dom.navToggle.getAttribute('aria-expanded') === 'true';
+      dom.navToggle.setAttribute('aria-expanded', String(!open));
+    });
+  }
+
   // 页签
   dom.tabButtons.forEach((b) => {
     b.addEventListener('click', () => switchTab(b.dataset.tab));

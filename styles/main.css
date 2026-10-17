@@ -39,6 +39,9 @@
 html, body {
   margin: 0;
   padding: 0;
+  /* 双保险：html 与 body 都限制横向溢出，避免任一元素撑宽后整页横向滚动 */
+  max-width: 100%;
+  overflow-x: hidden;
   background: var(--bg);
   color: var(--text);
   font-family: var(--font);

@@ -269,11 +269,23 @@
 <!-- ==================== 语法基础 ==================== -->
 <main class="syntax-layout" data-pane="syntax" hidden>
   <aside class="panel syntax-nav-panel">
-    <div class="syntax-search-wrap">
-      <input id="syntax-search" class="input" type="search" placeholder="搜索知识点…" aria-label="搜索语法知识点" />
-      <span id="syntax-count" class="syntax-count">0 / 0</span>
+    <!--
+      手机上导航会占满整屏，用户得滚过 35 个知识点才看到正文。
+      所以窄屏时把列表收进一个可折叠的 drawer，默认收起。
+      桌面端这个按钮隐藏，行为和以前一样。
+    -->
+    <button type="button" class="nav-toggle" id="nav-toggle" aria-expanded="false" aria-controls="nav-body">
+      <span class="nav-toggle-label">知识点目录</span>
+      <span class="nav-toggle-current" id="nav-toggle-current">Hello World</span>
+      <span class="nav-toggle-chevron" aria-hidden="true">▾</span>
+    </button>
+    <div class="nav-body" id="nav-body">
+      <div class="syntax-search-wrap">
+        <input id="syntax-search" class="input" type="search" placeholder="搜索知识点…" aria-label="搜索语法知识点" />
+        <span id="syntax-count" class="syntax-count">0 / 0</span>
+      </div>
+      <nav id="syntax-nav" class="syntax-nav"></nav>
     </div>
-    <nav id="syntax-nav" class="syntax-nav"></nav>
   </aside>
 
   <section class="panel syntax-main">

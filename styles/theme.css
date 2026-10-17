@@ -1,3 +1,5 @@
+*, *::before, *::after { box-sizing: border-box; }
+
 /* ============================================================
    Algo Viz · 主题升级层
    ============================================================
@@ -49,8 +51,7 @@ body {
     linear-gradient(180deg, var(--bg-deep) 0%, var(--bg-1) 40%, var(--bg-2) 100%);
   background-attachment: fixed;
   min-height: 100vh;
-  /* 手机上任何元素撑宽都会让整页左右滑动，这里兜底 */
-  overflow-x: hidden;
+  /* overflow-x 在 main.css 的 html, body 规则里统一设置，这里不重复声明 */
 }
 
 /* 表格、代码块、图片都不允许把布局撑破 */
@@ -384,6 +385,31 @@ img, canvas, pre, table { max-width: 100%; }
 }
 
 @media (max-width: 560px) {
+  /*
+   * 防止任何 flex 子项把容器撑出视口 ——
+   * flex 项默认 min-width:auto，长内容（代码、题目标题）会撑宽，
+   * 配合 overflow-x:hidden 就会表现为"内容整体偏移、左侧露边"。
+   */
+  .layout, .syntax-layout, .stage, .panel, .tabs, .transport, .brand {
+    min-width: 0;
+    max-width: 100%;
+  }
+  .transport .btn, .tab, .syntax-chip, .problem-link { min-width: 0; }
+  .problem-title, .nav-item, .code-block, .cpp-stdout {
+    overflow-wrap: anywhere;
+  }
+
+  /*
+   * 顶栏与内容区左右边距对齐：
+   * 原来 topbar 是 12px、.layout 也是 12px，但 topbar 有额外 1px 边框导致视觉错位，
+   * 统一用 CSS 变量控制。
+   */
+  :root { --page-gutter: 12px; }
+  .topbar { padding-left: var(--page-gutter); padding-right: var(--page-gutter); }
+  .layout { padding-left: var(--page-gutter); padding-right: var(--page-gutter); }
+  .syntax-layout { padding-left: var(--page-gutter); padding-right: var(--page-gutter); }
+  .footer { padding-left: var(--page-gutter); padding-right: var(--page-gutter); }
+
   /* ---- 顶栏：品牌 + 页签占一行，GitHub 收成图标 ---- */
   /*
    * 关键：手机上取消吸顶。
@@ -450,7 +476,8 @@ img, canvas, pre, table { max-width: 100%; }
 }
 
 @media (max-width: 400px) {
-  .layout, .syntax-layout { padding: 9px; gap: 9px; }
+  :root { --page-gutter: 9px; }
+  .layout, .syntax-layout { padding: var(--page-gutter); gap: 9px; }
   .panel, .stage { padding: 11px; }
   .topbar h1 { font-size: 14px; }
   .stats { gap: 6px; }
@@ -593,3 +620,68 @@ img, canvas, pre, table { max-width: 100%; }
   opacity: .7;
 }
 .error-banner-close:hover { opacity: 1; }
+
+/* ---------- 语法页导航：手机折叠抽屉 ---------- */
+
+/* 桌面端完全隐藏折叠按钮，导航直接展示 —— 保持原有行为 */
+.nav-toggle { display: none; }
+
+@media (max-width: 860px) {
+  .nav-toggle {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    width: 100%;
+    padding: 11px 13px;
+    margin-bottom: 0;
+    appearance: none;
+    background: rgba(91, 141, 239, 0.10);
+    border: 1px solid rgba(91, 141, 239, 0.28);
+    border-radius: var(--radius-sm);
+    color: var(--text);
+    font-size: 13px;
+    font-family: inherit;
+    text-align: left;
+    cursor: pointer;
+    min-height: 44px;
+  }
+
+  .nav-toggle-label {
+    flex-shrink: 0;
+    color: var(--text-muted);
+    font-size: 12px;
+  }
+
+  .nav-toggle-current {
+    flex: 1;
+    min-width: 0;
+    font-weight: 600;
+    color: #a9c8f5;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .nav-toggle-chevron {
+    flex-shrink: 0;
+    color: var(--text-muted);
+    transition: transform .2s ease;
+  }
+
+  .nav-toggle[aria-expanded="true"] .nav-toggle-chevron {
+    transform: rotate(180deg);
+  }
+
+  /* 收起状态：搜索框和列表都不占空间 */
+  .nav-body {
+    display: none;
+    margin-top: 10px;
+  }
+
+  .nav-toggle[aria-expanded="true"] + .nav-body {
+    display: block;
+  }
+
+  /* 收起时导航面板不再需要额外的内边距 */
+  .syntax-nav-panel { padding: 10px; }
+}
