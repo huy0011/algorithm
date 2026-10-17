@@ -64,7 +64,12 @@ function kmpSearch(input, options = {}) {
   // ---- 阶段一：构建 next 数组 ----
   const next = buildNext(pattern);
   t.note(`第一步：计算模式串「${pattern}」的 next 数组 = [${next.join(', ')}]`);
+  // next 数组作为辅助行按位显示（对齐模式串位置）
+  const nextRow = pattern.split('').map(() => null);
+  t.extraRow(0, 'next', nextRow);
   for (let i = 0; i < pattern.length; i++) {
+    nextRow[i] = next[i];
+    t.extraRow(0, 'next', nextRow);
     t.accumulate(`next[${i}]`, next[i], `next[${i}] = ${next[i]}（前缀「${pattern.slice(0, next[i])}」= 后缀）`);
   }
 

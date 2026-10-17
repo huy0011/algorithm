@@ -28,7 +28,9 @@ function stackDemo(input = [], options = {}) {
   const pairs = { ')': '(', ']': '[', '}': '{' };
   const opens = new Set(['(', '[', '{']);
 
+  let charIndex = 0;
   for (const ch of text) {
+    t.progress(charIndex++);
     if (opens.has(ch)) {
       t.push(ch, `左括号 ${ch} 入栈`);
     } else if (pairs[ch]) {
@@ -70,6 +72,7 @@ function queueDemo(input = [], options = {}) {
   let next = half;
   let round = 0;
   while (true) {
+    t.progress(next);   // 输入条高亮"下一个要来的任务"
     const done = t.dequeue(`从队头取出任务处理`);
     if (done === undefined) break;
     round++;

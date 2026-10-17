@@ -47,18 +47,20 @@ function bigAdd(input, options = {}) {
   const b = toDigits(B);
   const n = maxLen(a, b);
 
-  const t = new SpanTracer([], {
+  const digits0 = [];
+  for (let i = 0; i < n; i++) digits0.push(a[i] ?? 0);
+  const t = new SpanTracer(digits0, {
     title: '高精度加法',
-    explain: '从个位开始逐位相加，满 10 就向高位进 1。用数组存每一位，所以位数不受整数类型限制。',
+    explain: '上排是 A，第二排是 B，逐位相加、满 10 进 1。最下面的绿色行是算出的结果（逐位出现）。',
     pointers: [
       { name: 'i', color: '#f2b134', label: '当前位' },
     ],
   });
 
-  // 用 A 的各位作为展示数组（不足的位补 0）
-  const digits = [];
-  for (let i = 0; i < n; i++) digits.push(a[i] ?? 0);
-  t.array = digits.slice();
+  // B 的各位作为辅助行 0，按位对齐
+  const bRow = [];
+  for (let i = 0; i < n; i++) bRow.push(b[i] ?? 0);
+  t.extraRow(0, 'B', bRow);
 
   t.note(`计算 ${fromDigits(a)} + ${fromDigits(b)}（共 ${n} 位，低位在前存储）`);
 
@@ -66,19 +68,24 @@ function bigAdd(input, options = {}) {
   let carry = 0;
   t.accumulate('进位', 0, '初始进位为 0');
 
+  // 结果行（slot 1）：随计算逐位出现
+  const resultRow = new Array(n).fill(null);
+  t.extraRow(1, '结果', resultRow);
+
   for (let i = 0; i < n; i++) {
     const da = a[i] ?? 0;
     const db = b[i] ?? 0;
     const sum = da + db + carry;
 
-    t.pointer('i', Math.min(i, t.array.length - 1), `第 ${i} 位：${da} + ${db} + 进位${carry} = ${sum}`);
+    t.pointer('i', i, `第 ${i} 位：${da} + ${db} + 进位${carry} = ${sum}`);
 
     const digit = sum % 10;
     carry = Math.floor(sum / 10);
     result.push(digit);
+    resultRow[i] = digit;
+    t.extraRow(1, '结果', resultRow);   // 结果逐位出现
 
     t.accumulate('进位', carry, carry > 0 ? `满 10，向高位进 ${carry}` : '没有进位');
-    t.accumulate('本位结果', digit);
   }
 
   // 处理最后的进位
@@ -111,19 +118,23 @@ function bigSub(input, options = {}) {
   const b = toDigits(B);
   const n = maxLen(a, b);
 
-  const t = new SpanTracer([], {
+  const digits0 = [];
+  for (let i = 0; i < n; i++) digits0.push(a[i] ?? 0);
+  const t = new SpanTracer(digits0, {
     title: '高精度减法',
-    explain: '从个位开始逐位相减，不够减就向前一位借 1（借来的 1 当 10 用）。',
+    explain: '上排是 A，第二排是 B，逐位相减、不够就向前借 1。最下面的绿色行是算出的结果。',
     pointers: [{ name: 'i', color: '#f2b134', label: '当前位' }],
   });
 
-  const digits = [];
-  for (let i = 0; i < n; i++) digits.push(a[i] ?? 0);
-  t.array = digits.slice();
+  const bRow = [];
+  for (let i = 0; i < n; i++) bRow.push(b[i] ?? 0);
+  t.extraRow(0, 'B', bRow);
 
   t.note(`计算 ${fromDigits(a)} − ${fromDigits(b)}`);
 
   const result = [];
+  const resultRow = new Array(n).fill(null);
+  t.extraRow(1, '结果', resultRow);
   let borrow = 0;
   t.accumulate('借位', 0, '初始没有借位');
 
@@ -143,6 +154,8 @@ function bigSub(input, options = {}) {
 
     borrow = newBorrow;
     result.push(diff);
+    resultRow[i] = diff;
+    t.extraRow(1, '结果', resultRow);
     t.accumulate('借位', borrow, borrow ? '向高位借了 1' : '没借位');
   }
 
@@ -171,15 +184,17 @@ function bigMul(input, options = {}) {
   const a = toDigits(A);
   const b = toDigits(B);
 
-  const t = new SpanTracer([], {
+  const digits0 = a.slice();
+  const t = new SpanTracer(digits0, {
     title: '高精度乘法',
-    explain: 'a 的第 i 位乘 b 的第 j 位，结果累加到第 i+j 位上；最后从低位到高位统一处理进位。',
+    explain: '上排是 a。a 的第 i 位乘 b 的第 j 位，结果累加到第 i+j 位；最后统一进位。绿色行是最终结果。',
     pointers: [{ name: 'i', color: '#f2b134', label: 'a 的第 i 位' }],
   });
 
-  const digits = [];
-  for (let i = 0; i < a.length; i++) digits.push(a[i]);
-  t.array = digits.slice();
+  // b 与结果作为辅助行
+  t.extraRow(0, 'B', b.slice());
+  const resultRowFull = new Array(a.length + b.length).fill(null);
+  t.extraRow(1, '结果', resultRowFull.slice(0, a.length));
 
   t.note(`计算 ${fromDigits(a)} × ${fromDigits(b)}（a 有 ${a.length} 位，b 有 ${b.length} 位）`);
 

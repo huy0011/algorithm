@@ -112,6 +112,12 @@ export const SpanOp = {
   CHECK: 'check',
   /** 阶段性说明文字 { note } */
   NOTE: 'note',
+  /**
+   * 设置主数组下方的一行辅助数据 { slot, label, values:[] }。
+   * 用于高精度的 B 操作数行、结果行，或 KMP 的 next 行——
+   * 主数组是格子，辅助行画在下方按位对齐。
+   */
+  EXTRA_ROW: 'extraRow',
 };
 
 /**
@@ -142,6 +148,8 @@ export const StructOp = {
   PEEK: 'peek',
   /** 高亮某个位置 */
   HIGHLIGHT: 'highlight',
+  /** 输入处理进度 { index }（栈的括号串下标） */
+  PROGRESS: 'progress',
   /** 标记操作成功或失败（例如栈溢出、空栈弹出） */
   RESULT: 'result',
 };
@@ -422,6 +430,14 @@ export class StructureTracer {
   }
 
   /**
+   * 记录输入处理到第几位（栈的括号串下标）。
+   * 渲染器用它高亮输入条上"当前正在处理的字符"。
+   */
+  progress(index) {
+    this._push({ type: StructOp.PROGRESS, index });
+  }
+
+  /**
    * 记录一次判定结果（例如括号匹配成功/失败）。
    *
    * 注意命名：这里不能叫 result()，否则会和下面「产出最终结果」的 result() 冲突 ——
@@ -498,6 +514,15 @@ export class SpanTracer {
   /** 加一句说明。 */
   note(text) {
     this._push({ type: SpanOp.NOTE, note: text });
+  }
+
+  /**
+   * 设置主数组下方的一行辅助数据（按位与主数组对齐）。
+   * slot 区分多行：0 是第一行，1 是第二行……
+   * 例：高精度加法里 slot 0 = B 的各位，slot 1 = 结果的各位。
+   */
+  extraRow(slot, label, values) {
+    this._push({ type: SpanOp.EXTRA_ROW, slot, label, values: values.slice() });
   }
 
   result() {

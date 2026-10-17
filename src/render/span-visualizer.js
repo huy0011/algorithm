@@ -48,6 +48,8 @@ export class SpanVisualizer extends BaseVisualizer {
     /** 最近一句说明 */
     this.lastNote = '';
     this.lastCheckNote = '';
+    /** 辅助行：slot -> { label, values:[] }（高精度的 B/结果行、KMP 的 next 行） */
+    this.extraRows = new Map();
   }
 
   _applyOp(op) {
@@ -87,6 +89,10 @@ export class SpanVisualizer extends BaseVisualizer {
 
       case SpanOp.NOTE:
         this.lastNote = op.note || '';
+        break;
+
+      case SpanOp.EXTRA_ROW:
+        this.extraRows.set(op.slot, { label: op.label, values: op.values.slice() });
         break;
 
       default:
@@ -146,7 +152,6 @@ export class SpanVisualizer extends BaseVisualizer {
     // ---- 布局 ----
     const cellsTop = 62;
     const cellsH = Math.min(64, Math.max(34, H * 0.16));
-    const pointersY = cellsTop + cellsH + 30;   // 指针箭头所在行
     const windowBarY = cellsTop - 16;           // 窗口条画在格子上方
 
     const plotW = W - padLeft - padRight;
@@ -213,7 +218,45 @@ export class SpanVisualizer extends BaseVisualizer {
       }
     }
 
+    // ---- 辅助行（按位对齐，画在下标行下方）----
+    // 例：高精度加法的 B 操作数行 / 结果行；KMP 的 next 数组行。
+    let extraBottom = cellsTop + cellsH + 20;   // 辅助行的起始 y（会被逐行推进）
+    if (this.extraRows.size > 0) {
+      const rowH = Math.min(30, Math.max(20, cellsH * 0.6));
+      const sortedSlots = [...this.extraRows.keys()].sort((a, b) => a - b);
+      sortedSlots.forEach((slot2, rowIdx) => {
+        const row = this.extraRows.get(slot2);
+        const ry = extraBottom + 14 + rowIdx * (rowH + 6);
+
+        // 行标签（画在格子左侧）
+        ctx.fillStyle = '#8a93a6';
+        ctx.font = '10px system-ui, sans-serif';
+        ctx.textAlign = 'right';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(row.label || '', padLeft - 6, ry + rowH / 2);
+        ctx.textAlign = 'left';
+
+        for (let i = 0; i < n; i++) {
+          const x = padLeft + i * slot + gap / 2;
+          const v = row.values[i];
+          if (v === undefined || v === null) continue;
+          ctx.fillStyle = 'rgba(30, 40, 60, 0.9)';
+          this._roundRect(x, ry, cellW, rowH, Math.min(4, cellW / 3));
+          ctx.fill();
+          if (cellW >= 13) {
+            ctx.fillStyle = slot2 === 0 ? '#f2b134' : '#8fe3c4';
+            ctx.font = `${Math.min(12, cellW * 0.5)}px ui-monospace, Consolas, monospace`;
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText(String(v), x + cellW / 2, ry + rowH / 2);
+          }
+        }
+      });
+      extraBottom += sortedSlots.length * (rowH + 6) + 14;
+    }
+
     // ---- 指针（画成三角箭头 + 名字）----
+    const pointersY = Math.max(cellsTop + cellsH + 30, extraBottom + 6);   // 有辅助行时下移
     for (const [name, index] of Object.entries(this.pointers)) {
       if (index < 0 || index >= n) continue;
       const meta = this.pointerMeta[name] || { color: '#f2b134', label: name };

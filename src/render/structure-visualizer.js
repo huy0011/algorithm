@@ -26,9 +26,17 @@ export class StructureVisualizer extends BaseVisualizer {
     this.resultNote = '';
     this.resultOk = null;
     this.peekValue = undefined;
+    /** 已处理的输入位置（由算法 PROGRESS 指定） */
+    this.processedCount = 0;
+    this.processedIndex = -1;
   }
 
   _applyOp(op) {
+    // 每消费一个输入（入栈一个左括号、处理一个右括号、一个任务），计数前进
+    if (op.type === StructOp.PUSH || op.type === StructOp.POP
+      || op.type === StructOp.DEQUEUE || op.type === StructOp.PEEK) {
+      this.processedCount++;
+    }
     switch (op.type) {
       case StructOp.PUSH:
         this.items.push(op.value);
@@ -57,6 +65,10 @@ export class StructureVisualizer extends BaseVisualizer {
         this.peekValue = op.value;
         this.recentKind = 'peek';
         this.resultNote = op.note || '';
+        break;
+
+      case StructOp.PROGRESS:
+        this.processedIndex = op.index;
         break;
 
       case StructOp.RESULT:
@@ -88,16 +100,45 @@ export class StructureVisualizer extends BaseVisualizer {
       ctx.fillText(this.meta.explain, 16, 33);
     }
 
-    // ---- 待处理的字符串（栈演示的场景输入）----
+    // ---- 待处理的字符串：画成一排格子，高亮当前字符 ----
+    // （原来只是一行小字，看不出"处理到哪了"——这是"没动画"感的另一个原因）
     if (this.meta.text) {
-      ctx.font = '13px ui-monospace, Consolas, monospace';
-      ctx.fillStyle = '#8a93a6';
-      ctx.textAlign = 'right';
-      ctx.fillText(`输入：${this.meta.text}`, W - 16, 14);
-      ctx.textAlign = 'left';
+      const text = String(this.meta.text);
+      const chW = Math.min(34, Math.max(20, (W - 40) / text.length - 4));
+      const chH = 30;
+      const startY = 56;
+      const totalW = text.length * (chW + 4);
+      let cx = Math.max(20, (W - totalW) / 2);
+
+      // 已处理的字符数 = 总长 - 剩余未处理
+      // meta.text 是完整输入；栈里剩下的是没匹配的左括号。
+      // 用 recentIndex 精确知道处理到哪（由算法 push 时记录）
+      for (let i = 0; i < text.length; i++) {
+        const x = cx + i * (chW + 4);
+        const processed = i <= this.processedIndex;
+        const isCurrent = i === this.processedIndex;
+
+        ctx.fillStyle = isCurrent ? COLORS.compare
+          : processed ? 'rgba(60, 72, 96, 0.6)'
+            : '#26304a';
+        this._roundRect(x, startY, chW, chH, 5);
+        ctx.fill();
+        if (isCurrent) {
+          ctx.strokeStyle = '#ffffff';
+          ctx.lineWidth = 2;
+          ctx.stroke();
+        }
+
+        ctx.fillStyle = isCurrent ? '#0f1420' : processed ? 'rgba(230,235,245,0.4)' : '#e6ebf5';
+        ctx.font = 'bold 14px ui-monospace, Consolas, monospace';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(text[i], x + chW / 2, startY + chH / 2);
+      }
+      void cx;
     }
 
-    const areaTop = 62;
+    const areaTop = 102;
     const areaH = H - areaTop - 70;
 
     if (isStack) {
