@@ -110,6 +110,24 @@ export class SpanVisualizer extends BaseVisualizer {
     return String(value);
   }
 
+  /**
+   * 按可用宽度裁剪文字，超长时加省略号。
+   * 画布变窄时用它保证文字不会溢出画布边界。
+   */
+  _fitText(text, maxWidth) {
+    const s = String(text == null ? '' : text);
+    if (!s) return '';
+    if (this.ctx.measureText(s).width <= maxWidth) return s;
+    let lo = 0;
+    let hi = s.length;
+    while (lo < hi) {
+      const mid = Math.ceil((lo + hi) / 2);
+      if (this.ctx.measureText(s.slice(0, mid) + '…').width <= maxWidth) lo = mid;
+      else hi = mid - 1;
+    }
+    return lo > 0 ? s.slice(0, lo) + '…' : '';
+  }
+
   draw() {
     const { ctx } = this;
     const { W, H } = this._clear();
@@ -120,74 +138,129 @@ export class SpanVisualizer extends BaseVisualizer {
       return;
     }
 
+    // 画布还没量到尺寸时（隐藏/未布局），直接不画。
+    // 否则 plotW 会变成负数，格子和窗口都画出负宽度矩形，
+    // 整屏只剩几条莫名其妙的色块 —— 手机上切页签后切回来就会这样。
+    if (!(W > 40) || !(H > 40)) return;
+
     // ---- 顶部标题与说明 ----
+    // 画布可能很窄（手机约 320~350px），所有文字都必须按可用宽度截断，
+    // 否则会互相重叠或溢出边界 —— 这是之前 KMP 在手机上糊成一团的根因。
     const padLeft = 16;
     const padRight = 16;
+    const contentW = W - padLeft - padRight;
+    const compact = H < 300 || W < 380;
+
     ctx.textAlign = 'left';
     ctx.textBaseline = 'top';
-    ctx.font = '13px system-ui, sans-serif';
+
+    // 第 1 行：标题（紧凑模式字号小一点）
+    ctx.font = compact ? '12px system-ui, sans-serif' : '13px system-ui, sans-serif';
     ctx.fillStyle = '#e6ebf5';
-    ctx.fillText(this.meta.title || '指针 / 区间', padLeft, 12);
+    ctx.fillText(this._fitText(this.meta.title || '指针 / 区间', contentW), padLeft, compact ? 8 : 12);
 
-    if (this.meta.explain) {
-      ctx.font = '11px system-ui, sans-serif';
-      ctx.fillStyle = '#8a93a6';
-      // 说明文字可能较长，简单截断避免压到别的内容
-      const explain = this.meta.explain.length > 62
-        ? this.meta.explain.slice(0, 62) + '…'
-        : this.meta.explain;
-      ctx.fillText(explain, padLeft, 31);
-    }
-
-    // 字符串算法的原文（比数值更直观）
+    // 第 2 行：主串 / 模式串（字符串类算法）或说明文字（二者只留一个，避免叠字）
+    let line2Top = 0;
+    let hasLine2 = false;
     if (this.meta.text) {
-      ctx.font = '12px ui-monospace, Consolas, monospace';
+      ctx.font = compact ? '10px ui-monospace, Consolas, monospace' : '11px ui-monospace, Consolas, monospace';
       ctx.fillStyle = '#a9c8f5';
-      ctx.textAlign = 'right';
-      const pat = this.meta.pattern ? `　模式串：${this.meta.pattern}` : '';
-      ctx.fillText(`主串：${this.meta.text}${pat}`, W - padRight, 31);
-      ctx.textAlign = 'left';
+      const pat = this.meta.pattern ? ` ｜ 模式 ${this.meta.pattern}` : '';
+      line2Top = compact ? 25 : 31;
+      ctx.fillText(this._fitText(`主串 ${this.meta.text}${pat}`, contentW), padLeft, line2Top);
+      hasLine2 = true;
+    } else if (this.meta.explain) {
+      ctx.font = compact ? '10px system-ui, sans-serif' : '11px system-ui, sans-serif';
+      ctx.fillStyle = '#8a93a6';
+      line2Top = compact ? 25 : 31;
+      ctx.fillText(this._fitText(this.meta.explain, contentW), padLeft, line2Top);
+      hasLine2 = true;
     }
 
     // ---- 布局 ----
     // 小画布（手机）收紧留白，否则格子被挤出可视区
-    const compact = H < 300;
-    const cellsTop = compact ? 46 : 62;
+    const cellsTop = hasLine2
+      ? (compact ? 42 : 58)
+      : (compact ? 28 : 40);
     const cellsH = compact
-      ? Math.min(38, Math.max(24, H * 0.14))
+      ? Math.min(34, Math.max(22, H * 0.12))
       : Math.min(64, Math.max(34, H * 0.16));
-    const windowBarY = cellsTop - (compact ? 10 : 16);   // 窗口条画在格子上方
+    const windowBarY = cellsTop - (compact ? 8 : 16);   // 窗口条画在格子上方
 
-    const plotW = W - padLeft - padRight;
-    const slot = plotW / n;
+    const plotW = Math.max(40, W - padLeft - padRight);
+
+    /*
+     * 一屏放不下时只画一段「可见窗口」。
+     *
+     * 手机上画布约 346px，40 个字符挤进去每格只有 6.7px、字号 5px，
+     * 根本看不清（之前的做法是干脆不画字，整排成了空条）。
+     * 这里按「每格至少 11px 才可读」算出最多能放几个，
+     * 不够就围绕当前关注的下标（指针 / 窗口）截一段来画。
+     */
+    const MIN_SLOT = 11;
+    const fitCount = Math.max(4, Math.floor(plotW / MIN_SLOT));
+    let viewFrom = 0;
+    let viewTo = n - 1;
+    if (n > fitCount) {
+      // 关注点：优先窗口起点，其次第一个指针，否则 0
+      let focus = 0;
+      if (this.window && this.window[1] >= this.window[0]) focus = this.window[0];
+      else {
+        const ptrs = Object.values(this.pointers).filter((v) => Number.isFinite(v));
+        if (ptrs.length) focus = Math.min(...ptrs);
+      }
+      focus = Math.max(0, Math.min(n - 1, focus));
+      // 让关注点大致居中
+      viewFrom = Math.max(0, Math.min(n - fitCount, focus - Math.floor(fitCount / 2)));
+      viewTo = Math.min(n - 1, viewFrom + fitCount - 1);
+    }
+    const viewN = viewTo - viewFrom + 1;
+
+    const slot = plotW / viewN;
     const gap = slot > 4 ? Math.min(5, slot * 0.14) : 1;
     const cellW = Math.max(2, slot - gap);
 
+    // 截断提示：放到格子区最下方，避免压住下标行和 next 辅助行
+    this._viewRange = viewN < n ? [viewFrom, viewTo, n] : null;
+    if (this._viewRange) {
+      const [vf, vt, total] = this._viewRange;
+      ctx.font = compact ? '9px system-ui, sans-serif' : '10px system-ui, sans-serif';
+      ctx.fillStyle = 'rgba(150,170,200,0.75)';
+      ctx.textAlign = 'left';
+      ctx.textBaseline = 'top';
+      // 位置在指针区下方（pointersY 在格子循环之后才算出来，这里先记下待补画）
+      this._pendingHint = `只显示第 ${vf + 1}–${vt + 1} 个（共 ${total} 个）`;
+    }
+
     // ---- 窗口覆盖层 ----
     if (this.window && this.window[1] >= this.window[0]) {
-      const [from, to] = this.window;
-      const x1 = padLeft + from * slot;
-      const x2 = padLeft + (to + 1) * slot;
-      ctx.fillStyle = 'rgba(160,108,213,0.16)';
-      ctx.fillRect(x1, windowBarY, x2 - x1, cellsH + 16);
-      ctx.strokeStyle = 'rgba(160,108,213,0.7)';
-      ctx.lineWidth = 1.5;
-      ctx.strokeRect(x1 + 0.5, windowBarY + 0.5, Math.max(1, x2 - x1 - 1), cellsH + 15);
+      // 只画落在可见范围内的部分
+      const from = Math.max(this.window[0], viewFrom);
+      const to = Math.min(this.window[1], viewTo);
+      if (to >= from) {
+        const x1 = padLeft + (from - viewFrom) * slot;
+        const x2 = padLeft + (to - viewFrom + 1) * slot;
+        ctx.fillStyle = 'rgba(160,108,213,0.16)';
+        ctx.fillRect(x1, windowBarY, x2 - x1, cellsH + 16);
+        ctx.strokeStyle = 'rgba(160,108,213,0.7)';
+        ctx.lineWidth = 1.5;
+        ctx.strokeRect(x1 + 0.5, windowBarY + 0.5, Math.max(1, x2 - x1 - 1), cellsH + 15);
 
-      if (this.windowLabel && cellW > 12) {
-        ctx.fillStyle = '#c9a9e8';
-        ctx.font = '10px system-ui, sans-serif';
-        ctx.textAlign = 'center';
-        ctx.textBaseline = 'bottom';
-        ctx.fillText(this.windowLabel, (x1 + x2) / 2, windowBarY - 3);
-        ctx.textAlign = 'left';
+        if (this.windowLabel && cellW > 12) {
+          ctx.fillStyle = '#c9a9e8';
+          ctx.font = '10px system-ui, sans-serif';
+          ctx.textAlign = 'center';
+          ctx.textBaseline = 'bottom';
+          ctx.fillText(this.windowLabel, (x1 + x2) / 2, windowBarY - 3);
+          ctx.textAlign = 'left';
+        }
       }
     }
 
-    // ---- 格子 ----
+    // ---- 格子（只画可见范围内的）----
     const checkSet = new Set(this.checkIndices);
-    for (let i = 0; i < n; i++) {
-      const x = padLeft + i * slot + gap / 2;
+    for (let i = viewFrom; i <= viewTo; i++) {
+      const x = padLeft + (i - viewFrom) * slot + gap / 2;
       const y = cellsTop;
 
       let fill = COLORS.default;
@@ -201,21 +274,29 @@ export class SpanVisualizer extends BaseVisualizer {
       ctx.fill();
 
       // 值 / 字符
+      // 字号跟着格子宽度走：格子窄就缩字，缩到 7px 仍放不下才不画
+      // （之前 cellW<13 直接跳过，20 格的字符串在手机上全成了空条）
       const text = this._displayText(i);
-      if (cellW >= 13) {
-        ctx.fillStyle = '#e6ebf5';
+      if (cellW >= 5) {
         const isChar = Boolean(this.meta.charOffset);
-        const size = Math.min(isChar ? 15 : 13, cellW * (isChar ? 0.6 : 0.5));
-        ctx.font = `${size}px ${isChar ? 'ui-monospace, Consolas, monospace' : 'system-ui, sans-serif'}`;
-        ctx.textAlign = 'center';
-        ctx.textBaseline = 'middle';
-        ctx.fillText(text, x + cellW / 2, y + cellsH / 2);
+        // 字符类最多占 0.78 格宽，数值类 0.62（多位数留点余量）
+        const ratio = isChar ? 0.78 : 0.62;
+        let size = Math.min(isChar ? 15 : 13, cellsH * 0.62, cellW * ratio);
+        // 多位数再按字符数缩一次，避免 "123" 挤出格子
+        if (!isChar && text.length > 1) size = Math.min(size, (cellW * 0.92) / text.length * 1.5);
+        if (size >= 6.5) {
+          ctx.fillStyle = '#e6ebf5';
+          ctx.font = `${size}px ${isChar ? 'ui-monospace, Consolas, monospace' : 'system-ui, sans-serif'}`;
+          ctx.textAlign = 'center';
+          ctx.textBaseline = 'middle';
+          ctx.fillText(text, x + cellW / 2, y + cellsH / 2);
+        }
       }
 
-      // 下标
-      if (cellW >= 11) {
+      // 下标：格子太窄就跳过（避免数字糊成一片）
+      if (cellW >= 9 && slot >= 11) {
         ctx.fillStyle = 'rgba(138,147,166,0.7)';
-        ctx.font = `${Math.min(10, cellW * 0.4)}px ui-monospace, Consolas, monospace`;
+        ctx.font = `${Math.min(10, Math.max(7, cellW * 0.42))}px ui-monospace, Consolas, monospace`;
         ctx.textAlign = 'center';
         ctx.textBaseline = 'top';
         ctx.fillText(String(i), x + cellW / 2, y + cellsH + 3);
@@ -232,16 +313,19 @@ export class SpanVisualizer extends BaseVisualizer {
         const row = this.extraRows.get(slot2);
         const ry = extraBottom + 14 + rowIdx * (rowH + 6);
 
-        // 行标签（画在格子左侧）
-        ctx.fillStyle = '#8a93a6';
-        ctx.font = '10px system-ui, sans-serif';
-        ctx.textAlign = 'right';
-        ctx.textBaseline = 'middle';
-        ctx.fillText(row.label || '', padLeft - 6, ry + rowH / 2);
-        ctx.textAlign = 'left';
+        // 行标签：画在辅助行正上方（原来画在格子左侧，右对齐后会溢出画布左边，
+        // 屏幕上只剩「xt」这种半截文字）
+        if (row.label) {
+          ctx.fillStyle = '#8a93a6';
+          ctx.font = '9px system-ui, sans-serif';
+          ctx.textAlign = 'left';
+          ctx.textBaseline = 'bottom';
+          ctx.fillText(this._fitText(row.label, plotW), padLeft, ry - 1);
+          ctx.textAlign = 'left';
+        }
 
-        for (let i = 0; i < n; i++) {
-          const x = padLeft + i * slot + gap / 2;
+        for (let i = viewFrom; i <= viewTo; i++) {
+          const x = padLeft + (i - viewFrom) * slot + gap / 2;
           const v = row.values[i];
           if (v === undefined || v === null) continue;
           ctx.fillStyle = 'rgba(30, 40, 60, 0.9)';
@@ -262,9 +346,10 @@ export class SpanVisualizer extends BaseVisualizer {
     // ---- 指针（画成三角箭头 + 名字）----
     const pointersY = Math.max(cellsTop + cellsH + 30, extraBottom + 6);   // 有辅助行时下移
     for (const [name, index] of Object.entries(this.pointers)) {
-      if (index < 0 || index >= n) continue;
+      // 指针不在可见范围内就不画（否则会跑到画布外）
+      if (index < viewFrom || index > viewTo) continue;
       const meta = this.pointerMeta[name] || { color: '#f2b134', label: name };
-      const cx = padLeft + index * slot + slot / 2;
+      const cx = padLeft + (index - viewFrom) * slot + slot / 2;
       const y = pointersY;
 
       // 箭头
@@ -290,8 +375,20 @@ export class SpanVisualizer extends BaseVisualizer {
       }
     }
 
+    // ---- 截断提示（在指针行上方一行，不与下标/辅助行打架）----
+    if (this._pendingHint) {
+      ctx.font = compact ? '9px system-ui, sans-serif' : '10px system-ui, sans-serif';
+      ctx.fillStyle = 'rgba(150,170,200,0.75)';
+      ctx.textAlign = 'left';
+      ctx.textBaseline = 'top';
+      ctx.fillText(this._fitText(this._pendingHint, plotW), padLeft, pointersY - 8);
+      this._pendingHint = null;
+    }
+
     // ---- 累加值面板 ----
-    const panelY = pointersY + 30;
+    // 画布矮/窄时缩小面板，保证不压到底部说明
+    const panelH = compact ? 32 : 42;
+    const panelY = pointersY + (compact ? 22 : 30);
     const entries = Object.entries(this.accumulates);
     if (entries.length > 0) {
       ctx.textAlign = 'left';
@@ -302,31 +399,33 @@ export class SpanVisualizer extends BaseVisualizer {
       const panelW = Math.min(150, (W - padLeft - padRight) / shown.length - 8);
       for (const [key, item] of shown) {
         ctx.fillStyle = '#1e2536';
-        ctx.fillRect(px, panelY, panelW, 42);
+        ctx.fillRect(px, panelY, panelW, panelH);
         ctx.fillStyle = '#8a93a6';
-        ctx.font = '10px system-ui, sans-serif';
-        ctx.fillText(key, px + 9, panelY + 6);
+        ctx.font = compact ? '9px system-ui, sans-serif' : '10px system-ui, sans-serif';
+        ctx.fillText(this._fitText(key, panelW - 12), px + 9, panelY + 4);
         ctx.fillStyle = '#6ea8fe';
-        ctx.font = 'bold 14px ui-monospace, Consolas, monospace';
-        ctx.fillText(String(item.value), px + 9, panelY + 20);
+        ctx.font = `bold ${compact ? 12 : 14}px ui-monospace, Consolas, monospace`;
+        ctx.fillText(this._fitText(String(item.value), panelW - 12), px + 9, panelY + (compact ? 15 : 20));
         px += panelW + 8;
       }
     }
 
     // ---- 底部说明 ----
-    const noteY = panelY + 52;
+    const noteY = panelY + (compact ? 40 : 52);
+    // 说明文字按可用宽度截断（原来写死 slice(0,78)，窄画布照样溢出）
+    const noteFont = compact ? '10px system-ui, sans-serif' : '12px system-ui, sans-serif';
     if (this.lastCheckNote) {
       ctx.fillStyle = this.checkOk === false ? '#f0a89b' : '#a9e3c3';
-      ctx.font = '12px system-ui, sans-serif';
+      ctx.font = noteFont;
       ctx.textAlign = 'left';
       ctx.textBaseline = 'top';
-      ctx.fillText(this.lastCheckNote.slice(0, 78), padLeft, noteY);
+      ctx.fillText(this._fitText(this.lastCheckNote, contentW), padLeft, noteY);
     } else if (this.lastNote) {
       ctx.fillStyle = '#8a93a6';
-      ctx.font = '12px system-ui, sans-serif';
+      ctx.font = noteFont;
       ctx.textAlign = 'left';
       ctx.textBaseline = 'top';
-      ctx.fillText(this.lastNote.slice(0, 78), padLeft, noteY);
+      ctx.fillText(this._fitText(this.lastNote, contentW), padLeft, noteY);
     }
 
     this._drawProgressBar(padLeft, plotW);

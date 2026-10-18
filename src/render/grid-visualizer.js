@@ -71,12 +71,21 @@ export class GridVisualizer extends BaseVisualizer {
     const { ctx } = this;
     const { W, H } = this._clear();
 
+    // 画布尺寸不可用时直接跳过（隐藏/未布局时 W、H 为 0，
+    // 按比例算出的坐标会变成负数或 NaN，画出错乱的图形）
+    if (this._tooSmall(W, H)) return;
     if (this.rows === 0 || this.cols === 0) {
       this._drawCenteredText('没有网格数据');
       return;
     }
 
-    const padding = { top: 52, right: 20, bottom: 34, left: 20 };
+    // 画布矮/窄时收紧留白，让网格尽量占满（原来上下各留 52/34，
+    // 手机上这些留白把网格挤成中间一小块）。
+    // top 必须容得下标题(13px) + 统计行(32px)，否则网格会顶到文字上。
+    const tight = H < 320 || W < 360;
+    const padding = tight
+      ? { top: 48, right: 12, bottom: 22, left: 12 }
+      : { top: 58, right: 20, bottom: 34, left: 20 };
     const availW = W - padding.left - padding.right;
     const availH = H - padding.top - padding.bottom;
 
@@ -168,26 +177,25 @@ export class GridVisualizer extends BaseVisualizer {
     }
 
     // ---- 图例 ----
-    const legendY = originY + gridH + 10;
+    // 页面下方已经有完整图例（起点/终点/已访问/待访问/最终路径/墙），
+    // 画布内再画一份既重复又占掉网格空间，这里只保留最必要的两三个。
+    const legendY = Math.min(originY + gridH + 8, H - 16);
     const items = [
       ['起点', COLORS.start],
       ['终点', COLORS.end],
-      ['已访问', COLORS.visited],
-      ['待访问', COLORS.frontier],
       ['路径', COLORS.path],
-      ['墙', COLORS.wall],
     ];
     let lx = originX;
-    ctx.font = '11px system-ui, sans-serif';
+    ctx.font = '10px system-ui, sans-serif';
     ctx.textAlign = 'left';
     ctx.textBaseline = 'middle';
     for (const [label, color] of items) {
       ctx.fillStyle = color;
-      ctx.fillRect(lx, legendY, 10, 10);
+      ctx.fillRect(lx, legendY, 9, 9);
       ctx.fillStyle = '#8a93a6';
-      ctx.fillText(label, lx + 14, legendY + 5);
-      lx += 14 + ctx.measureText(label).width + 16;
-      if (lx > originX + gridW - 60) break; // 放不下就不画了
+      ctx.fillText(label, lx + 12, legendY + 4.5);
+      lx += 12 + ctx.measureText(label).width + 14;
+      if (lx > originX + gridW - 50) break;
     }
 
     // 结束时给一句结论

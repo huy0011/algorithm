@@ -183,6 +183,18 @@ export class BaseVisualizer {
     return { W: metrics.width, H: metrics.height };
   }
 
+  /**
+   * 画布是否小到无法正常绘制。
+   *
+   * 面板隐藏（切页签）或还没布局时 metrics 是 0，
+   * 这时所有按 W/H 算比例的布局都会得到 0 或负数，
+   * 画出负宽度矩形 / NaN 坐标 —— 手机端"显示不正常"多半是这个原因。
+   * 各渲染器在 draw() 开头调用它，尺寸不可用时直接跳过绘制。
+   */
+  _tooSmall(W, H) {
+    return !(W > 40) || !(H > 40);
+  }
+
   _roundRect(x, y, w, h, r) {
     const ctx = this.ctx;
     const radius = Math.max(0, Math.min(r, w / 2, h / 2));

@@ -66,7 +66,13 @@ export function getSizeConfig(kind) {
 export function applySize(config, kind, size) {
   switch (kind) {
     case 'grid':
-      config.rows = Math.max(6, Math.round(size * 0.6));
+      /*
+       * 行数取列数的 0.85，让网格接近正方形。
+       * 原来用 0.6（12 行 × 20 列，宽高比 1.67），
+       * 而画布基本是正方形，导致网格上下各空一大块；
+       * 0.85 能让网格几乎填满画布（16×18 时纵向只余 10 多像素）。
+       */
+      config.rows = Math.max(6, Math.round(size * 0.85));
       config.cols = size;
       break;
     case 'stringPair':

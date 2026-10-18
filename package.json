@@ -5,7 +5,7 @@
   "type": "module",
   "private": true,
   "scripts": {
-    "test": "node tests/verify.js && node tests/verify-technique.js && node tests/verify-graph.js && node tests/verify-renderers.js && node tests/verify-decoupling.js && node tests/verify-cpp-content.js && node tests/verify-problems-ui.js && node tests/verify-sizes.js && node tests/verify-mobile.js && node tests/verify-styles.js && node tests/verify-classes.js && node tests/ui-integration.js",
+    "test": "node tests/verify.js && node tests/verify-technique.js && node tests/verify-graph.js && node tests/verify-renderers.js && node tests/verify-decoupling.js && node tests/verify-cpp-content.js && node tests/verify-problems-ui.js && node tests/verify-sizes.js && node tests/verify-mobile.js && node tests/verify-mobile-viz.js && node tests/verify-styles.js && node tests/verify-classes.js && node tests/ui-integration.js",
     "test:algo": "node tests/verify.js",
     "test:technique": "node tests/verify-technique.js",
     "test:graph": "node tests/verify-graph.js",
@@ -24,7 +24,8 @@
     "screenshot": "node tests/make-screenshot.js",
     "start": "node tests/serve.js",
     "test:visual": "node tests/verify-visual.js",
-    "test:nav": "node tests/verify-nav.js"
+    "test:nav": "node tests/verify-nav.js",
+    "test:mobile:viz": "node tests/verify-mobile-viz.js"
   },
   "keywords": [
     "algorithm",

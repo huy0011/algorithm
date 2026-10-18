@@ -85,6 +85,9 @@ export class StructureVisualizer extends BaseVisualizer {
     const { ctx } = this;
     const { W, H } = this._clear();
 
+    // 画布尺寸不可用时直接跳过（隐藏/未布局时 W、H 为 0，
+    // 按比例算出的坐标会变成负数或 NaN，画出错乱的图形）
+    if (this._tooSmall(W, H)) return;
     const isStack = this.structureType === 'stack';
 
     // ---- 标题 ----
@@ -101,27 +104,27 @@ export class StructureVisualizer extends BaseVisualizer {
     }
 
     // ---- 待处理的字符串：画成一排格子，高亮当前字符 ----
-    // （原来只是一行小字，看不出"处理到哪了"——这是"没动画"感的另一个原因）
+    // 格子宽度按可用宽度反算，不再固定 20px 下限 ——
+    // 输入较长时（如 14 个括号）20px 会撑出画布右边被裁掉。
     if (this.meta.text) {
       const text = String(this.meta.text);
-      const chW = Math.min(34, Math.max(20, (W - 40) / text.length - 4));
-      const chH = 30;
+      const avail = W - 32;                       // 左右各留 16
+      const gap = text.length > 12 ? 2 : 4;
+      const chW = Math.max(10, Math.min(34, avail / text.length - gap));
+      const chH = Math.max(22, Math.min(30, chW * 1.6));
       const startY = 56;
-      const totalW = text.length * (chW + 4);
-      let cx = Math.max(20, (W - totalW) / 2);
+      const totalW = text.length * (chW + gap);
+      const cx = Math.max(16, (W - totalW) / 2);
 
-      // 已处理的字符数 = 总长 - 剩余未处理
-      // meta.text 是完整输入；栈里剩下的是没匹配的左括号。
-      // 用 recentIndex 精确知道处理到哪（由算法 push 时记录）
       for (let i = 0; i < text.length; i++) {
-        const x = cx + i * (chW + 4);
+        const x = cx + i * (chW + gap);
         const processed = i <= this.processedIndex;
         const isCurrent = i === this.processedIndex;
 
         ctx.fillStyle = isCurrent ? COLORS.compare
           : processed ? 'rgba(60, 72, 96, 0.6)'
             : '#26304a';
-        this._roundRect(x, startY, chW, chH, 5);
+        this._roundRect(x, startY, chW, chH, 4);
         ctx.fill();
         if (isCurrent) {
           ctx.strokeStyle = '#ffffff';
@@ -130,10 +133,14 @@ export class StructureVisualizer extends BaseVisualizer {
         }
 
         ctx.fillStyle = isCurrent ? '#0f1420' : processed ? 'rgba(230,235,245,0.4)' : '#e6ebf5';
-        ctx.font = 'bold 14px ui-monospace, Consolas, monospace';
-        ctx.textAlign = 'center';
-        ctx.textBaseline = 'middle';
-        ctx.fillText(text[i], x + chW / 2, startY + chH / 2);
+        // 字号跟着格子缩放，太窄就不画（总比糊成一团好）
+        const fs = Math.min(14, chW * 0.75);
+        if (fs >= 7) {
+          ctx.font = `bold ${fs}px ui-monospace, Consolas, monospace`;
+          ctx.textAlign = 'center';
+          ctx.textBaseline = 'middle';
+          ctx.fillText(text[i], x + chW / 2, startY + chH / 2);
+        }
       }
       void cx;
     }
@@ -142,9 +149,9 @@ export class StructureVisualizer extends BaseVisualizer {
     const areaH = H - areaTop - 70;
 
     if (isStack) {
-      this._drawStack(areaTop, areaH);
+      this._drawStack(areaTop, areaH, W);
     } else {
-      this._drawQueue(areaTop, areaH);
+      this._drawQueue(areaTop, areaH, W);
     }
 
     // ---- 结果提示 ----
@@ -171,9 +178,8 @@ export class StructureVisualizer extends BaseVisualizer {
   }
 
   /** 栈：从下往上摞，顶部开口。 */
-  _drawStack(areaTop, areaH) {
+  _drawStack(areaTop, areaH, W) {
     const { ctx } = this;
-    const { W } = this;
     const boxW = Math.min(180, W * 0.3);
     const boxH = 40;
     const gap = 6;
@@ -218,13 +224,22 @@ export class StructureVisualizer extends BaseVisualizer {
       ctx.textBaseline = 'middle';
       ctx.fillText(String(value), cx + boxW / 2, y + boxH / 2);
 
-      // 标注栈顶
+      // 标注栈顶：右侧放不下就改画在容器内侧，避免被画布右边缘裁掉
       if (isTop) {
-        ctx.fillStyle = '#f2b134';
+        const label = '← 栈顶';
         ctx.font = '11px system-ui, sans-serif';
-        ctx.textAlign = 'left';
+        ctx.fillStyle = '#f2b134';
+        const tw = ctx.measureText(label).width;
+        const rightSpace = W - (cx + boxW + 14);
         ctx.textBaseline = 'middle';
-        ctx.fillText('← 栈顶（只在这里进出）', cx + boxW + 22, y + boxH / 2);
+        if (rightSpace > tw + 8) {
+          ctx.textAlign = 'left';
+          ctx.fillText(label, cx + boxW + 20, y + boxH / 2);
+        } else {
+          // 空间不足：画在容器内部左上方
+          ctx.textAlign = 'center';
+          ctx.fillText(label, cx + boxW / 2, y - 10);
+        }
       }
     });
 
@@ -248,13 +263,16 @@ export class StructureVisualizer extends BaseVisualizer {
   }
 
   /** 队列：横向排列，左边队头，右边队尾。 */
-  _drawQueue(areaTop, areaH) {
+  _drawQueue(areaTop, areaH, W) {
     const { ctx } = this;
-    const { W } = this;
-    const boxW = 96;
-    const boxH = 52;
-    const gap = 8;
-    const totalW = this.items.length * (boxW + gap);
+    // 队宽按元素个数自适应：原来固定 96px，4 个元素就要 416px，
+    // 在 346px 的手机画布上直接溢出到画布外（x 到 428）。
+    const n = Math.max(1, this.items.length);
+    const avail = W - 40;
+    const gap = n > 5 ? 4 : 8;
+    const boxW = Math.max(28, Math.min(96, avail / n - gap));
+    const boxH = Math.max(34, Math.min(52, boxW * 0.55));
+    const totalW = n * (boxW + gap) - gap;
     const startX = Math.max(20, (W - totalW) / 2);
     const y = areaTop + areaH / 2 - boxH / 2;
 

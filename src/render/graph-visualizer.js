@@ -132,6 +132,9 @@ export class GraphVisualizer extends BaseVisualizer {
   draw() {
     const { ctx } = this;
     const { W, H } = this._clear();
+    // 画布尺寸不可用时直接跳过（隐藏/未布局时 W、H 为 0，
+    // 按比例算出的坐标会变成负数或 NaN，画出错乱的图形）
+    if (this._tooSmall(W, H)) return;
     const pad = paddingFor(H);
 
     if (this.nodes.size === 0) {
