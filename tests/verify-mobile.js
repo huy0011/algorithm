@@ -103,6 +103,23 @@ assert(!usesNamedCompareArea,
 assert(/@media \(max-width: 860px\)[\s\S]{0,400}flex-direction:\s*column/.test(themeCss),
   '窄屏用 flex 纵向排列（stage 置顶、面板依次向下）');
 
+// ---------- 2d. 控制区：分类与数据分布并排 ----------
+// 手机上两个短值下拉框并排，分类因此变窄、控制区更紧凑；
+// 桌面侧栏只有 290px，并排会太挤，所以要确认默认仍是纵向。
+console.log('\n[2d] 控制区布局');
+const groupRowPhone = (() => {
+  const i = phoneBlock.indexOf('.group-row');
+  return i >= 0 ? phoneBlock.slice(i, i + 120) : '';
+})();
+assert(/display:\s*flex/.test(groupRowPhone),
+  '手机上分类与数据分布并排（分类变窄）');
+const groupRowBase = (() => {
+  const i = mainCss.indexOf('.group-row {');
+  return i >= 0 ? mainCss.slice(i, i + 60) : '';
+})();
+assert(/display:\s*block/.test(groupRowBase),
+  '桌面端分类与数据分布纵向排列（侧栏窄，并排会挤）');
+
 // ---------- 3. 固定宽度是否超出手机视口 ----------
 console.log('\n[3] 固定宽度是否会溢出手机视口');
 // 找出所有「固定 px 宽度」声明（排除 min/max-width、height、font-size 等）

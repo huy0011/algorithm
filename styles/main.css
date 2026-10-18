@@ -154,6 +154,13 @@ h1, h2, p, dl, dd, dt { margin: 0; }
 }
 
 .group { margin-bottom: 18px; }
+
+/*
+ * 「分类」与「数据分布」的分组容器。
+ * 桌面侧栏只有 290px，两个下拉框并排太挤，所以默认纵向排列；
+ * 窄屏（见 theme.css 的 560px 断点）才并排，让分类变窄、页面更整齐。
+ */
+.group-row { display: block; }
 .group:last-child { margin-bottom: 0; }
 
 .label {

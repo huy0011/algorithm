@@ -44,10 +44,26 @@
 <main class="layout" data-pane="viz">
 
   <aside class="panel controls">
-    <section class="group">
-      <label class="label" for="category-select">分类</label>
-      <select id="category-select" class="select"></select>
-    </section>
+    <!--
+      「分类」和「数据分布」都是短值下拉框，并排放一行更紧凑。
+      数据分布对非数组类算法会隐藏，此时分类自动占满整行（flex 行为）。
+    -->
+    <div class="group-row">
+      <section class="group">
+        <label class="label" for="category-select">分类</label>
+        <select id="category-select" class="select"></select>
+      </section>
+
+      <section class="group" id="shape-group">
+        <label class="label" for="shape-select">数据分布</label>
+        <select id="shape-select" class="select">
+          <option value="random">随机</option>
+          <option value="nearly">接近有序</option>
+          <option value="reversed">完全逆序</option>
+          <option value="few">少量不同取值</option>
+        </select>
+      </section>
+    </div>
 
     <section class="group">
       <label class="label" for="algo-select">算法</label>
@@ -64,16 +80,6 @@
           <div><dt>空间复杂度</dt><dd id="algo-space">O(1)</dd></div>
         </dl>
       </div>
-    </section>
-
-    <section class="group" id="shape-group">
-      <label class="label" for="shape-select">数据分布</label>
-      <select id="shape-select" class="select">
-        <option value="random">随机</option>
-        <option value="nearly">接近有序</option>
-        <option value="reversed">完全逆序</option>
-        <option value="few">少量不同取值</option>
-      </select>
     </section>
 
     <section class="group" id="size-group">
