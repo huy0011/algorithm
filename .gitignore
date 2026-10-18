@@ -27,3 +27,5 @@ tests/screenshots/
 # C++ 编译验证的中间产物（源文件与可执行文件都不入库，只保留 cpp-output.json）
 .cpp-build/
 
+
+tests/_*
