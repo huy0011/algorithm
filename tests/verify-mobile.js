@@ -87,6 +87,22 @@ const singleCol = (() => {
 assert(/min-height:\s*0/.test(singleCol),
   '单栏时右侧面板 min-height 归零（否则手机底部大片空白）');
 
+// ---------- 2c. 多个 .compare 面板不能共用同一个网格区域 ----------
+// 页面里有三个 .compare（C++ 实现 / 效率对比 / 看点卡）。
+// 一旦把它们都映射到 grid-template-areas 里的同一个名字，就会完全重叠，
+// 表现为「效率对比卡片压住代码块」—— 这个 bug 实际发生过。
+console.log('\n[2c] 面板重叠防护');
+const usesNamedCompareArea = /grid-template-areas:[\s\S]{0,200}compare/.test(themeCss)
+  && /\.compare\s*\{[^}]*grid-area:\s*compare/.test(themeCss);
+assert(!usesNamedCompareArea,
+  usesNamedCompareArea
+    ? '仍有 .compare { grid-area: compare } —— 三个面板会重叠！'
+    : '没有把三个 .compare 面板映射到同一个网格区域');
+
+// 窄屏布局改用 flex 纵向排列，从结构上不可能重叠
+assert(/@media \(max-width: 860px\)[\s\S]{0,400}flex-direction:\s*column/.test(themeCss),
+  '窄屏用 flex 纵向排列（stage 置顶、面板依次向下）');
+
 // ---------- 3. 固定宽度是否超出手机视口 ----------
 console.log('\n[3] 固定宽度是否会溢出手机视口');
 // 找出所有「固定 px 宽度」声明（排除 min/max-width、height、font-size 等）

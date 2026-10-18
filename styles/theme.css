@@ -363,25 +363,35 @@ img, canvas, pre, table { max-width: 100%; }
 }
 
 @media (max-width: 1180px) {
-  /* 三栏改成「舞台在上，两侧面板并排在下」 */
+  /*
+   * 舞台置顶，其余面板依次向下。
+   *
+   * 这里刻意改用 flex 而不是 grid-template-areas：
+   * 页面里有三个 .compare 面板（C++ 实现 / 效率对比 / 看点卡），
+   * 用命名区域 "compare" 会让它们挤在同一个格子互相覆盖
+   * （表现为效率对比卡片压住代码块）。flex 纵向排列不会有这个问题。
+   */
   .layout {
-    grid-template-columns: 1fr 1fr;
-    grid-template-areas:
-      "stage stage"
-      "controls compare";
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
   }
-  .stage { grid-area: stage; order: -1; }
-  .controls { grid-area: controls; }
-  .compare { grid-area: compare; }
+  .stage { order: -1; }
+  .controls { order: 0; }
+  .compare { order: 1; }
 }
 
 @media (max-width: 860px) {
+  /* 同样用 flex（见 1180px 断点的说明），避免多个 .compare 面板重叠 */
   .layout {
-    grid-template-columns: 1fr;
-    grid-template-areas: "stage" "controls" "compare";
+    display: flex;
+    flex-direction: column;
     padding: 12px;
     gap: 12px;
   }
+  .stage { order: -1; }
+  .controls { order: 0; }
+  .compare { order: 1; }
   .syntax-layout { grid-template-columns: 1fr; padding: 12px; gap: 12px; }
   .syntax-nav-panel { position: static; max-height: none; }
   /* 单栏时右侧面板不再需要撑最小高度，否则底部留白 */
