@@ -104,15 +104,22 @@ assert(/@media \(max-width: 860px\)[\s\S]{0,400}flex-direction:\s*column/.test(t
   '窄屏用 flex 纵向排列（stage 置顶、面板依次向下）');
 
 // ---------- 2d. 控制区：分类与数据分布并排 ----------
-// 手机上两个短值下拉框并排，分类因此变窄、控制区更紧凑；
+// 单栏布局下两个短值下拉框并排，分类因此变窄、控制区更紧凑；
 // 桌面侧栏只有 290px，并排会太挤，所以要确认默认仍是纵向。
+//
+// 断点位置很关键：规则必须放在 1180px（三栏收成单列的断点），
+// 不能放在 560 / 860 —— 部分手机浏览器（QQ 内置）报告的 CSS 视口
+// 宽度偏大（600~900），写在窄断点里对它们不生效（实际踩过这个坑）。
 console.log('\n[2d] 控制区布局');
-const groupRowPhone = (() => {
-  const i = phoneBlock.indexOf('.group-row');
-  return i >= 0 ? phoneBlock.slice(i, i + 120) : '';
+const groupRowAt1180 = (() => {
+  const s = themeCss.indexOf('@media (max-width: 1180px)');
+  const next = themeCss.indexOf('@media', s + 10);
+  return themeCss.slice(s, next > 0 ? next : themeCss.length);
 })();
-assert(/display:\s*flex/.test(groupRowPhone),
-  '手机上分类与数据分布并排（分类变窄）');
+assert(/\.group-row\s*\{[^}]*display:\s*flex/.test(groupRowAt1180),
+  '单栏布局（≤1180px）下分类与数据分布并排（分类变窄）');
+assert(!/\.group-row\s*\{[^}]*display:\s*flex/.test(phoneBlock),
+  '并排规则不局限在 560px（否则视口偏宽的机型不生效）');
 const groupRowBase = (() => {
   const i = mainCss.indexOf('.group-row {');
   return i >= 0 ? mainCss.slice(i, i + 60) : '';

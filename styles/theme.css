@@ -366,7 +366,7 @@ img, canvas, pre, table { max-width: 100%; }
   /*
    * 舞台置顶，其余面板依次向下。
    *
-   * 这里刻意改用 flex 而不是 grid-template-areas：
+   * 这里刻意用 flex 而不是 grid-template-areas：
    * 页面里有三个 .compare 面板（C++ 实现 / 效率对比 / 看点卡），
    * 用命名区域 "compare" 会让它们挤在同一个格子互相覆盖
    * （表现为效率对比卡片压住代码块）。flex 纵向排列不会有这个问题。
@@ -379,6 +379,26 @@ img, canvas, pre, table { max-width: 100%; }
   .stage { order: -1; }
   .controls { order: 0; }
   .compare { order: 1; }
+
+  /*
+   * 控制区：分类与数据分布并排，分类因此变窄、页面更整齐。
+   *
+   * 放在 1180px（三栏收成单列的断点）而不是更窄的断点：
+   * 部分手机浏览器（如 QQ 内置）报告的 CSS 视口宽度偏大（600~900），
+   * 写在 560 / 860 里对它们不生效 —— 实际踩过这个坑。
+   * 1180 以下控制区都是整宽面板，两个下拉框并排不会挤。
+   */
+  .group-row {
+    display: flex;
+    gap: 10px;
+    align-items: flex-start;
+  }
+  .group-row > .group {
+    flex: 1 1 0;
+    min-width: 0;
+    margin-bottom: 14px;
+  }
+  .group-row .select { width: 100%; }
 }
 
 @media (max-width: 860px) {
@@ -483,20 +503,7 @@ img, canvas, pre, table { max-width: 100%; }
   .range::-webkit-slider-thumb { width: 18px; height: 18px; }
   .range::-moz-range-thumb { width: 16px; height: 16px; }
 
-  /* ---- 控制区：分类与数据分布并排，分类因此变窄 ---- */
-  .group-row {
-    display: flex;
-    gap: 10px;
-    align-items: flex-start;
-  }
-  .group-row > .group {
-    flex: 1 1 0;
-    min-width: 0;
-    margin-bottom: 14px;
-  }
-  .group-row .select { width: 100%; }
-
-  /* 控制区整体收紧，减少零碎感 */
+  /* ---- 控制区收紧 ---- */
   .controls .group { margin-bottom: 14px; }
   .controls .select { padding: 8px 26px 8px 10px; font-size: 12.5px; }
   .controls .label { margin-bottom: 6px; font-size: 11.5px; }
