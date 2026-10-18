@@ -103,29 +103,25 @@ assert(!usesNamedCompareArea,
 assert(/@media \(max-width: 860px\)[\s\S]{0,400}flex-direction:\s*column/.test(themeCss),
   '窄屏用 flex 纵向排列（stage 置顶、面板依次向下）');
 
-// ---------- 2d. 控制区：分类与数据分布并排 ----------
-// 单栏布局下两个短值下拉框并排，分类因此变窄、控制区更紧凑；
-// 桌面侧栏只有 290px，并排会太挤，所以要确认默认仍是纵向。
-//
-// 断点位置很关键：规则必须放在 1180px（三栏收成单列的断点），
-// 不能放在 560 / 860 —— 部分手机浏览器（QQ 内置）报告的 CSS 视口
-// 宽度偏大（600~900），写在窄断点里对它们不生效（实际踩过这个坑）。
-console.log('\n[2d] 控制区布局');
-const groupRowAt1180 = (() => {
+// ---------- 2d. 控制区：所有元素等宽对齐 ----------
+// 用户要求「页面都一样宽」，所以控件不做并排，全部占满面板宽度。
+// 关键两点：
+//   1. 纵向 flex 布局必须 align-items: stretch
+//      （主样式是 align-items: start，会让 .controls 按内容收缩变窄）
+//   2. 滑块要清零浏览器默认的 2px 外边距，否则比下拉框偏移 2px
+console.log('\n[2d] 控制区等宽');
+const layoutAt1180 = (() => {
   const s = themeCss.indexOf('@media (max-width: 1180px)');
   const next = themeCss.indexOf('@media', s + 10);
   return themeCss.slice(s, next > 0 ? next : themeCss.length);
 })();
-assert(/\.group-row\s*\{[^}]*display:\s*flex/.test(groupRowAt1180),
-  '单栏布局（≤1180px）下分类与数据分布并排（分类变窄）');
-assert(!/\.group-row\s*\{[^}]*display:\s*flex/.test(phoneBlock),
-  '并排规则不局限在 560px（否则视口偏宽的机型不生效）');
-const groupRowBase = (() => {
-  const i = mainCss.indexOf('.group-row {');
-  return i >= 0 ? mainCss.slice(i, i + 60) : '';
-})();
-assert(/display:\s*block/.test(groupRowBase),
-  '桌面端分类与数据分布纵向排列（侧栏窄，并排会挤）');
+assert(/\.layout\s*\{[^}]*align-items:\s*stretch/.test(layoutAt1180),
+  '纵向布局用 align-items: stretch（否则控件按内容收缩，比舞台窄）');
+assert(/\.group-row\s*\{\s*display:\s*block/.test(layoutAt1180)
+  || /\.group-row\s*\{\s*display:\s*block/.test(mainCss),
+  '分类与数据分布不做并排（保持和其他控件等宽）');
+assert(/\.range\s*\{[^}]*margin:\s*0/.test(mainCss),
+  '滑块清零默认外边距（否则比下拉框右移 2px）');
 
 // ---------- 3. 固定宽度是否超出手机视口 ----------
 console.log('\n[3] 固定宽度是否会溢出手机视口');

@@ -204,6 +204,9 @@ h1, h2, p, dl, dd, dt { margin: 0; }
 
 .range {
   appearance: none;
+  /* 浏览器给 input[type=range] 默认 2px 外边距，会让滑块比下拉框右移 2px */
+  margin: 0;
+  display: block;
   height: 4px;
   border-radius: 2px;
   background: var(--border);

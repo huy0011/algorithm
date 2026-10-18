@@ -374,31 +374,33 @@ img, canvas, pre, table { max-width: 100%; }
   .layout {
     display: flex;
     flex-direction: column;
+    /*
+     * 必须显式 stretch。
+     * 主样式里的 .layout 是 align-items: start（三栏布局需要），
+     * 纵向排列时沿用 start 会让 .controls 按内容收缩，
+     * 比舞台面板窄一截 —— 这正是「页面不一样宽」的原因。
+     */
+    align-items: stretch;
     gap: 14px;
   }
   .stage { order: -1; }
   .controls { order: 0; }
   .compare { order: 1; }
 
+  /* 各面板自身也撑满，双保险 */
+  .stage,
+  .controls,
+  .compare { width: 100%; max-width: 100%; box-sizing: border-box; }
+
   /*
-   * 控制区：分类与数据分布并排，分类因此变窄、页面更整齐。
+   * 控制区：所有控件统一全宽。
    *
-   * 放在 1180px（三栏收成单列的断点）而不是更窄的断点：
-   * 部分手机浏览器（如 QQ 内置）报告的 CSS 视口宽度偏大（600~900），
-   * 写在 560 / 860 里对它们不生效 —— 实际踩过这个坑。
-   * 1180 以下控制区都是整宽面板，两个下拉框并排不会挤。
+   * 之前试过把「分类」和「数据分布」并排各占一半，
+   * 结果它们跟其他全宽元素（算法、滑块、按钮）宽度不一致，
+   * 整页看起来不齐 —— 所以这里保持全部等宽。
    */
-  .group-row {
-    display: flex;
-    gap: 10px;
-    align-items: flex-start;
-  }
-  .group-row > .group {
-    flex: 1 1 0;
-    min-width: 0;
-    margin-bottom: 14px;
-  }
-  .group-row .select { width: 100%; }
+  .group-row { display: block; }
+  .group-row > .group { margin-bottom: 14px; }
 }
 
 @media (max-width: 860px) {
@@ -406,12 +408,16 @@ img, canvas, pre, table { max-width: 100%; }
   .layout {
     display: flex;
     flex-direction: column;
+    align-items: stretch;
     padding: 12px;
     gap: 12px;
   }
   .stage { order: -1; }
   .controls { order: 0; }
   .compare { order: 1; }
+  .stage,
+  .controls,
+  .compare { width: 100%; max-width: 100%; box-sizing: border-box; }
   .syntax-layout { grid-template-columns: 1fr; padding: 12px; gap: 12px; }
   .syntax-nav-panel { position: static; max-height: none; }
   /* 单栏时右侧面板不再需要撑最小高度，否则底部留白 */
